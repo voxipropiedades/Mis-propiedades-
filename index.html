@@ -17,177 +17,200 @@
     
     <style>
         :root {
-            --primary: #004aad;
-            --secondary: #00c4cc;
+            /* Colores Rojos con degradado cálido */
+            --primary: #b71c1c; /* Rojo fuerte */
+            --secondary: #ff5252; /* Rojo vibrante */
             --accent: #ffde59;
-            --bg: #f0f2f5;
+            --bg-gradient: linear-gradient(135deg, #ffebee 0%, #ffffff 100%);
+            --header-gradient: linear-gradient(90deg, #b71c1c 0%, #ef5350 100%);
             --white: #ffffff;
-            --text: #1c1e21;
-            --success: #42b72a;
-            --danger: #f02849;
-            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --success: #2e7d32;
+            --danger: #d32f2f;
+            --card-bg: rgba(255, 255, 255, 0.9);
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 110px; }
+        body { 
+            background: var(--bg-gradient); 
+            background-attachment: fixed;
+            color: var(--text); 
+            margin: 0; 
+            padding-bottom: 110px; 
+            min-height: 100vh;
+        }
         
         header {
-            background: var(--primary);
-            color: white; padding: 15px; text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background: var(--header-gradient);
+            color: white; padding: 18px; text-align: center;
+            box-shadow: 0 4px 15px rgba(183, 28, 28, 0.3);
             position: sticky; top: 0; z-index: 1000;
         }
-        .header-logo { max-width: 50px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
+        .header-logo { max-width: 55px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
         .container { max-width: 800px; margin: auto; padding: 10px; }
 
         .tabs-nav {
-            display: flex; overflow-x: auto; gap: 8px; margin: 15px 0; padding: 5px;
-            scrollbar-width: none; background: white; border-radius: 12px; padding: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex; overflow-x: auto; gap: 8px; margin: 15px 0; padding: 10px;
+            scrollbar-width: none; background: rgba(255, 255, 255, 0.7); 
+            border-radius: 16px; backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.3);
         }
         .tab-btn {
-            background: #f0f2f5; border: none; padding: 12px 18px; border-radius: 8px;
-            white-space: nowrap; cursor: pointer; font-weight: 700; color: #606770;
+            background: #ffffff; border: 1px solid #eee; padding: 12px 18px; border-radius: 12px;
+            white-space: nowrap; cursor: pointer; font-weight: 700; color: #b71c1c;
             display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center;
             transition: 0.3s;
         }
-        .tab-btn.active { background: var(--primary); color: white; transform: scale(1.05); }
-
-        .section-card {
-            background: var(--white); border-radius: 12px; padding: 20px;
-            margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        .tab-btn.active { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(183, 28, 28, 0.2);
         }
 
-        h2 { border-left: 5px solid var(--secondary); padding-left: 12px; font-size: 1.3em; color: var(--primary); margin-top: 0; margin-bottom: 20px; }
+        .section-card {
+            background: var(--card-bg); border-radius: 20px; padding: 25px;
+            margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        h2 { border-left: 6px solid var(--secondary); padding-left: 15px; font-size: 1.4em; color: var(--primary); margin-top: 0; margin-bottom: 25px; }
+
+        .property-grid { display: flex; flex-direction: column; gap: 20px; }
 
         .card {
-            background: var(--card-bg); border: 1px solid #e4e6eb; border-radius: 16px;
-            padding: 20px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            background: var(--white); border: 1px solid #f0f0f0; border-radius: 20px;
+            padding: 25px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            margin-bottom: 20px; transition: 0.3s;
         }
 
         .box-container {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 10px;
         }
         .box {
-            background: #f8f9fa; border: 1px solid #ddd; border-radius: 10px;
-            padding: 10px;
+            background: #fdfdfd; border: 1px solid #f0f0f0; border-radius: 14px;
+            padding: 12px; transition: 0.2s;
         }
-        .box label { font-size: 0.75em; font-weight: 800; color: #65676b; display: block; text-transform: uppercase; margin-bottom: 6px; }
+        .box:focus-within { border-color: var(--secondary); background: #fff; box-shadow: 0 0 0 3px rgba(255,82,82,0.1); }
+        .box label { font-size: 0.75em; font-weight: 800; color: #9e9e9e; display: block; text-transform: uppercase; margin-bottom: 8px; }
         .box input, .box select, .box textarea {
-            width: 100%; border: none; background: transparent; font-size: 1.05em;
-            color: var(--text); padding: 4px 0; outline: none; resize: none; font-weight: 500;
+            width: 100%; border: none; background: transparent; font-size: 1.1em;
+            color: var(--text); padding: 4px 0; outline: none; resize: none; font-weight: 600;
         }
 
         .full-box { grid-column: span 2; }
 
         .btn {
-            border: none; padding: 15px; border-radius: 12px; cursor: pointer;
-            font-weight: bold; display: flex; align-items: center; gap: 10px;
-            justify-content: center; width: 100%; transition: 0.2s;
+            border: none; padding: 16px; border-radius: 14px; cursor: pointer;
+            font-weight: 800; display: flex; align-items: center; gap: 12px;
+            justify-content: center; width: 100%; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .btn-add { background: var(--primary); color: white; margin-bottom: 25px; font-size: 1.1em; }
-        .btn-save { background: var(--success); color: white; font-size: 1.2em; }
-        .btn-action { background: var(--secondary); color: white; margin-top: 10px; font-size: 0.9em; padding: 10px; }
+        .btn:active { transform: scale(0.98); }
+        .btn-add { background: var(--primary); color: white; margin-bottom: 30px; font-size: 1.1em; box-shadow: 0 6px 20px rgba(183, 28, 28, 0.3); }
+        .btn-save { background: var(--success); color: white; font-size: 1.25em; box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3); }
+        .btn-action { background: var(--secondary); color: white; margin-top: 10px; }
         .btn-pdf { background: #d32f2f; color: white; }
         .btn-scan { background: #7b1fa2; color: white; }
 
         /* Estilos de fotos */
         .photo-main-preview {
-            width: 100%; height: 200px; background: #eee; border-radius: 12px; margin-bottom: 15px;
+            width: 100%; height: 220px; background: #f5f5f5; border-radius: 16px; margin-bottom: 20px;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
-            border: 2px dashed #ccc; cursor: pointer; position: relative;
+            border: 2px dashed #ddd; cursor: pointer; position: relative;
         }
         .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .photo-thumb { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 8px; overflow: hidden; position: relative; }
-        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
+        
         /* Legal / Templates */
-        .legal-tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .legal-tab-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 0.85em; cursor: pointer; white-space: nowrap; }
-        .legal-tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .legal-tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding: 5px; }
+        .legal-tab-btn { padding: 10px 20px; border-radius: 25px; border: 1px solid #eee; background: white; font-size: 0.9em; cursor: pointer; white-space: nowrap; font-weight: 700; color: #757575; }
+        .legal-tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(183,28,28,0.2); }
 
         .fixed-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 20px;
-            display: flex; gap: 10px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.9); 
+            padding: 20px; display: flex; gap: 12px; box-shadow: 0 -8px 30px rgba(0,0,0,0.1); 
+            z-index: 1000; backdrop-filter: blur(15px);
         }
 
         .tab-content { display: none; }
         .active-tab { display: block; animation: fadeIn 0.4s ease-out; }
         
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
         #proposalModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000; padding: 20px; overflow-y: auto;
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.9); z-index: 2000; padding: 20px; overflow-y: auto;
+            backdrop-filter: blur(10px);
         }
         .proposal-content {
-            background: white; max-width: 500px; margin: 40px auto; border-radius: 24px;
-            overflow: hidden; position: relative;
+            background: white; max-width: 500px; margin: 40px auto; border-radius: 28px;
+            overflow: hidden; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
         .loading-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.8); z-index: 3000; flex-direction: column;
-            align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.9); z-index: 3000; flex-direction: column;
+            align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
     </style>
 </head>
 <body>
 
 <div id="loader" class="loading-overlay">
-    <i class="fas fa-spinner fa-spin" style="font-size: 3em; color: var(--primary);"></i>
-    <p style="margin-top: 15px; font-weight: bold;" id="loaderText">Procesando...</p>
+    <i class="fas fa-cog fa-spin" style="font-size: 4em; color: var(--primary);"></i>
+    <p style="margin-top: 20px; font-weight: 900; font-size: 1.2em;" id="loaderText">ACTUALIZANDO SISTEMA...</p>
 </div>
 
 <header>
     <img src="icon.png" class="header-logo" alt="Logo HR">
-    <span style="font-weight: 800; font-size: 1.4em;">PROPIEDADES HR - OFICINA</span>
+    <span style="font-weight: 900; font-size: 1.5em; letter-spacing: 1px;">PROPIEDADES HR</span>
 </header>
 
 <div class="container">
     <div class="tabs-nav">
-        <button class="tab-btn active" id="btn-inventario" onclick="showTab('inventario')"><i class="fas fa-home"></i> Inventario</button>
-        <button class="tab-btn" id="btn-prospectos" onclick="showTab('prospectos')"><i class="fas fa-users"></i> Prospectos</button>
-        <button class="tab-btn" id="btn-contratos" onclick="showTab('contratos')"><i class="fas fa-file-contract"></i> Contratos</button>
-        <button class="tab-btn" id="btn-estrategia" onclick="showTab('estrategia')"><i class="fas fa-lightbulb"></i> Estrategia</button>
+        <button class="tab-btn active" id="btn-inventario" onclick="showTab('inventario')"><i class="fas fa-home"></i> Casis</button>
+        <button class="tab-btn" id="btn-prospectos" onclick="showTab('prospectos')"><i class="fas fa-users"></i> Clientes</button>
+        <button class="tab-btn" id="btn-contratos" onclick="showTab('contratos')"><i class="fas fa-file-signature"></i> Papeleo</button>
+        <button class="tab-btn" id="btn-estrategia" onclick="showTab('estrategia')"><i class="fas fa-gem"></i> Plan</button>
     </div>
 
     <!-- INVENTARIO -->
     <div id="inventario" class="tab-content active-tab">
-        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus-circle"></i> AGREGAR PROPIEDAD / TERRENO</button>
-        <div id="propertyList"></div>
+        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus-circle"></i> NUEVA PROPIEDAD / TERRENO</button>
+        <div id="propertyList" class="property-grid"></div>
     </div>
 
     <!-- PROSPECTOS -->
     <div id="prospectos" class="tab-content">
-        <button class="btn btn-add" style="background:var(--secondary);" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> AGREGAR NUEVO CLIENTE</button>
+        <button class="btn btn-add" style="background:var(--secondary);" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> AGREGAR PROSPECTO</button>
         <div id="prospectList"></div>
     </div>
 
     <!-- CONTRATOS -->
     <div id="contratos" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-scroll"></i> Redacción de Contratos (Ley de Hidalgo)</h2>
+            <h2><i class="fas fa-scroll"></i> Oficina de Contratos (Hidalgo)</h2>
             
             <div class="legal-tabs">
                 <button class="legal-tab-btn active" onclick="loadTemplate('promesa')">Promesa</button>
-                <button class="legal-tab-btn" onclick="loadTemplate('compraventa')">Compraventa</button>
-                <button class="legal-tab-btn" onclick="loadTemplate('permuta')">Permuta</button>
-                <button class="legal-tab-btn" onclick="loadTemplate('mutuo')">Mutuo</button>
+                <button class="legal-tab-btn" onclick="loadTemplate('compraventa')">Venta</button>
+                <button class="legal-tab-btn" onclick="loadTemplate('permuta')">Cambio</button>
+                <button class="legal-tab-btn" onclick="loadTemplate('mutuo')">Préstamo</button>
             </div>
 
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <button class="btn btn-scan" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> ESCANEAR FOTO</button>
-                <button class="btn btn-pdf" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> BAJAR PDF</button>
+            <div style="display:flex; gap:12px; margin-bottom:15px;">
+                <button class="btn btn-scan" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
+                <button class="btn btn-pdf" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> PDF</button>
             </div>
             <input type="file" id="ocrInput" hidden accept="image/*" onchange="performOCR(this)">
 
-            <textarea id="contractText" placeholder="Redacta aquí tu contrato..." rows="20" style="width:100%; padding:18px; border:2px solid #f0f2f5; border-radius:14px; font-size:1em; line-height:1.5;"></textarea>
+            <textarea id="contractText" placeholder="Redacta el contrato aquí..." rows="22" style="width:100%; padding:20px; border:2px solid #eee; border-radius:16px; font-size:1.1em; line-height:1.6; background: #fff;"></textarea>
             
-            <div id="legalReference" style="margin-top:15px; background:#e3f2fd; padding:15px; border-radius:10px; font-size:0.85em; color:#1565c0; border:1px solid #bbdefb;">
-                <strong>Referencia Legal:</strong> Código Civil del Estado de Hidalgo.
+            <div id="legalReference" style="margin-top:15px; background:#fff3f3; padding:15px; border-radius:12px; font-size:0.9em; color:#b71c1c; border:1px solid #ffcdd2;">
+                <strong>Base Legal:</strong> Código Civil de Hidalgo.
             </div>
         </div>
     </div>
@@ -195,36 +218,39 @@
     <!-- ESTRATEGIA -->
     <div id="estrategia" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-bullhorn"></i> Mi Plan de Venta</h2>
-            <div id="strategyBox" style="background:#fff9db; padding:20px; border-radius:14px; border:2px dashed #fab005; font-size:1.1em; color:#856404; line-height:1.6; margin-bottom:25px;"></div>
-            <textarea id="userNotes" placeholder="Mis metas del día..." rows="10" style="width:100%; padding:18px; border:2px solid #f0f2f5; border-radius:14px; font-size:1.1em;"></textarea>
+            <h2><i class="fas fa-star"></i> Plan de Cierre Maestro</h2>
+            <div id="strategyBox" style="background:#fff9db; padding:22px; border-radius:18px; border:2px dashed #fab005; font-size:1.15em; color:#856404; line-height:1.7; margin-bottom:25px;"></div>
+            <textarea id="userNotes" placeholder="Anota tus metas personales aquí..." rows="12" style="width:100%; padding:20px; border:2px solid #eee; border-radius:16px; font-size:1.1em;"></textarea>
         </div>
     </div>
 </div>
 
 <div class="fixed-footer">
-    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO</button>
+    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-cloud-upload-alt"></i> GUARDAR TODO EL TRABAJO</button>
 </div>
 
 <!-- Modal Compartir -->
 <div id="proposalModal">
     <div class="proposal-content">
-        <div id="modalPhotoContainer" style="width:100%; height:200px; background:#eee; position:relative; overflow:hidden;">
+        <div id="modalPhotoContainer" style="width:100%; height:250px; background:#f0f0f0; position:relative; overflow:hidden;">
             <img id="modalMainImg" style="width:100%; height:100%; object-fit:cover;">
-            <div style="position:absolute; bottom:15px; left:15px; background:var(--primary); color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.9em;" id="modalBadge"></div>
+            <div style="position:absolute; bottom:20px; left:20px; background:var(--primary); color:white; padding:6px 18px; border-radius:25px; font-weight:900; font-size:0.95em; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" id="modalBadge"></div>
         </div>
-        <div style="padding:25px;">
-            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary);"></h2>
-            <div id="modalPrice" style="font-size:2.2em; color:var(--success); font-weight:900; margin:5px 0;"></div>
-            <div style="background:#f0f2f5; padding:15px; border-radius:15px; margin:15px 0; font-size:0.95em;">
-                <p>📍 <span id="modalLoc"></span></p>
-                <p>📐 <span id="modalSize"></span></p>
-                <p>🏗️ <span id="modalStatus"></span></p>
-                <p id="modalDesc" style="color:#666; font-style:italic; margin-top:10px;"></p>
+        <div style="padding:30px;">
+            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary); font-size:1.6em;"></h2>
+            <div id="modalPrice" style="font-size:2.8em; color:var(--success); font-weight:900; margin:10px 0;"></div>
+            <p style="color:var(--danger); font-weight:900; margin-bottom:25px; font-size:1.1em; text-align:center; text-transform:uppercase;">¡OFERTA ÚNICA EN EFECTIVO!</p>
+            
+            <div style="background:#f9f9f9; padding:25px; border-radius:20px; margin:20px 0; border:1px solid #eee;">
+                <p style="margin:12px 0;"><strong>📍 Ubicación:</strong> <span id="modalLoc"></span></p>
+                <p style="margin:12px 0;"><strong>📐 Medidas:</strong> <span id="modalSize"></span></p>
+                <p style="margin:12px 0;"><strong>🏗️ Estatus:</strong> <span id="modalStatus"></span></p>
+                <hr style="border:none; border-top: 1px solid #ddd; margin:20px 0;">
+                <p id="modalDesc" style="color:#555; font-style:italic; line-height:1.6;"></p>
             </div>
-            <div id="modalGallery" style="display:flex; gap:8px; overflow-x:auto; margin-bottom:20px;"></div>
-            <button class="btn" style="background:#25D366; color:white;" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> COMPARTIR POR WHATSAPP</button>
-            <button class="btn" style="background:#eee; margin-top:10px;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR</button>
+            
+            <button class="btn" style="background:#25D366; color:white;" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> ENVIAR AL CLIENTE</button>
+            <button class="btn" style="background:#f0f0f0; color:#333; margin-top:15px;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR VISTA</button>
         </div>
     </div>
 </div>
@@ -233,19 +259,19 @@
     const TEMPLATES = {
         promesa: {
             ref: "Artículos 2225 al 2228 del Código Civil de Hidalgo.",
-            text: "CONTRATO DE PROMESA DE VENTA\n\nEn el Estado de Hidalgo, se celebra este contrato preliminar...\n\nCLÁUSULAS:\n1. OBJETO: Las partes se obligan a celebrar el contrato definitivo de compraventa del inmueble ubicado en: [UBICACIÓN].\n2. PLAZO: La promesa de contratar debe constar por escrito y contener los elementos característicos del contrato definitivo.\n3. PENALIZACIÓN: En caso de incumplimiento..."
+            text: "CONTRATO DE PROMESA DE COMPRAVENTA\n\nEn Pachuca de Soto, Hidalgo, siendo el día [FECHA]...\n\nDECLARACIONES:\n1. EL PROMITENTE VENDEDOR declara ser dueño del inmueble en Acayuca.\n2. EL PROMITENTE COMPRADOR desea adquirirlo.\n\nCLÁUSULAS:\nPRIMERA: Ambas partes se obligan a celebrar el contrato definitivo en un plazo de [DÍAS] días.\nSEGUNDA: El precio acordado es de $[PRECIO].\nTERCERA: Penalización por incumplimiento..."
         },
         compraventa: {
-            ref: "Artículo 2230 (Definición) y 2298 (Forma) del Código Civil de Hidalgo.",
-            text: "CONTRATO DE COMPRAVENTA\n\nEn Acayuca, Hidalgo, comparecen por una parte el Vendedor y por otra el Comprador...\n\nCLÁUSULAS:\n1. EL VENDEDOR transfiere la propiedad del inmueble libre de todo gravamen.\n2. EL COMPRADOR se obliga a pagar el precio de $[PRECIO] en efectivo.\n3. Según Art. 2298 CCH: Este contrato no requiere formalidad especial para ser válido..."
+            ref: "Artículos 2230 y 2298 del Código Civil de Hidalgo.",
+            text: "CONTRATO DE COMPRAVENTA PRIVADO\n\nDe conformidad con el Art. 2298 del CCH, este contrato es válido sin formalidad especial...\n\nCLÁUSULAS:\n1. VENTA: Se transfiere la propiedad total y absoluta.\n2. PRECIO: El comprador entrega la cantidad de $[PRECIO] en efectivo.\n3. POSESIÓN: El vendedor entrega las llaves y posesión física hoy mismo."
         },
         permuta: {
             ref: "Artículo 2309 del Código Civil de Hidalgo.",
-            text: "CONTRATO DE PERMUTA\n\nContrato por el cual cada uno de los contratantes se obliga a dar una cosa por otra (Art. 2309 CCH).\n\nDESCRIPCIÓN:\nParte A entrega: [INMUEBLE A]\nParte B entrega: [INMUEBLE B/VEHÍCULO/OTRO]"
+            text: "CONTRATO DE PERMUTA (CAMBIO)\n\nArt. 2309 CCH: Contrato por el cual cada uno de los contratantes se obliga a dar una cosa por otra.\n\nACUERDO:\nParte A entrega: [CASA/TERRENO]\nParte B entrega: [OTRO INMUEBLE/AUTO]\n\nAmbas partes declaran la equivalencia de los bienes."
         },
         mutuo: {
             ref: "Artículo 2366 del Código Civil de Hidalgo.",
-            text: "CONTRATO DE MUTUO\n\nContrato por el cual el mutuante se obliga a transferir la propiedad de una suma de dinero o de otras cosas fungibles al mutuario...\n\nACUERDO:\nPréstamo de: $[CANTIDAD]\nInterés: [PORCENTAJE]"
+            text: "CONTRATO DE MUTUO CON INTERÉS\n\nArt. 2366 CCH: Préstamo de dinero o bienes fungibles.\n\nCLÁUSULAS:\n1. MONTO: Se entrega la cantidad de $[CANTIDAD].\n2. PLAZO: El mutuario devolverá el monto en fecha [FECHA].\n3. INTERÉS: Se pacta un interés mensual de [X]%."
         }
     };
 
@@ -256,13 +282,14 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active-tab');
         document.getElementById('btn-' + tabId).classList.add('active');
+        window.scrollTo(0,0);
     }
 
     function loadTemplate(type) {
         document.querySelectorAll('.legal-tab-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
         document.getElementById('contractText').value = TEMPLATES[type].text;
-        document.getElementById('legalReference').innerHTML = "<strong>Referencia Legal:</strong> " + TEMPLATES[type].ref;
+        document.getElementById('legalReference').innerHTML = "<strong>Base Legal Actualizada:</strong> " + TEMPLATES[type].ref;
     }
 
     async function performOCR(input) {
@@ -270,16 +297,16 @@
         const loader = document.getElementById('loader');
         const loaderText = document.getElementById('loaderText');
         loader.style.display = 'flex';
-        loaderText.innerText = 'Escaneando texto del documento...';
+        loaderText.innerText = 'LEYENDO EL DOCUMENTO...';
         
         try {
             const worker = await Tesseract.createWorker('spa');
             const ret = await worker.recognize(input.files[0]);
             document.getElementById('contractText').value += "\n\n--- TEXTO ESCANEADO ---\n" + ret.data.text;
             await worker.terminate();
-            alert('✅ Texto extraído con éxito.');
+            alert('✅ Lectura terminada con éxito.');
         } catch (e) {
-            alert('❌ Error al escanear. Intenta con una foto más clara.');
+            alert('❌ No se pudo leer bien la foto. Intenta con más luz.');
         } finally {
             loader.style.display = 'none';
         }
@@ -290,13 +317,16 @@
         const doc = new jsPDF();
         const text = document.getElementById('contractText').value;
         const lines = doc.splitTextToSize(text, 180);
-        doc.text(lines, 10, 20);
-        doc.save('Contrato_Propiedades_HR.pdf');
+        doc.setFontSize(12);
+        doc.text("CONTRATO - PROPIEDADES HR", 10, 15);
+        doc.setFontSize(10);
+        doc.text(lines, 10, 25);
+        doc.save('Contrato_HR_Oficina.pdf');
     }
 
     function addItem(type) {
         if(type === 'properties') {
-            voxiData.properties.unshift({ id: Date.now(), tipo: 'Casa', estado: 'Preventa', titulo: '', ubicacion: '', precio_efectivo: '', medidas: '', descripcion: '', mainPhoto: null, gallery: [] });
+            voxiData.properties.unshift({ id: Date.now(), tipo: 'Casa', estado: 'Preventa', titulo: '', ubicacion: '', precio_efectivo: '', medidas: '', descripcion: '', mainPhoto: null });
             renderProperties();
         } else {
             voxiData.prospects.unshift({ nombre: '', interes: '', estado: '' });
@@ -315,7 +345,7 @@
                 canvas.width = width; canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                callback(canvas.toDataURL('image/jpeg', 0.5));
+                callback(canvas.toDataURL('image/jpeg', 0.4)); // Ahorro máximo de espacio
             };
             img.src = e.target.result;
         };
@@ -330,37 +360,64 @@
             card.className = 'card';
             card.innerHTML = `
                 <div class="photo-main-preview" onclick="document.getElementById('fileMain${i}').click()">
-                    ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera"></i> Foto Principal'}
+                    ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<div style="text-align:center;"><i class="fas fa-camera" style="font-size:2em; color:#ddd;"></i><br><span style="color:#999; font-weight:bold;">Subir Foto</span></div>'}
                     <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handleMainPhoto(${i}, this)">
                 </div>
                 <div class="box-container">
-                    <div class="box full-box"><label>Nombre</label><input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
-                    <div class="box"><label>Precio</label><input type="text" value="${p.precio_efectivo}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:bold;"></div>
-                    <div class="box"><label>Medidas</label><input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
-                    <div class="box full-box"><label>Descripción</label><textarea oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion}</textarea></div>
+                    <div class="box full-box"><label>Nombre del Proyecto</label><input type="text" placeholder="Ej: Casa 107m Acayuca" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
+                    <div class="box"><label>Precio Remate ($)</label><input type="text" placeholder="$0.00" value="${p.precio_efectivo}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:900;"></div>
+                    <div class="box"><label>Medidas</label><input type="text" placeholder="Ej: 150m2" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
+                    <div class="box full-box"><label>Notas y Descripción</label><textarea placeholder="Escribe los acabados, trato, etc." rows="3" oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion}</textarea></div>
                 </div>
-                <button class="btn btn-proposal" onclick="openProposal(${i})"><i class="fas fa-eye"></i> VER FICHA</button>
+                <button class="btn btn-action" style="background:#f44336;" onclick="deleteItem('properties', ${i})"><i class="fas fa-trash"></i> BORRAR</button>
+                <button class="btn btn-proposal" onclick="openProposal(${i})"><i class="fas fa-share-alt"></i> VER Y ENVIAR FICHA</button>
             `;
             list.appendChild(card);
         });
     }
 
     function handleMainPhoto(index, input) {
-        if (input.files[0]) processImage(input.files[0], 600, (b64) => { voxiData.properties[index].mainPhoto = b64; renderProperties(); });
+        if (input.files[0]) processImage(input.files[0], 500, (b64) => { voxiData.properties[index].mainPhoto = b64; renderProperties(); });
     }
 
     function update(type, index, key, val) { voxiData[type][index][key] = val; }
 
+    function deleteItem(type, index) {
+        if(confirm('¿Seguro que quieres borrar esto?')) {
+            voxiData[type].splice(index, 1);
+            type === 'properties' ? renderProperties() : renderProspects();
+        }
+    }
+
+    function renderProspects() {
+        const list = document.getElementById('prospectList');
+        list.innerHTML = '';
+        voxiData.prospects.forEach((p, i) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="box-container">
+                    <div class="box full-box"><label>Cliente</label><input type="text" value="${p.nombre}" oninput="update('prospects', ${i}, 'nombre', this.value)" style="font-weight:bold;"></div>
+                    <div class="box"><label>¿Qué busca?</label><input type="text" value="${p.interes}" oninput="update('prospects', ${i}, 'interes', this.value)"></div>
+                    <div class="box"><label>Estatus</label><input type="text" value="${p.estado}" oninput="update('prospects', ${i}, 'estado', this.value)"></div>
+                </div>
+                <button class="btn btn-action" style="background:#f44336; margin-top:10px;" onclick="deleteItem('prospects', ${i})"><i class="fas fa-trash"></i> BORRAR</button>
+            `;
+            list.appendChild(card);
+        });
+    }
+
     function openProposal(index) {
         const p = voxiData.properties[index];
-        document.getElementById('modalTitle').innerText = p.titulo || 'Propiedad';
+        document.getElementById('modalTitle').innerText = p.titulo || 'Oportunidad HR';
         document.getElementById('modalPrice').innerText = '$' + (p.precio_efectivo || '0.00');
-        document.getElementById('modalLoc').innerText = p.ubicacion || 'Consultar';
-        document.getElementById('modalSize').innerText = p.medidas || 'Consultar';
-        document.getElementById('modalDesc').innerText = p.descripcion || '';
+        document.getElementById('modalLoc').innerText = p.ubicacion || 'Consultar ubicación';
+        document.getElementById('modalSize').innerText = p.medidas || 'A convenir';
+        document.getElementById('modalStatus').innerText = p.estado || 'Disponible';
+        document.getElementById('modalDesc').innerText = p.descripcion || 'Contáctanos para más información.';
         document.getElementById('modalMainImg').src = p.mainPhoto || '';
         document.getElementById('btnWhatsApp').onclick = () => {
-            const text = `🏠 *${p.titulo}*\n💰 *PRECIO:* $${p.precio_efectivo}\n📍 *Ubicación:* ${p.ubicacion}\n📝 *Descripción:* ${p.descripcion}`;
+            const text = `🏠 *${p.titulo}*\n💰 *PRECIO REMATE:* $${p.precio_efectivo}\n📍 *Ubicación:* ${p.ubicacion}\n📏 *Medidas:* ${p.medidas}\n📝 *Descripción:* ${p.descripcion}\n\n_Enviado desde mi App Propiedades HR_`;
             window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
         };
         document.getElementById('proposalModal').style.display = 'block';
@@ -369,17 +426,22 @@
     function saveData() {
         voxiData.legal = document.getElementById('contractText').value;
         voxiData.notes = document.getElementById('userNotes').value;
-        localStorage.setItem('hr_office_v9', JSON.stringify(voxiData));
-        alert('✅ ¡TRABAJO GUARDADO!');
+        try {
+            localStorage.setItem('hr_office_final_v10', JSON.stringify(voxiData));
+            alert('✅ ¡TRABAJO GUARDADO EN LA NUBE DEL CELULAR!');
+        } catch(e) {
+            alert('❌ Memoria llena. Borra algunas fotos de tu galería normal.');
+        }
     }
 
     function loadData() {
-        const saved = localStorage.getItem('hr_office_v9');
+        const saved = localStorage.getItem('hr_office_final_v10');
         if(saved) voxiData = JSON.parse(saved);
         document.getElementById('contractText').value = voxiData.legal || '';
         document.getElementById('userNotes').value = voxiData.notes || '';
-        document.getElementById('strategyBox').innerText = "Estrategia: Cierre rápido antes de 2 semanas con descuento especial.";
+        document.getElementById('strategyBox').innerText = "ESTRATEGIA HR: Cierre en menos de 2 semanas aplicando descuento directo por liquidación inmediata.";
         renderProperties();
+        renderProspects();
     }
 
     window.onload = loadData;
