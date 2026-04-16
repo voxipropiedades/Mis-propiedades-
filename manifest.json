@@ -3,14 +3,15 @@
   "name": "Propiedades HR",
   "icons": [
     {
-      "src": "https://img.icons8.com/color/512/home--v1.png",
+      "src": "icon.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": "./index.html",
+  "start_url": "/Mis-propiedades-/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#004aad",
-  "scope": "."
+  "scope": "/Mis-propiedades-/"
 }
