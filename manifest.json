@@ -5,17 +5,20 @@
     {
       "src": "logo.jpg",
       "type": "image/jpeg",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo.jpg",
       "type": "image/jpeg",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": "/Mis-propiedades-/",
+  "start_url": "./index.html",
   "display": "standalone",
-  "scope": "/Mis-propiedades-/",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
   "theme_color": "#004aad",
-  "background_color": "#ffffff"
+  "scope": "."
 }
