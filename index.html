@@ -4,32 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#2C1A0E">
+<meta name="theme-color" content="#8B4513">
 <title>Voxi Propiedades</title>
 <link rel="manifest" href="manifest.json">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#1A0F06;--card:#2C1A0E;--card2:#3D2510;
-  --accent:#C8922A;--accent2:#8B5E1A;--gold:#D4A843;
-  --text:#F5EDD8;--muted:#A08060;
-  --green:#4CAF7A;--yellow:#E8B84B;--red:#D95F3B;
-  --border:#4A2E14;--input:#150B04;
+  --bg:#F5EFE6;--card:#FFFFFF;--card2:#FAF3EA;
+  --accent:#8B4513;--accent2:#A0522D;--gold:#7B3F10;
+  --text:#3E1F00;--muted:#8C6A4A;
+  --green:#2E7D32;--yellow:#B8860B;--red:#C0392B;
+  --border:#DEC9B0;--input:#FDF8F3;
+  --nav:#8B4513;--navtext:#FFFFFF;
 }
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
-.nav{background:linear-gradient(135deg,#2C1A0E,#1A0F06);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.4)}
-.nav h1{font-size:18px;font-weight:700;color:var(--gold)}
-.back-btn{background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 8px}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;background-image:url('https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80');background-attachment:fixed;background-size:cover;background-position:center}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(245,239,230,0.92);z-index:-1}
+.nav{background:linear-gradient(135deg,#8B4513,#A0522D);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid #6B3410;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.nav h1{font-size:18px;font-weight:700;color:#FFFFFF}
+.back-btn{background:none;border:none;color:#FFFFFF;font-size:22px;cursor:pointer;padding:4px 8px}
 .add-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:20px;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
 .screen{display:none;padding:16px}.screen.active{display:block}
-.hero{background:linear-gradient(135deg,#3D2510,#2C1A0E,#1A0F06);border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid var(--border)}
-.hero h2{font-size:22px;font-weight:800;color:var(--gold);margin-bottom:4px}
-.hero p{font-size:13px;color:var(--muted)}
+.hero{background:linear-gradient(135deg,#8B4513,#A0522D);border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid #6B3410}
+.hero h2{font-size:22px;font-weight:800;color:#FFFFFF;margin-bottom:4px}
+.hero p{font-size:13px;color:#F0D9C8}
 .search-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:15px;width:100%;margin-bottom:16px;outline:none}
 .search-bar:focus{border-color:var(--accent)}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .stat-card{background:var(--card2);border-radius:14px;padding:16px;text-align:center;border:1px solid var(--border)}
-.stat-card .num{font-size:28px;font-weight:800;color:var(--gold)}
+.stat-card .num{font-size:28px;font-weight:800;color:var(--accent)}
 .stat-card .lbl{font-size:12px;color:var(--muted);margin-top:4px}
 .prop-card{background:var(--card);border-radius:16px;margin-bottom:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:transform .15s}
 .prop-card:active{transform:scale(.98)}
@@ -40,17 +42,17 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .prop-card-sub{font-size:13px;color:var(--muted)}
 .prop-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
 .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
-.badge-venta{background:#1A3A2A;color:var(--green)}
-.badge-preventa{background:#3A2A08;color:var(--yellow)}
-.badge-usada{background:#2A1A30;color:#C07AE0}
-.badge-apartada{background:#1A2535;color:#5AB4E8}
+.badge-venta{background:#D4EDDA;color:#2E7D32}
+.badge-preventa{background:#FFF3CD;color:#856404}
+.badge-usada{background:#E8D5F5;color:#6A1B9A}
+.badge-apartada{background:#D1ECF1;color:#0C5460}
 .price-tag{font-size:16px;font-weight:800;color:var(--gold)}
 .filters{display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;padding-bottom:4px}
 .filters::-webkit-scrollbar{display:none}
 .filter-btn{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:7px 16px;color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap}
 .filter-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent);color:#fff}
 .form-section{background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid var(--border)}
-.form-section h3{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:10px}
+.form-section h3{font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:10px}
 .form-group{margin-bottom:14px}
 .form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
 .form-group input,.form-group textarea{width:100%;background:var(--input);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:15px;outline:none}
@@ -78,14 +80,14 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .detail-photo{flex-shrink:0;width:220px;height:160px;border-radius:12px;overflow:hidden;background:var(--card2)}
 .detail-photo img{width:100%;height:100%;object-fit:cover}
 .detail-section{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--border)}
-.detail-section h3{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:8px}
+.detail-section h3{font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:8px}
 .detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(74,46,20,.5)}
 .detail-row:last-child{border-bottom:none}
 .lbl{font-size:13px;color:var(--muted);flex:1}
 .val{font-size:14px;font-weight:600;text-align:right;flex:1.5}
-.val-green{color:var(--green)}.val-red{color:var(--red)}.val-gold{color:var(--gold)}
-.ficha-box{background:linear-gradient(135deg,#3D2510,#2C1A0E);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--accent2)}
-.ficha-box h3{color:var(--gold);font-size:15px;margin-bottom:12px;font-weight:700}
+.val-green{color:var(--green)}.val-red{color:var(--red)}.val-gold{color:var(--accent)}
+.ficha-box{background:linear-gradient(135deg,#FDF0E6,#FAE8D8);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--accent2)}
+.ficha-box h3{color:var(--accent);font-size:15px;margin-bottom:12px;font-weight:700}
 .ficha-preview{background:var(--input);border-radius:12px;padding:14px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;border:1px solid var(--border);margin-bottom:10px;max-height:200px;overflow-y:auto}
 .chip{display:inline-flex;background:var(--card2);border-radius:20px;padding:5px 12px;font-size:12px;margin:3px;border:1px solid var(--border)}
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
@@ -102,7 +104,10 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 <!-- LISTA -->
 <div id="screen-list" class="screen active">
   <div class="nav">
-    <h1>🏠 Voxi Propiedades</h1>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;background-image:url('https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=100&q=80');background-size:cover;border-radius:8px;border:2px solid rgba(255,255,255,0.3)"></div>
+      <h1 style="margin:0;font-size:20px">Voxi Propiedades</h1>
+    </div>
     <button class="add-btn" onclick="showAdd()">+</button>
   </div>
   <div style="padding:16px">
@@ -130,7 +135,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="nav">
     <button class="back-btn" onclick="showList()">←</button>
     <h1 id="detailTitle">Propiedad</h1>
-    <button class="add-btn" style="background:linear-gradient(135deg,#5A3A1A,#3D2510);font-size:16px" onclick="editCurrent()">✏️</button>
+    <button class="add-btn" style="background:linear-gradient(135deg,#6B3410,#8B4513);font-size:16px" onclick="editCurrent()">✏️</button>
   </div>
   <div style="padding:16px" id="detailContent"></div>
 </div>
@@ -158,14 +163,14 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
           <div class="toggle-opt" data-val="casa" onclick="selT('tTipo',this)">Casa</div>
           <div class="toggle-opt" data-val="terreno" onclick="selT('tTipo',this)">Terreno</div>
           <div class="toggle-opt" data-val="parcela" onclick="selT('tTipo',this)">Parcela</div>
-          <div class="toggle-opt" data-val="departamento" onclick="selT('tTipo',this)">Departamento</div>
+          <div class="toggle-opt" data-val="bodega" onclick="selT('tTipo',this)">Bodega</div>
         </div>
       </div>
       <div class="form-group"><label>Estado</label>
         <div class="toggle-group" id="tEstado">
+          <div class="toggle-opt" data-val="preventa" onclick="selT('tEstado',this)">Preventa</div>
           <div class="toggle-opt" data-val="nueva" onclick="selT('tEstado',this)">Nueva</div>
           <div class="toggle-opt" data-val="usada" onclick="selT('tEstado',this)">Usada</div>
-          <div class="toggle-opt" data-val="preventa" onclick="selT('tEstado',this)">Preventa</div>
         </div>
       </div>
     </div>
@@ -217,7 +222,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       </div>
     </div>
     <div class="form-section">
-      <h3>📄 Documentación</h3>
+      <h3>📄 Documentación y Contratos</h3>
       <div class="form-group"><label>Tipo de documento</label>
         <div class="toggle-group" id="tDoc">
           <div class="toggle-opt" data-val="titulo" onclick="selT('tDoc',this)">Título propiedad</div>
@@ -226,7 +231,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
           <div class="toggle-opt" data-val="tramite" onclick="selT('tDoc',this)">En trámite</div>
         </div>
       </div>
-      <div class="form-group"><label>Notas de documentación</label><textarea id="fDocN" placeholder="Detalles adicionales..."></textarea></div>
+      <div class="form-group"><label>📂 Archivos / Contratos</label><textarea id="fDocN" placeholder="Nombres de archivos o links a contratos..." style="min-height:60px"></textarea></div>
     </div>
     <div class="form-section">
       <h3>💰 Precios y Comisiones</h3>
@@ -267,8 +272,9 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       </div>
     </div>
     <div class="form-section">
-      <h3>👤 Propietario</h3>
-      <div class="form-group"><label>Nombre</label><input type="text" id="fProp" placeholder="Nombre completo"></div>
+      <h3>👤 Propietario / Cliente</h3>
+      <div class="form-group"><label>Nombre del propietario</label><input type="text" id="fProp" placeholder="Nombre completo del dueño"></div>
+      <div class="form-group"><label>👥 Cliente interesado</label><input type="text" id="fCliente" placeholder="Nombre del comprador o prospecto"></div>
       <div class="form-group"><label>Teléfono</label><input type="tel" id="fTel" placeholder="771 000 0000"></div>
       <div class="form-group"><label>Estado civil</label>
         <div class="toggle-group" id="tCivil">
@@ -311,13 +317,20 @@ function render(){
     return mf&&(!q||JSON.stringify(p).toLowerCase().includes(q));
   });
   document.getElementById('statsArea').innerHTML=`<div class="stat-card"><div class="num">${props.length}</div><div class="lbl">Total</div></div><div class="stat-card"><div class="num">${props.filter(p=>p.apart==='sí').length}</div><div class="lbl">Apartadas</div></div>`;
-  if(!list.length){document.getElementById('propList').innerHTML=!props.length?`<div class="empty"><div class="icon">🏠</div><p>Aún no tienes propiedades.<br>Toca <b>+</b> para agregar la primera.</p></div>`:`<div class="no-results">Sin resultados</div>`;return}
+  if(!list.length){
+    document.getElementById('propList').innerHTML=!props.length?`<div class="empty">
+      <div class="icon" style="background-image:url('https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=150&q=80');background-size:cover;border-radius:50%;width:100px;height:100px;margin:0 auto 20px"></div>
+      <p><b>¡Empieza tu catálogo!</b><br>Toca <b style="color:var(--accent)">+</b> para agregar tu primera propiedad.</p>
+    </div>`:`<div class="no-results">Sin resultados</div>`;
+    return;
+  }
   document.getElementById('propList').innerHTML=list.map(p=>{
     const img=p.fotos&&p.fotos.length?`<div class="prop-card-img"><img src="${p.fotos[0]}" loading="lazy"></div>`:`<div class="prop-card-img">🏠</div>`;
     const bg=p.estado==='preventa'?'badge-preventa':p.estado==='usada'?'badge-usada':'badge-venta';
     const price=p.pl?'$'+Number(p.pl).toLocaleString('es-MX'):'Sin precio';
     const ab=p.apart==='sí'?'<span class="badge badge-apartada" style="margin-right:4px">Apartada</span>':'';
-    return`<div class="prop-card" onclick="showDetail('${p.id}')">${img}<div class="prop-card-body"><div class="prop-card-title">${p.dir||'Sin dirección'}</div><div class="prop-card-sub">${p.mun||''}${p.area?' · '+p.area+' m²':''}</div><div class="prop-card-footer"><div>${ab}<span class="badge ${bg}">${p.estado||p.tipo||'N/D'}</span></div><div class="price-tag">${price}</div></div></div></div>`;
+    const clienteTag=p.cliente?`<div style="font-size:11px;color:var(--accent);margin-top:2px">👥 ${p.cliente}</div>`:'';
+    return`<div class="prop-card" onclick="showDetail('${p.id}')">${img}<div class="prop-card-body"><div class="prop-card-title">${p.dir||'Sin dirección'}</div><div class="prop-card-sub">${p.mun||''}${p.area?' · '+p.area+' m²':''}</div>${clienteTag}<div class="prop-card-footer"><div>${ab}<span class="badge ${bg}">${p.estado||p.tipo||'N/D'}</span></div><div class="price-tag">${price}</div></div></div></div>`;
   }).join('');
 }
 
@@ -334,6 +347,7 @@ function ficha(p){
   if(p.pav)f+=`🛣️ Calle pavimentada: ${p.pav}\n`;
   if(p.dcdmx)f+=`\n🚗 A CDMX: ${p.dcdmx} km (${p.tcdmx||'—'})\n`;
   if(p.dpach)f+=`🚗 A Pachuca: ${p.dpach} km (${p.tpach||'—'})\n`;
+  if(p.docN)f+=`📄 Archivos/Contratos: ${p.docN}\n`;
   if(p.desc)f+=`\n📋 ${p.desc}\n`;
   if(p.estado==='preventa'){f+=`\n🏗️ *PREVENTA* — Entrega en ${p.tc||'3 meses'}\n`;if(p.pisos)f+=`   ${p.pisos} piso(s) — diseño a tu gusto\n`}
   f+=`\n📞 *¡Escríbeme para más info y visita!*`;
@@ -371,9 +385,9 @@ ${p.maps?`<div class="detail-row"><span class="lbl">Maps</span><span class="val"
 <div class="detail-row"><span class="lbl">Lado der.</span><span class="val">${p.ld||'—'} m</span></div>
 <div class="detail-row"><span class="lbl">Área total</span><span class="val val-gold">${p.area||'—'} m²</span></div></div>
 <div class="detail-section"><h3>⚡ Servicios</h3><div style="padding:8px 0">${sv}</div></div>
-<div class="detail-section"><h3>📄 Documentación</h3>
+<div class="detail-section"><h3>📄 Documentación y Contratos</h3>
 <div class="detail-row"><span class="lbl">Tipo doc.</span><span class="val">${fv(p.docTipo)}</span></div>
-<div class="detail-row"><span class="lbl">Notas</span><span class="val">${fv(p.docN)}</span></div></div>
+<div class="detail-row"><span class="lbl">Archivos/Contratos</span><span class="val" style="white-space:pre-wrap">${fv(p.docN)}</span></div></div>
 <div class="detail-section"><h3>💰 Financiero</h3>
 <div class="detail-row"><span class="lbl">Precio lista</span><span class="val">${fm(p.pl)}</span></div>
 <div class="detail-row"><span class="lbl">Precio mínimo</span><span class="val">${fm(p.pm)}</span></div>
@@ -387,8 +401,9 @@ ${p.maps?`<div class="detail-row"><span class="lbl">Maps</span><span class="val"
 <div class="detail-row"><span class="lbl">Lo que se debe</span><span class="val val-red">${p.deu?'$'+Number(p.deu).toLocaleString('es-MX'):'—'}</span></div>
 <div class="detail-row"><span class="lbl">Fecha límite</span><span class="val">${p.fech||'—'}</span></div></div>
 ${p.estado==='preventa'?`<div class="detail-section"><h3>🏗️ Preventa</h3><div class="detail-row"><span class="lbl">Tiempo const.</span><span class="val">${fv(p.tc)}</span></div><div class="detail-row"><span class="lbl">Pisos</span><span class="val">${fv(p.pisos)}</span></div></div>`:''}
-<div class="detail-section"><h3>👤 Propietario</h3>
-<div class="detail-row"><span class="lbl">Nombre</span><span class="val">${fv(p.prop)}</span></div>
+<div class="detail-section"><h3>👤 Propietario / Cliente</h3>
+<div class="detail-row"><span class="lbl">Propietario</span><span class="val">${fv(p.prop)}</span></div>
+${p.cliente?`<div class="detail-row"><span class="lbl">👥 Cliente interesado</span><span class="val" style="color:var(--accent);font-weight:600">${p.cliente}</span></div>`:''}
 <div class="detail-row"><span class="lbl">Teléfono</span><span class="val">${p.tel?`<a href="tel:${p.tel}" style="color:var(--accent)">${p.tel}</a>`:'—'}</span></div>
 <div class="detail-row"><span class="lbl">Estado civil</span><span class="val">${fv(p.civil)}</span></div></div>
 <div class="detail-section"><h3>📝 Descripción</h3><p style="font-size:14px;line-height:1.7;white-space:pre-wrap">${fv(p.desc)}</p></div>
@@ -407,9 +422,9 @@ function stT(g,v){document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.cl
 function stM(g,v){if(!v)return;document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.toggle('selected',(v||[]).includes(o.dataset.val)))}
 function gv(id){const e=document.getElementById(id);return e?e.value.trim():''}
 function sv(id,v){const e=document.getElementById(id);if(e&&v!=null)e.value=v}
-function clearF(){['fDir','fMun','fDCDMX','fTCDMX','fDPach','fTPach','fMaps','fFr','fFo','fLi','fLd','fArea','fDocN','fPL','fPM','fCom','fGan','fMAp','fEng','fDeu','fFech','fTC','fProp','fTel','fDesc','fNotas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});['tTipo','tEstado','tPav','tLuz','tDoc','tSubir','tApart','tPisos','tCivil','tServ'].forEach(g=>document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.remove('selected')))}
-function fillF(p){photos=p.fotos?[...p.fotos]:[];renderPG();sv('fDir',p.dir);sv('fMun',p.mun);sv('fDCDMX',p.dcdmx);sv('fTCDMX',p.tcdmx);sv('fDPach',p.dpach);sv('fTPach',p.tpach);sv('fMaps',p.maps);sv('fFr',p.fr);sv('fFo',p.fo);sv('fLi',p.li);sv('fLd',p.ld);sv('fArea',p.area);sv('fDocN',p.docN);sv('fPL',p.pl);sv('fPM',p.pm);sv('fCom',p.com);sv('fGan',p.gan);sv('fMAp',p.map);sv('fEng',p.eng);sv('fDeu',p.deu);sv('fFech',p.fech);sv('fTC',p.tc);sv('fProp',p.prop);sv('fTel',p.tel);sv('fDesc',p.desc);sv('fNotas',p.notas);stT('tTipo',p.tipo);stT('tEstado',p.estado);stT('tPav',p.pav);stT('tLuz',p.luz);stT('tDoc',p.docTipo);stT('tSubir',p.subir);stT('tApart',p.apart);stT('tPisos',p.pisos);stT('tCivil',p.civil);stM('tServ',p.serv)}
-function saveP(){const fr=parseFloat(gv('fFr')),fo=parseFloat(gv('fFo'));let area=gv('fArea');if(!area&&fr&&fo)area=(fr*fo).toFixed(1);const p={id:editId||Date.now().toString(),fotos:[...photos],tipo:gT('tTipo'),estado:gT('tEstado'),dir:gv('fDir'),mun:gv('fMun'),dcdmx:gv('fDCDMX'),tcdmx:gv('fTCDMX'),dpach:gv('fDPach'),tpach:gv('fTPach'),pav:gT('tPav'),luz:gT('tLuz'),maps:gv('fMaps'),fr:gv('fFr'),fo:gv('fFo'),li:gv('fLi'),ld:gv('fLd'),area:area,serv:gM('tServ'),docTipo:gT('tDoc'),docN:gv('fDocN'),pl:gv('fPL'),pm:gv('fPM'),subir:gT('tSubir'),com:gv('fCom'),gan:gv('fGan'),apart:gT('tApart'),map:gv('fMAp'),eng:gv('fEng'),deu:gv('fDeu'),fech:gv('fFech'),tc:gv('fTC'),pisos:gT('tPisos'),prop:gv('fProp'),tel:gv('fTel'),civil:gT('tCivil'),desc:gv('fDesc'),notas:gv('fNotas'),upd:new Date().toISOString()};if(editId){const i=props.findIndex(x=>x.id===editId);if(i>=0)props[i]=p}else{props.unshift(p)}save();toast(editId?'✅ Propiedad actualizada':'✅ Propiedad guardada');editId=p.id;showDetail(p.id)}
+function clearF(){['fDir','fMun','fDCDMX','fTCDMX','fDPach','fTPach','fMaps','fFr','fFo','fLi','fLd','fArea','fDocN','fPL','fPM','fCom','fGan','fMAp','fEng','fDeu','fFech','fTC','fProp','fCliente','fTel','fDesc','fNotas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});['tTipo','tEstado','tPav','tLuz','tDoc','tSubir','tApart','tPisos','tCivil','tServ'].forEach(g=>document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.remove('selected')))}
+function fillF(p){photos=p.fotos?[...p.fotos]:[];renderPG();sv('fDir',p.dir);sv('fMun',p.mun);sv('fDCDMX',p.dcdmx);sv('fTCDMX',p.tcdmx);sv('fDPach',p.dpach);sv('fTPach',p.tpach);sv('fMaps',p.maps);sv('fFr',p.fr);sv('fFo',p.fo);sv('fLi',p.li);sv('fLd',p.ld);sv('fArea',p.area);sv('fDocN',p.docN);sv('fPL',p.pl);sv('fPM',p.pm);sv('fCom',p.com);sv('fGan',p.gan);sv('fMAp',p.map);sv('fEng',p.eng);sv('fDeu',p.deu);sv('fFech',p.fech);sv('fTC',p.tc);sv('fProp',p.prop);sv('fCliente',p.cliente);sv('fTel',p.tel);sv('fDesc',p.desc);sv('fNotas',p.notas);stT('tTipo',p.tipo);stT('tEstado',p.estado);stT('tPav',p.pav);stT('tLuz',p.luz);stT('tDoc',p.docTipo);stT('tSubir',p.subir);stT('tApart',p.apart);stT('tPisos',p.pisos);stT('tCivil',p.civil);stM('tServ',p.serv)}
+function saveP(){const fr=parseFloat(gv('fFr')),fo=parseFloat(gv('fFo'));let area=gv('fArea');if(!area&&fr&&fo)area=(fr*fo).toFixed(1);const p={id:editId||Date.now().toString(),fotos:[...photos],tipo:gT('tTipo'),estado:gT('tEstado'),dir:gv('fDir'),mun:gv('fMun'),dcdmx:gv('fDCDMX'),tcdmx:gv('fTCDMX'),dpach:gv('fDPach'),tpach:gv('fTPach'),pav:gT('tPav'),luz:gT('tLuz'),maps:gv('fMaps'),fr:gv('fFr'),fo:gv('fFo'),li:gv('fLi'),ld:gv('fLd'),area:area,serv:gM('tServ'),docTipo:gT('tDoc'),docN:gv('fDocN'),pl:gv('fPL'),pm:gv('fPM'),subir:gT('tSubir'),com:gv('fCom'),gan:gv('fGan'),apart:gT('tApart'),map:gv('fMAp'),eng:gv('fEng'),deu:gv('fDeu'),fech:gv('fFech'),tc:gv('fTC'),pisos:gT('tPisos'),prop:gv('fProp'),cliente:gv('fCliente'),tel:gv('fTel'),civil:gT('tCivil'),desc:gv('fDesc'),notas:gv('fNotas'),upd:new Date().toISOString()};if(editId){const i=props.findIndex(x=>x.id===editId);if(i>=0)props[i]=p}else{props.unshift(p)}save();toast(editId?'✅ Propiedad actualizada':'✅ Propiedad guardada');editId=p.id;showDetail(p.id)}
 function deleteP(){if(!editId)return;if(!confirm('¿Eliminar esta propiedad?'))return;props=props.filter(x=>x.id!==editId);save();toast('🗑️ Eliminada');editId=null;showList()}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 
