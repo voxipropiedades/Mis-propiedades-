@@ -26,10 +26,11 @@
             --success: #2e7d32;
             --danger: #d32f2f;
             --card-bg: #ffffff;
+            --wa-green: #25D366;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
-        body { background: var(--bg-gradient); color: var(--text); margin: 0; padding-bottom: 110px; min-height: 100vh; background-attachment: fixed; }
+        body { background: var(--bg-gradient); color: var(--text); margin: 0; padding-bottom: 120px; min-height: 100vh; background-attachment: fixed; }
         
         header {
             background: var(--header-gradient);
@@ -66,6 +67,7 @@
         .card {
             background: var(--card-bg); border: 1px solid #e4e6eb; border-radius: 16px;
             padding: 20px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
 
         .box-container {
@@ -89,8 +91,12 @@
             justify-content: center; width: 100%; transition: 0.2s;
         }
         .btn-add { background: var(--primary); color: white; margin-bottom: 25px; font-size: 1.1em; }
-        .btn-save { background: var(--success); color: white; font-size: 1.2em; }
-        .btn-proposal { background: var(--accent); color: #333; margin-top: 15px; border: 1px solid #e5c543; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .btn-save { background: var(--success); color: white; font-size: 1.2em; border: 2px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        /* Botones de acción rápida */
+        .btn-wa-direct { background: var(--wa-green); color: white; font-size: 0.9em; margin-top: 10px; }
+        .btn-flyer-direct { background: var(--accent); color: #333; margin-top: 10px; }
+
         .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccd0d5; width: auto; background: none; font-size: 1.3em; }
 
         /* Estilos de fotos */
@@ -100,11 +106,7 @@
             border: 2px dashed #ccc; cursor: pointer; position: relative;
         }
         .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .photo-thumb { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 8px; overflow: hidden; position: relative; }
-        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-thumb .remove { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; }
-
+        
         /* Modal y Flyer Styles */
         #proposalModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -114,21 +116,10 @@
             background: white; max-width: 500px; margin: 20px auto; border-radius: 20px;
             overflow: hidden; position: relative;
         }
-        
-        /* Estilos de Flyer */
-        .flyer-professional { border: 10px solid var(--primary); padding: 0; }
-        .flyer-modern { background: #1a1a1a; color: white; }
-        .flyer-impact { background: #fff; border-top: 20px solid var(--danger); }
-
-        .style-selector {
-            display: flex; gap: 5px; margin-bottom: 15px; padding: 10px; background: #eee; border-radius: 10px;
-        }
-        .style-btn { flex: 1; padding: 8px; border: none; border-radius: 5px; font-size: 0.8em; font-weight: bold; cursor: pointer; }
-        .style-btn.active { background: var(--primary); color: white; }
 
         .fixed-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 20px;
-            display: flex; gap: 10px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; padding: 15px;
+            display: flex; flex-direction: column; gap: 8px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000;
         }
 
         .tab-content { display: none; }
@@ -139,6 +130,8 @@
             background: rgba(255,255,255,0.8); z-index: 3000; flex-direction: column;
             align-items: center; justify-content: center;
         }
+        
+        .action-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -169,94 +162,84 @@
 
     <!-- PROSPECTOS -->
     <div id="prospectos" class="tab-content">
-        <button class="btn btn-add" style="background:var(--secondary);" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> AGREGAR NUEVO CLIENTE</button>
+        <button class="btn btn-add" style="background:var(--secondary);" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> AGREGAR CLIENTE</button>
         <div id="prospectList"></div>
     </div>
 
     <!-- CONTRATOS -->
     <div id="contratos" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-scroll"></i> Oficina de Contratos</h2>
-            <div style="display:flex; gap:10px; margin-bottom:15px; overflow-x: auto;">
-                <button class="tab-btn" onclick="loadTemplate('promesa')">Promesa</button>
-                <button class="tab-btn" onclick="loadTemplate('compraventa')">Venta</button>
-                <button class="tab-btn" onclick="loadTemplate('permuta')">Permuta</button>
-                <button class="tab-btn" onclick="loadTemplate('mutuo')">Mutuo</button>
+            <h2><i class="fas fa-scroll"></i> Oficina de Papeleo</h2>
+            <div style="display:flex; gap:5px; margin-bottom:15px; overflow-x: auto;">
+                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('promesa')">Promesa</button>
+                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('compraventa')">Venta</button>
+                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('permuta')">Permuta</button>
             </div>
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <div class="action-group">
                 <button class="btn" style="background:#7b1fa2; color:white;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
                 <button class="btn" style="background:#d32f2f; color:white;" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> BAJAR PDF</button>
             </div>
+            <button class="btn btn-wa-direct" style="margin-top:10px;" onclick="shareContractWA()"><i class="fab fa-whatsapp"></i> ENVIAR TEXTO POR WHATSAPP</button>
             <input type="file" id="ocrInput" hidden accept="image/*" onchange="performOCR(this)">
-            <textarea id="contractText" placeholder="Redacta el contrato aquí..." rows="18" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:1em;"></textarea>
+            <textarea id="contractText" placeholder="Redacta el contrato aquí..." rows="18" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:1em; margin-top:15px;"></textarea>
         </div>
     </div>
 
     <!-- ESTRATEGIA -->
     <div id="estrategia" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-bullhorn"></i> Mi Plan de Venta</h2>
+            <h2><i class="fas fa-bullhorn"></i> Plan de Cierre</h2>
             <div id="strategyBox" style="background:#fff9db; padding:20px; border-radius:14px; border:2px dashed #fab005; font-size:1.1em; color:#856404; line-height:1.6;"></div>
-            <textarea id="userNotes" placeholder="Mis metas del día..." rows="10" style="width:100%; padding:18px; border:2px solid #f0f2f5; border-radius:14px; font-size:1.1em; margin-top:20px;"></textarea>
+            <textarea id="userNotes" placeholder="Mis metas personales..." rows="10" style="width:100%; padding:18px; border:2px solid #f0f2f5; border-radius:14px; font-size:1.1em; margin-top:20px;"></textarea>
         </div>
     </div>
 </div>
 
 <div class="fixed-footer">
-    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO</button>
+    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO (PARA QUE NO SE BORRE)</button>
 </div>
 
-<!-- Modal FICHA PARA CLIENTE (FLYER) -->
+<!-- Modal FLYER -->
 <div id="proposalModal">
-    <div class="style-selector">
-        <button class="style-btn active" onclick="setFlyerStyle('professional')">PROFESIONAL</button>
-        <button class="style-btn" onclick="setFlyerStyle('modern')">MODERNO</button>
-        <button class="style-btn" onclick="setFlyerStyle('impact')">IMPACTO</button>
+    <div style="display:flex; gap:5px; padding:10px; background:#eee;">
+        <button class="btn" style="background:white; color:#333; font-size:0.7em; padding:8px;" onclick="setFlyerStyle('professional')">PROFESIONAL</button>
+        <button class="btn" style="background:white; color:#333; font-size:0.7em; padding:8px;" onclick="setFlyerStyle('modern')">MODERNO</button>
+        <button class="btn" style="background:white; color:#333; font-size:0.7em; padding:8px;" onclick="setFlyerStyle('impact')">IMPACTO</button>
     </div>
     
-    <div id="flyerArea" class="proposal-content flyer-professional">
+    <div id="flyerArea" class="proposal-content">
         <div id="modalPhotoContainer" style="width:100%; height:250px; background:#eee; position:relative; overflow:hidden;">
             <img id="modalMainImg" style="width:100%; height:100%; object-fit:cover;">
-            <div style="position:absolute; top:15px; left:15px; background:var(--primary); color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.9em;" id="modalBadge"></div>
+            <div style="position:absolute; top:15px; left:15px; background:var(--primary); color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.8em;" id="modalBadge"></div>
         </div>
-        <div style="padding:25px;" id="modalContentArea">
-            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary); font-size:1.6em;"></h2>
-            <div id="modalPrice" style="font-size:2.5em; color:var(--success); font-weight:900; margin:10px 0;"></div>
-            <p id="modalPromoTag" style="color:var(--danger); font-weight:800; margin-bottom:20px; font-size:1.1em;">¡OFERTA ÚNICA EN EFECTIVO!</p>
-            
-            <div style="background:#f0f2f5; padding:20px; border-radius:18px; border: 1px solid #e4e6eb; color:#333;" id="modalInfoBox">
-                <p style="margin:8px 0;"><strong>📍 Ubicación:</strong> <span id="modalLoc"></span></p>
-                <p style="margin:8px 0;"><strong>📐 Medidas:</strong> <span id="modalSize"></span></p>
-                <p style="margin:8px 0;"><strong>🏗️ Estatus:</strong> <span id="modalStatus"></span></p>
-                <hr style="border:none; border-top: 1px solid #ccc; margin:15px 0;">
-                <p id="modalDesc" style="line-height:1.5; font-style: italic;"></p>
+        <div style="padding:20px;">
+            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary); font-size:1.4em;"></h2>
+            <div id="modalPrice" style="font-size:2.2em; color:var(--success); font-weight:900; margin:5px 0;"></div>
+            <div style="background:#f0f2f5; padding:15px; border-radius:12px; margin:10px 0; font-size:0.9em; color:#333;" id="modalInfoBox">
+                <p>📍 <span id="modalLoc"></span></p>
+                <p>📐 <span id="modalSize"></span></p>
+                <p>🏗️ <span id="modalStatus"></span></p>
+                <p id="modalDesc" style="font-style:italic; margin-top:10px;"></p>
             </div>
-            
-            <div id="modalGallery" style="display:flex; gap:8px; overflow-x:auto; margin-top:20px; padding-bottom:10px;"></div>
-            
-            <div style="margin-top:20px; text-align:center; font-weight:bold; color:var(--primary); font-size:0.9em;">
-                🏠 PROPIEDADES HR - Trato Directo y Seguro
-            </div>
+            <p style="text-align:center; font-size:0.8em; font-weight:bold; color:var(--primary);">🏠 PROPIEDADES HR</p>
         </div>
     </div>
     
-    <div style="max-width:500px; margin: 10px auto; display:flex; gap:10px;">
-        <button class="btn" style="background:#25D366; color:white; flex:2;" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> ENVIAR FLYER</button>
-        <button class="btn" style="background:#fff; color:#333; flex:1;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR</button>
+    <div style="padding:10px; display:flex; flex-direction:column; gap:10px;">
+        <button class="btn" style="background:var(--wa-green); color:white;" id="btnWhatsAppFlyer"><i class="fab fa-whatsapp"></i> ENVIAR DATOS POR WHATSAPP</button>
+        <p style="color:white; font-size:0.75em; text-align:center;">💡 <b>Para enviar el Flyer como foto:</b> Toma una captura de pantalla (screenshot) y envíala por WhatsApp.</p>
+        <button class="btn" style="background:#fff; color:#333;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR VISTA</button>
     </div>
 </div>
 
 <script>
-    const STRATEGY_TEXT = "💡 ESTRATEGIA: Cierre rápido antes de 2 semanas con descuento especial por liquidación inmediata.";
     let voxiData = { properties: [], prospects: [], legal: "", notes: "" };
-    let currentPropIndex = null;
 
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active-tab');
         document.getElementById('btn-' + tabId).classList.add('active');
-        window.scrollTo(0,0);
     }
 
     function addItem(type) {
@@ -291,23 +274,6 @@
         reader.readAsDataURL(file);
     }
 
-    function handleMainPhoto(index, input) {
-        if (input.files[0]) processImage(input.files[0], 600, (b64) => { voxiData.properties[index].mainPhoto = b64; renderProperties(); });
-    }
-
-    function handleGallery(index, input) {
-        if (input.files) {
-            Array.from(input.files).slice(0, 20).forEach(file => {
-                processImage(file, 400, (b64) => {
-                    if (voxiData.properties[index].gallery.length < 20) {
-                        voxiData.properties[index].gallery.push(b64);
-                        renderProperties();
-                    }
-                });
-            });
-        }
-    }
-
     function update(type, index, key, val) { voxiData[type][index][key] = val; }
 
     function renderProperties() {
@@ -316,16 +282,11 @@
         voxiData.properties.forEach((p, i) => {
             const card = document.createElement('div');
             card.className = 'card';
-            let galleryHTML = '';
-            p.gallery.forEach((img, gi) => {
-                galleryHTML += `<div class="photo-thumb"><img src="${img}"><button class="remove" onclick="voxiData.properties[${i}].gallery.splice(${gi},1);renderProperties();">X</button></div>`;
-            });
-
             card.innerHTML = `
                 <button class="btn-delete" onclick="if(confirm('¿Borrar?')){voxiData.properties.splice(${i},1);renderProperties();}"><i class="fas fa-trash"></i></button>
                 <div class="photo-main-preview" onclick="document.getElementById('fileMain${i}').click()">
                     ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera"></i> Foto Principal'}
-                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handleMainPhoto(${i}, this)">
+                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="if(this.files[0])processImage(this.files[0],600,(b64)=>{voxiData.properties[${i}].mainPhoto=b64;renderProperties();})">
                 </div>
                 <div class="box-container">
                     <div class="box"><label>Tipo</label><select onchange="update('properties', ${i}, 'tipo', this.value)"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option></select></div>
@@ -335,94 +296,92 @@
                     <div class="box"><label>Precio Lista</label><input type="text" value="${p.precio_lista}" oninput="update('properties', ${i}, 'precio_lista', this.value)"></div>
                     <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio_efectivo}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:900;"></div>
                     <div class="box"><label>Medidas</label><input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
-                    <div class="box"><label>Tu Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="color:var(--primary); font-weight:800;"></div>
+                    <div class="box"><label>Mi Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="color:var(--primary); font-weight:800;"></div>
                     <div class="box full-box"><label>Descripción para el cliente</label><textarea rows="3" oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion}</textarea></div>
                 </div>
-                <div class="photo-gallery">
-                    ${galleryHTML}
-                    <div class="photo-thumb" style="border:2px dashed #ccc; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('fileGal${i}').click()">
-                        <i class="fas fa-plus" style="color:#ccc;"></i>
-                        <input type="file" id="fileGal${i}" hidden accept="image/*" multiple onchange="handleGallery(${i}, this)">
-                    </div>
+                <div class="action-group">
+                    <button class="btn btn-flyer-direct" onclick="openProposal(${i})"><i class="fas fa-bullhorn"></i> VER FLYER</button>
+                    <button class="btn btn-wa-direct" onclick="sharePropertyWA(${i})"><i class="fab fa-whatsapp"></i> ENVIAR YA</button>
                 </div>
-                <button class="btn btn-proposal" onclick="openProposal(${i})"><i class="fas fa-bullhorn"></i> GENERAR FICHA Y FLYER</button>
             `;
             list.appendChild(card);
         });
     }
 
-    function openProposal(index) {
-        currentPropIndex = index;
+    function sharePropertyWA(index) {
         const p = voxiData.properties[index];
-        document.getElementById('modalTitle').innerText = p.titulo || 'Gran Oportunidad HR';
+        const text = `🏠 *${p.titulo || 'Oportunidad HR'}*\n💰 *PRECIO REMATE:* $${p.precio_efectivo || '---'}\n📍 *Ubicación:* ${p.ubicacion || '---'}\n📏 *Medidas:* ${p.medidas || '---'}\n📝 *Detalles:* ${p.descripcion || '---'}\n\n_Enviado desde Propiedades HR_`;
+        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
+    }
+
+    function openProposal(index) {
+        const p = voxiData.properties[index];
+        document.getElementById('modalTitle').innerText = p.titulo || 'Oportunidad HR';
         document.getElementById('modalBadge').innerText = (p.tipo || 'Casa') + ' - ' + (p.estado || 'Especial');
         document.getElementById('modalPrice').innerText = '$' + (p.precio_efectivo || '---');
-        document.getElementById('modalLoc').innerText = p.ubicacion || 'Consultar';
+        document.getElementById('modalLoc').innerText = p.ubicacion || '---';
         document.getElementById('modalSize').innerText = p.medidas || '---';
         document.getElementById('modalStatus').innerText = p.estado;
-        document.getElementById('modalDesc').innerText = p.descripcion || 'Contáctanos para más detalles.';
+        document.getElementById('modalDesc').innerText = p.descripcion || '';
         document.getElementById('modalMainImg').src = p.mainPhoto || '';
-        
-        const gallery = document.getElementById('modalGallery');
-        gallery.innerHTML = '';
-        p.gallery.forEach(img => {
-            const imgEl = document.createElement('img'); imgEl.src = img; imgEl.style.height = '80px'; imgEl.style.borderRadius = '8px'; gallery.appendChild(imgEl);
-        });
-
-        document.getElementById('btnWhatsApp').onclick = () => {
-            const text = `🏠 *${p.titulo}*\n💰 *PRECIO REMATE:* $${p.precio_efectivo}\n📍 *Ubicación:* ${p.ubicacion}\n📏 *Medidas:* ${p.medidas}\n🏗️ *Estatus:* ${p.estado}\n📝 *Descripción:* ${p.descripcion}\n\n_Enviado desde Propiedades HR_`;
-            window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
-        };
-        
+        document.getElementById('btnWhatsAppFlyer').onclick = () => sharePropertyWA(index);
         setFlyerStyle('professional');
         document.getElementById('proposalModal').style.display = 'block';
     }
 
     function setFlyerStyle(style) {
         const area = document.getElementById('flyerArea');
-        const btns = document.querySelectorAll('.style-btn');
-        btns.forEach(b => b.classList.remove('active'));
-        event.target.classList && event.target.classList.add('active');
-
-        area.className = 'proposal-content flyer-' + style;
-        
         const title = document.getElementById('modalTitle');
         const info = document.getElementById('modalInfoBox');
-        
         if(style === 'modern') {
-            area.style.background = '#1a1a1a';
-            area.style.color = 'white';
-            title.style.color = 'var(--accent)';
-            info.style.background = '#333';
-            info.style.color = 'white';
+            area.style.background = '#1a1a1a'; area.style.color = 'white';
+            title.style.color = 'var(--accent)'; info.style.background = '#333'; info.style.color = 'white';
         } else if(style === 'impact') {
-            area.style.background = '#fff';
-            area.style.color = '#1c1e21';
-            title.style.color = 'var(--danger)';
-            info.style.background = '#fff0f0';
-            info.style.color = '#1c1e21';
+            area.style.background = '#fff'; area.style.color = '#1c1e21';
+            title.style.color = 'var(--danger)'; info.style.background = '#fff0f0'; info.style.color = '#1c1e21';
         } else {
-            area.style.background = '#fff';
-            area.style.color = '#1c1e21';
-            title.style.color = 'var(--primary)';
-            info.style.background = '#f0f2f5';
-            info.style.color = '#333';
+            area.style.background = '#fff'; area.style.color = '#1c1e21';
+            title.style.color = 'var(--primary)'; info.style.background = '#f0f2f5'; info.style.color = '#333';
         }
+    }
+
+    async function performOCR(input) {
+        if (!input.files[0]) return;
+        document.getElementById('loader').style.display = 'flex';
+        try {
+            const worker = await Tesseract.createWorker('spa');
+            const ret = await worker.recognize(input.files[0]);
+            document.getElementById('contractText').value += "\n\n--- ESCANEO ---\n" + ret.data.text;
+            await worker.terminate();
+        } finally { document.getElementById('loader').style.display = 'none'; }
+    }
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text(doc.splitTextToSize(document.getElementById('contractText').value, 180), 10, 20);
+        doc.save('Contrato_HR.pdf');
+    }
+
+    function shareContractWA() {
+        const text = document.getElementById('contractText').value;
+        if(!text) return alert('Escribe algo primero');
+        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
     }
 
     function saveData() {
         voxiData.legal = document.getElementById('contractText').value;
         voxiData.notes = document.getElementById('userNotes').value;
-        localStorage.setItem('hr_pro_master_v12', JSON.stringify(voxiData));
+        localStorage.setItem('hr_pro_final_v13', JSON.stringify(voxiData));
         alert('✅ ¡TODO GUARDADO!');
     }
 
     function loadData() {
-        const saved = localStorage.getItem('hr_pro_master_v12');
+        const saved = localStorage.getItem('hr_pro_final_v13');
         if(saved) voxiData = JSON.parse(saved);
         document.getElementById('contractText').value = voxiData.legal || '';
         document.getElementById('userNotes').value = voxiData.notes || '';
-        document.getElementById('strategyBox').innerText = STRATEGY_TEXT;
+        document.getElementById('strategyBox').innerText = "💡 ESTRATEGIA: Cierre rápido antes de 2 semanas con descuento especial por liquidación inmediata.";
         renderProperties();
     }
 
