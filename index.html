@@ -1,435 +1,339 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#8B4513">
-<title>Voxi Propiedades</title>
-<link rel="manifest" href="manifest.json">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#F5EFE6;--card:#FFFFFF;--card2:#FAF3EA;
-  --accent:#8B4513;--accent2:#A0522D;--gold:#7B3F10;
-  --text:#3E1F00;--muted:#8C6A4A;
-  --green:#2E7D32;--yellow:#B8860B;--red:#C0392B;
-  --border:#DEC9B0;--input:#FDF8F3;
-  --nav:#8B4513;--navtext:#FFFFFF;
-}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;background-image:url('https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80');background-attachment:fixed;background-size:cover;background-position:center}
-body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(245,239,230,0.92);z-index:-1}
-.nav{background:linear-gradient(135deg,#8B4513,#A0522D);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid #6B3410;box-shadow:0 2px 12px rgba(0,0,0,.2)}
-.nav h1{font-size:18px;font-weight:700;color:#FFFFFF}
-.back-btn{background:none;border:none;color:#FFFFFF;font-size:22px;cursor:pointer;padding:4px 8px}
-.add-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:20px;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
-.screen{display:none;padding:16px}.screen.active{display:block}
-.hero{background:linear-gradient(135deg,#8B4513,#A0522D);border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid #6B3410}
-.hero h2{font-size:22px;font-weight:800;color:#FFFFFF;margin-bottom:4px}
-.hero p{font-size:13px;color:#F0D9C8}
-.search-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:15px;width:100%;margin-bottom:16px;outline:none}
-.search-bar:focus{border-color:var(--accent)}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.stat-card{background:var(--card2);border-radius:14px;padding:16px;text-align:center;border:1px solid var(--border)}
-.stat-card .num{font-size:28px;font-weight:800;color:var(--accent)}
-.stat-card .lbl{font-size:12px;color:var(--muted);margin-top:4px}
-.prop-card{background:var(--card);border-radius:16px;margin-bottom:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:transform .15s}
-.prop-card:active{transform:scale(.98)}
-.prop-card-img{width:100%;height:170px;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:50px}
-.prop-card-img img{width:100%;height:100%;object-fit:cover}
-.prop-card-body{padding:14px}
-.prop-card-title{font-size:16px;font-weight:700;margin-bottom:4px}
-.prop-card-sub{font-size:13px;color:var(--muted)}
-.prop-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
-.badge-venta{background:#D4EDDA;color:#2E7D32}
-.badge-preventa{background:#FFF3CD;color:#856404}
-.badge-usada{background:#E8D5F5;color:#6A1B9A}
-.badge-apartada{background:#D1ECF1;color:#0C5460}
-.price-tag{font-size:16px;font-weight:800;color:var(--gold)}
-.filters{display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;padding-bottom:4px}
-.filters::-webkit-scrollbar{display:none}
-.filter-btn{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:7px 16px;color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap}
-.filter-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent);color:#fff}
-.form-section{background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid var(--border)}
-.form-section h3{font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:10px}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-.form-group input,.form-group textarea{width:100%;background:var(--input);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:15px;outline:none}
-.form-group textarea{min-height:80px;resize:vertical}
-.form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.toggle-group{display:flex;gap:8px;flex-wrap:wrap}
-.toggle-opt{background:var(--input);border:1px solid var(--border);border-radius:20px;padding:7px 15px;font-size:13px;cursor:pointer;color:var(--muted)}
-.toggle-opt.selected{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent);color:#fff;font-weight:600}
-.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.photo-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--input)}
-.photo-thumb img{width:100%;height:100%;object-fit:cover}
-.del-photo{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.75);border:none;color:#fff;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.photo-add{aspect-ratio:1;border-radius:10px;border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:11px;gap:4px}
-.photo-add span{font-size:28px}
-.btn{width:100%;padding:15px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer}
-.btn:active{opacity:.85}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border)}
-.btn-danger{background:#2A0A06;color:var(--red);border:1px solid var(--red);margin-top:8px}
-.btn-whatsapp{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff}
-.btn-group{display:flex;flex-direction:column;gap:10px;margin-top:16px;padding-bottom:50px}
-.detail-photos{display:flex;overflow-x:auto;gap:10px;margin:-16px -16px 16px;padding:0 16px 10px}
-.detail-photos::-webkit-scrollbar{display:none}
-.detail-photo{flex-shrink:0;width:220px;height:160px;border-radius:12px;overflow:hidden;background:var(--card2)}
-.detail-photo img{width:100%;height:100%;object-fit:cover}
-.detail-section{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--border)}
-.detail-section h3{font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:8px}
-.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(74,46,20,.5)}
-.detail-row:last-child{border-bottom:none}
-.lbl{font-size:13px;color:var(--muted);flex:1}
-.val{font-size:14px;font-weight:600;text-align:right;flex:1.5}
-.val-green{color:var(--green)}.val-red{color:var(--red)}.val-gold{color:var(--accent)}
-.ficha-box{background:linear-gradient(135deg,#FDF0E6,#FAE8D8);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--accent2)}
-.ficha-box h3{color:var(--accent);font-size:15px;margin-bottom:12px;font-weight:700}
-.ficha-preview{background:var(--input);border-radius:12px;padding:14px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;border:1px solid var(--border);margin-bottom:10px;max-height:200px;overflow-y:auto}
-.chip{display:inline-flex;background:var(--card2);border-radius:20px;padding:5px 12px;font-size:12px;margin:3px;border:1px solid var(--border)}
-.empty{text-align:center;padding:60px 20px;color:var(--muted)}
-.empty .icon{font-size:64px;margin-bottom:16px}
-.empty p{font-size:15px;line-height:1.6}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:11px 22px;border-radius:24px;font-size:14px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
-.toast.show{opacity:1}
-.no-results{text-align:center;padding:40px;color:var(--muted)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voxi Propiedades V4 - Gestión Elite</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #004aad;
+            --secondary: #00c4cc;
+            --accent: #ffde59;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --text: #333;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container { max-width: 900px; margin: auto; padding: 15px; }
+
+        .section-card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        h2 { border-left: 5px solid var(--secondary); padding-left: 10px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-success { background: var(--success); }
+        .btn-add { background: var(--secondary); margin-bottom: 10px; }
+
+        .card {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            font-weight: bold;
+            color: white;
+            background: var(--secondary);
+        }
+
+        .price-tag { color: var(--success); font-weight: bold; font-size: 1.1em; }
+        .profit-tag { color: var(--primary); font-weight: bold; background: #eef4ff; padding: 5px; border-radius: 5px; }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--danger);
+            cursor: pointer;
+        }
+
+        .fixed-footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .tab-content { display: none; }
+        .active-tab { display: block; }
+
+        .tabs-nav {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 5px;
+        }
+        .tab-btn {
+            background: #eee;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .tab-btn.active { background: var(--primary); color: white; }
+    </style>
 </head>
 <body>
-<div class="toast" id="toast"></div>
 
-<!-- LISTA -->
-<div id="screen-list" class="screen active">
-  <div class="nav">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:36px;height:36px;background-image:url('https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=100&q=80');background-size:cover;border-radius:8px;border:2px solid rgba(255,255,255,0.3)"></div>
-      <h1 style="margin:0;font-size:20px">Voxi Propiedades</h1>
+<header>
+    <h1>VOXI ELITE V4</h1>
+    <p>Control Total de Propiedades y Cierres</p>
+</header>
+
+<div class="container">
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="showTab('inventario')">🏠 Inventario</button>
+        <button class="tab-btn" onclick="showTab('prospectos')">👥 Prospectos</button>
+        <button class="tab-btn" onclick="showTab('legal')">📜 Contratos</button>
+        <button class="tab-btn" onclick="showTab('estrategia')">💡 Mi Estrategia</button>
     </div>
-    <button class="add-btn" onclick="showAdd()">+</button>
-  </div>
-  <div style="padding:16px">
-    <div class="hero">
-      <h2>Mis Propiedades</h2>
-      <p>Gestión profesional · Acayuca, Hidalgo</p>
+
+    <!-- SECCIÓN INVENTARIO -->
+    <div id="inventario" class="tab-content active-tab">
+        <div class="section-card">
+            <h2><i class="fas fa-home"></i> Casas y Terrenos</h2>
+            <button class="btn btn-add" onclick="addProperty()"><i class="fas fa-plus"></i> Nueva Propiedad</button>
+            <div id="propertyList"></div>
+        </div>
     </div>
-    <input class="search-bar" type="text" id="searchInput" placeholder="🔍 Buscar dirección, cliente, tipo..." oninput="renderList()">
-    <div class="filters">
-      <button class="filter-btn active" onclick="setFilter('all',this)">Todas</button>
-      <button class="filter-btn" onclick="setFilter('nueva',this)">Nueva</button>
-      <button class="filter-btn" onclick="setFilter('usada',this)">Usada</button>
-      <button class="filter-btn" onclick="setFilter('preventa',this)">Preventa</button>
-      <button class="filter-btn" onclick="setFilter('terreno',this)">Terreno</button>
-      <button class="filter-btn" onclick="setFilter('parcela',this)">Parcela</button>
-      <button class="filter-btn" onclick="setFilter('apartada',this)">Apartadas</button>
+
+    <!-- SECCIÓN PROSPECTOS -->
+    <div id="prospectos" class="tab-content">
+        <div class="section-card">
+            <h2><i class="fas fa-users"></i> Seguimiento de Prospectos</h2>
+            <button class="btn btn-add" onclick="addProspect()"><i class="fas fa-plus"></i> Nuevo Prospecto</button>
+            <div id="prospectList"></div>
+        </div>
     </div>
-    <div class="stats" id="statsArea"></div>
-    <div id="propList"></div>
-  </div>
+
+    <!-- SECCIÓN LEGAL -->
+    <div id="legal" class="tab-content">
+        <div class="section-card">
+            <h2><i class="fas fa-file-contract"></i> Gestión de Contratos</h2>
+            <textarea id="contratosNote" placeholder="Anota aquí el estado de las escrituras, pagos pendientes de terrenos, y trámites Fovissste/Issfam..." rows="10"></textarea>
+        </div>
+    </div>
+
+    <!-- SECCIÓN ESTRATEGIA -->
+    <div id="estrategia" class="tab-content">
+        <div class="section-card">
+            <h2><i class="fas fa-lightbulb"></i> Propuestas de Zapia</h2>
+            <div id="strategyContent" style="background: #fff9db; padding: 15px; border-radius: 10px; border: 1px dashed #fab005;">
+                Aquí pegaremos los guiones de venta y estrategias de cierre que vayamos armando.
+            </div>
+            <textarea id="myNotes" placeholder="Mis propias notas de cierre..." rows="5" style="margin-top:15px;"></textarea>
+        </div>
+    </div>
 </div>
 
-<!-- DETALLE -->
-<div id="screen-detail" class="screen">
-  <div class="nav">
-    <button class="back-btn" onclick="showList()">←</button>
-    <h1 id="detailTitle">Propiedad</h1>
-    <button class="add-btn" style="background:linear-gradient(135deg,#6B3410,#8B4513);font-size:16px" onclick="editCurrent()">✏️</button>
-  </div>
-  <div style="padding:16px" id="detailContent"></div>
-</div>
-
-<!-- FORMULARIO -->
-<div id="screen-form" class="screen">
-  <div class="nav">
-    <button class="back-btn" onclick="showList()">←</button>
-    <h1 id="formTitle">Nueva Propiedad</h1>
-    <div></div>
-  </div>
-  <div style="padding:16px">
-    <div class="form-section">
-      <h3>📷 Fotos (mín. 20)</h3>
-      <div class="photos-grid" id="photosGrid">
-        <label class="photo-add" for="photoInput"><span>+</span>Agregar</label>
-      </div>
-      <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="addPhotos(this)">
-      <p style="font-size:12px;color:var(--muted);margin-top:8px" id="photoCount">0 fotos</p>
-    </div>
-    <div class="form-section">
-      <h3>🏷️ Tipo de Propiedad</h3>
-      <div class="form-group"><label>Tipo</label>
-        <div class="toggle-group" id="tTipo">
-          <div class="toggle-opt" data-val="casa" onclick="selT('tTipo',this)">Casa</div>
-          <div class="toggle-opt" data-val="terreno" onclick="selT('tTipo',this)">Terreno</div>
-          <div class="toggle-opt" data-val="parcela" onclick="selT('tTipo',this)">Parcela</div>
-          <div class="toggle-opt" data-val="bodega" onclick="selT('tTipo',this)">Bodega</div>
-        </div>
-      </div>
-      <div class="form-group"><label>Estado</label>
-        <div class="toggle-group" id="tEstado">
-          <div class="toggle-opt" data-val="preventa" onclick="selT('tEstado',this)">Preventa</div>
-          <div class="toggle-opt" data-val="nueva" onclick="selT('tEstado',this)">Nueva</div>
-          <div class="toggle-opt" data-val="usada" onclick="selT('tEstado',this)">Usada</div>
-        </div>
-      </div>
-    </div>
-    <div class="form-section">
-      <h3>📍 Ubicación</h3>
-      <div class="form-group"><label>Dirección / Calle</label><input type="text" id="fDir" placeholder="Calle, número, colonia"></div>
-      <div class="form-group"><label>Municipio / Ciudad</label><input type="text" id="fMun" placeholder="Ej. Acayuca, Hidalgo"></div>
-      <div class="form-group"><label>Distancia a CDMX</label>
-        <div class="form-row"><input type="text" id="fDCDMX" placeholder="Km"><input type="text" id="fTCDMX" placeholder="Tiempo"></div>
-      </div>
-      <div class="form-group"><label>Distancia a Pachuca</label>
-        <div class="form-row"><input type="text" id="fDPach" placeholder="Km"><input type="text" id="fTPach" placeholder="Tiempo"></div>
-      </div>
-      <div class="form-group"><label>Calle pavimentada</label>
-        <div class="toggle-group" id="tPav">
-          <div class="toggle-opt" data-val="sí" onclick="selT('tPav',this)">Sí</div>
-          <div class="toggle-opt" data-val="no" onclick="selT('tPav',this)">No</div>
-          <div class="toggle-opt" data-val="parcial" onclick="selT('tPav',this)">Parcial</div>
-        </div>
-      </div>
-      <div class="form-group"><label>Luz pública</label>
-        <div class="toggle-group" id="tLuz">
-          <div class="toggle-opt" data-val="sí" onclick="selT('tLuz',this)">Sí</div>
-          <div class="toggle-opt" data-val="no" onclick="selT('tLuz',this)">No</div>
-        </div>
-      </div>
-      <div class="form-group"><label>Google Maps (opcional)</label><input type="url" id="fMaps" placeholder="https://maps.google.com/..."></div>
-    </div>
-    <div class="form-section">
-      <h3>📐 Medidas</h3>
-      <div class="form-row">
-        <div class="form-group"><label>Frente (m)</label><input type="number" id="fFr" placeholder="0"></div>
-        <div class="form-group"><label>Fondo (m)</label><input type="number" id="fFo" placeholder="0"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Lado izq. (m)</label><input type="number" id="fLi" placeholder="0"></div>
-        <div class="form-group"><label>Lado der. (m)</label><input type="number" id="fLd" placeholder="0"></div>
-      </div>
-      <div class="form-group"><label>Área total (m²)</label><input type="number" id="fArea" placeholder="Se calcula automático"></div>
-    </div>
-    <div class="form-section">
-      <h3>⚡ Servicios</h3>
-      <div class="toggle-group" id="tServ" style="flex-wrap:wrap">
-        <div class="toggle-opt" data-val="agua" onclick="selM('tServ',this)">💧 Agua</div>
-        <div class="toggle-opt" data-val="luz" onclick="selM('tServ',this)">💡 Luz</div>
-        <div class="toggle-opt" data-val="drenaje" onclick="selM('tServ',this)">🔩 Drenaje</div>
-        <div class="toggle-opt" data-val="gas" onclick="selM('tServ',this)">🔥 Gas</div>
-        <div class="toggle-opt" data-val="internet" onclick="selM('tServ',this)">📶 Internet</div>
-      </div>
-    </div>
-    <div class="form-section">
-      <h3>📄 Documentación y Contratos</h3>
-      <div class="form-group"><label>Tipo de documento</label>
-        <div class="toggle-group" id="tDoc">
-          <div class="toggle-opt" data-val="titulo" onclick="selT('tDoc',this)">Título propiedad</div>
-          <div class="toggle-opt" data-val="escritura" onclick="selT('tDoc',this)">Escritura pública</div>
-          <div class="toggle-opt" data-val="posesion" onclick="selT('tDoc',this)">Posesión</div>
-          <div class="toggle-opt" data-val="tramite" onclick="selT('tDoc',this)">En trámite</div>
-        </div>
-      </div>
-      <div class="form-group"><label>📂 Archivos / Contratos</label><textarea id="fDocN" placeholder="Nombres de archivos o links a contratos..." style="min-height:60px"></textarea></div>
-    </div>
-    <div class="form-section">
-      <h3>💰 Precios y Comisiones</h3>
-      <div class="form-group"><label>Precio lista ($)</label><input type="number" id="fPL" placeholder="700000"></div>
-      <div class="form-group"><label>Precio mínimo / efectivo ($)</label><input type="number" id="fPM" placeholder="550000"></div>
-      <div class="form-group"><label>¿Se puede subir el precio?</label>
-        <div class="toggle-group" id="tSubir">
-          <div class="toggle-opt" data-val="sí" onclick="selT('tSubir',this)">Sí, se puede subir</div>
-          <div class="toggle-opt" data-val="no" onclick="selT('tSubir',this)">No, precio fijo</div>
-        </div>
-      </div>
-      <div class="form-group"><label>Comisión del propietario ($)</label><input type="number" id="fCom" placeholder="0"></div>
-      <div class="form-group"><label>Ganancia estimada ($)</label><input type="number" id="fGan" placeholder="0"></div>
-    </div>
-    <div class="form-section">
-      <h3>📊 Estado de Venta</h3>
-      <div class="form-group"><label>¿Está apartada?</label>
-        <div class="toggle-group" id="tApart">
-          <div class="toggle-opt" data-val="no" onclick="selT('tApart',this)">No</div>
-          <div class="toggle-opt" data-val="sí" onclick="selT('tApart',this)">Sí, apartada</div>
-          <div class="toggle-opt" data-val="vendida" onclick="selT('tApart',this)">Vendida</div>
-        </div>
-      </div>
-      <div class="form-group"><label>Monto para apartar ($)</label><input type="number" id="fMAp" placeholder="0"></div>
-      <div class="form-group"><label>Enganche dado ($)</label><input type="number" id="fEng" placeholder="0"></div>
-      <div class="form-group"><label>Monto que se debe ($)</label><input type="number" id="fDeu" placeholder="0"></div>
-      <div class="form-group"><label>Fecha límite de pago</label><input type="date" id="fFech"></div>
-    </div>
-    <div class="form-section">
-      <h3>🏗️ Preventa (si aplica)</h3>
-      <div class="form-group"><label>Tiempo de construcción</label><input type="text" id="fTC" placeholder="Ej. 3 meses"></div>
-      <div class="form-group"><label>Número de pisos</label>
-        <div class="toggle-group" id="tPisos">
-          <div class="toggle-opt" data-val="1" onclick="selT('tPisos',this)">1 piso</div>
-          <div class="toggle-opt" data-val="2" onclick="selT('tPisos',this)">2 pisos</div>
-          <div class="toggle-opt" data-val="personalizable" onclick="selT('tPisos',this)">A petición</div>
-        </div>
-      </div>
-    </div>
-    <div class="form-section">
-      <h3>👤 Propietario / Cliente</h3>
-      <div class="form-group"><label>Nombre del propietario</label><input type="text" id="fProp" placeholder="Nombre completo del dueño"></div>
-      <div class="form-group"><label>👥 Cliente interesado</label><input type="text" id="fCliente" placeholder="Nombre del comprador o prospecto"></div>
-      <div class="form-group"><label>Teléfono</label><input type="tel" id="fTel" placeholder="771 000 0000"></div>
-      <div class="form-group"><label>Estado civil</label>
-        <div class="toggle-group" id="tCivil">
-          <div class="toggle-opt" data-val="soltero" onclick="selT('tCivil',this)">Soltero/a</div>
-          <div class="toggle-opt" data-val="casado" onclick="selT('tCivil',this)">Casado/a</div>
-          <div class="toggle-opt" data-val="divorciado" onclick="selT('tCivil',this)">Divorciado/a</div>
-        </div>
-      </div>
-    </div>
-    <div class="form-section">
-      <h3>📝 Descripción</h3>
-      <div class="form-group"><label>Descripción general</label><textarea id="fDesc" placeholder="Describe la propiedad..." style="min-height:120px"></textarea></div>
-      <div class="form-group"><label>Notas privadas</label><textarea id="fNotas" placeholder="Solo las ves tú..."></textarea></div>
-    </div>
-    <div class="btn-group">
-      <button class="btn btn-primary" onclick="saveP()">💾 Guardar Propiedad</button>
-      <button class="btn btn-secondary" onclick="showList()">Cancelar</button>
-      <button class="btn btn-danger" id="deleteBtn" onclick="deleteP()" style="display:none">🗑️ Eliminar Propiedad</button>
-    </div>
-  </div>
+<div class="fixed-footer">
+    <button class="btn btn-success" onclick="saveAll()"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
 
 <script>
-let props=[],filter='all',editId=null,photos=[];
+    let appData = {
+        properties: [],
+        prospects: [],
+        legal: "",
+        notes: ""
+    };
 
-function load(){try{props=JSON.parse(localStorage.getItem('voxiProps')||'[]')}catch(e){props=[]}}
-function save(){localStorage.setItem('voxiProps',JSON.stringify(props))}
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active-tab');
+        event.target.classList.add('active');
+    }
 
-function showList(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-list').classList.add('active');editId=null;render()}
-function showAdd(){editId=null;photos=[];document.getElementById('formTitle').textContent='Nueva Propiedad';document.getElementById('deleteBtn').style.display='none';clearF();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-form').classList.add('active');renderPG();window.scrollTo(0,0)}
-function showDetail(id){const p=props.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById('detailTitle').textContent=p.tipo?p.tipo[0].toUpperCase()+p.tipo.slice(1):'Propiedad';document.getElementById('detailContent').innerHTML=buildDetail(p);document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-detail').classList.add('active');window.scrollTo(0,0)}
-function editCurrent(){if(!editId)return;const p=props.find(x=>x.id===editId);if(!p)return;fillF(p);document.getElementById('formTitle').textContent='Editar Propiedad';document.getElementById('deleteBtn').style.display='block';document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-form').classList.add('active');window.scrollTo(0,0)}
+    function addProperty() {
+        appData.properties.push({
+            id: Date.now(),
+            tipo: 'Casa',
+            condicion: 'Preventa',
+            titulo: '',
+            ubicacion: '',
+            precio: '',
+            contado: '',
+            ganancia: '',
+            pago: 'Contado',
+            fotos: '',
+            medidas: ''
+        });
+        renderProperties();
+    }
 
-function setFilter(f,btn){filter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render()}
+    function renderProperties() {
+        const list = document.getElementById('propertyList');
+        list.innerHTML = '';
+        appData.properties.forEach((p, index) => {
+            list.innerHTML += `
+                <div class="card">
+                    <span class="delete-btn" onclick="deleteItem('properties', ${index})"><i class="fas fa-trash"></i></span>
+                    <div class="grid">
+                        <div class="input-group">
+                            <label>Tipo</label>
+                            <select onchange="updateProp(${index}, 'tipo', this.value)">
+                                <option value="Casa" ${p.tipo === 'Casa' ? 'selected' : ''}>Casa</option>
+                                <option value="Terreno" ${p.tipo === 'Terreno' ? 'selected' : ''}>Terreno</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Estado</label>
+                            <select onchange="updateProp(${index}, 'condicion', this.value)">
+                                <option value="Preventa" ${p.condicion === 'Preventa' ? 'selected' : ''}>Preventa</option>
+                                <option value="Nueva" ${p.condicion === 'Nueva' ? 'selected' : ''}>Nueva</option>
+                                <option value="Usada" ${p.condicion === 'Usada' ? 'selected' : ''}>Usada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Título / Nombre</label>
+                        <input type="text" value="${p.titulo}" oninput="updateProp(${index}, 'titulo', this.value)" placeholder="Ej: Casa 107m2 Acayuca">
+                    </div>
+                    <div class="input-group">
+                        <label>Ubicación (o link Maps)</label>
+                        <input type="text" value="${p.ubicacion}" oninput="updateProp(${index}, 'ubicacion', this.value)">
+                    </div>
+                    <div class="grid">
+                        <div class="input-group"><label>Precio Lista</label><input type="text" value="${p.precio}" oninput="updateProp(${index}, 'precio', this.value)"></div>
+                        <div class="input-group"><label>Precio Efectivo</label><input type="text" value="${p.contado}" oninput="updateProp(${index}, 'contado', this.value)"></div>
+                    </div>
+                    <div class="grid">
+                        <div class="input-group"><label>GANANCIA $</label><input type="text" class="profit-tag" value="${p.ganancia}" oninput="updateProp(${index}, 'ganancia', this.value)"></div>
+                        <div class="input-group">
+                            <label>Forma de Pago</label>
+                            <select onchange="updateProp(${index}, 'pago', this.value)">
+                                <option value="Contado" ${p.pago === 'Contado' ? 'selected' : ''}>Efectivo / Contado</option>
+                                <option value="Credito" ${p.pago === 'Credito' ? 'selected' : ''}>Fovissste / Issfam</option>
+                                <option value="Mixto" ${p.pago === 'Mixto' ? 'selected' : ''}>Mixto</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Link a Fotos (Drive/WhatsApp)</label>
+                        <input type="text" value="${p.fotos}" oninput="updateProp(${index}, 'fotos', this.value)" placeholder="https://...">
+                    </div>
+                </div>
+            `;
+        });
+    }
 
-function render(){
-  const q=(document.getElementById('searchInput').value||'').toLowerCase();
-  let list=props.filter(p=>{
-    const mf=filter==='all'||(filter==='apartada'?p.apart==='sí':p.tipo===filter||p.estado===filter);
-    return mf&&(!q||JSON.stringify(p).toLowerCase().includes(q));
-  });
-  document.getElementById('statsArea').innerHTML=`<div class="stat-card"><div class="num">${props.length}</div><div class="lbl">Total</div></div><div class="stat-card"><div class="num">${props.filter(p=>p.apart==='sí').length}</div><div class="lbl">Apartadas</div></div>`;
-  if(!list.length){
-    document.getElementById('propList').innerHTML=!props.length?`<div class="empty">
-      <div class="icon" style="background-image:url('https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=150&q=80');background-size:cover;border-radius:50%;width:100px;height:100px;margin:0 auto 20px"></div>
-      <p><b>¡Empieza tu catálogo!</b><br>Toca <b style="color:var(--accent)">+</b> para agregar tu primera propiedad.</p>
-    </div>`:`<div class="no-results">Sin resultados</div>`;
-    return;
-  }
-  document.getElementById('propList').innerHTML=list.map(p=>{
-    const img=p.fotos&&p.fotos.length?`<div class="prop-card-img"><img src="${p.fotos[0]}" loading="lazy"></div>`:`<div class="prop-card-img">🏠</div>`;
-    const bg=p.estado==='preventa'?'badge-preventa':p.estado==='usada'?'badge-usada':'badge-venta';
-    const price=p.pl?'$'+Number(p.pl).toLocaleString('es-MX'):'Sin precio';
-    const ab=p.apart==='sí'?'<span class="badge badge-apartada" style="margin-right:4px">Apartada</span>':'';
-    const clienteTag=p.cliente?`<div style="font-size:11px;color:var(--accent);margin-top:2px">👥 ${p.cliente}</div>`:'';
-    return`<div class="prop-card" onclick="showDetail('${p.id}')">${img}<div class="prop-card-body"><div class="prop-card-title">${p.dir||'Sin dirección'}</div><div class="prop-card-sub">${p.mun||''}${p.area?' · '+p.area+' m²':''}</div>${clienteTag}<div class="prop-card-footer"><div>${ab}<span class="badge ${bg}">${p.estado||p.tipo||'N/D'}</span></div><div class="price-tag">${price}</div></div></div></div>`;
-  }).join('');
-}
+    function addProspect() {
+        appData.prospects.push({ nombre: '', interes: '', estado: '', fecha: '' });
+        renderProspects();
+    }
 
-function ficha(p){
-  const fm=v=>v?'$'+Number(v).toLocaleString('es-MX'):'—';
-  const sv=(p.serv||[]).join(', ')||'—';
-  let f=`🏠 *${(p.tipo||'PROPIEDAD').toUpperCase()} EN ${(p.estado||'VENTA').toUpperCase()}*\n`;
-  f+=`📍 ${p.dir||''}${p.mun?', '+p.mun:''}\n\n`;
-  if(p.area)f+=`📐 Superficie: *${p.area} m²*\n`;
-  if(p.fr&&p.fo)f+=`   Frente: ${p.fr}m × Fondo: ${p.fo}m\n`;
-  f+=`\n💰 *Precio: ${fm(p.pl)}*\n`;
-  if(p.pm&&p.pm!==p.pl)f+=`   En efectivo: ${fm(p.pm)}\n`;
-  f+=`\n⚡ Servicios: ${sv}\n`;
-  if(p.pav)f+=`🛣️ Calle pavimentada: ${p.pav}\n`;
-  if(p.dcdmx)f+=`\n🚗 A CDMX: ${p.dcdmx} km (${p.tcdmx||'—'})\n`;
-  if(p.dpach)f+=`🚗 A Pachuca: ${p.dpach} km (${p.tpach||'—'})\n`;
-  if(p.docN)f+=`📄 Archivos/Contratos: ${p.docN}\n`;
-  if(p.desc)f+=`\n📋 ${p.desc}\n`;
-  if(p.estado==='preventa'){f+=`\n🏗️ *PREVENTA* — Entrega en ${p.tc||'3 meses'}\n`;if(p.pisos)f+=`   ${p.pisos} piso(s) — diseño a tu gusto\n`}
-  f+=`\n📞 *¡Escríbeme para más info y visita!*`;
-  return f;
-}
-function shareWA(id){const p=props.find(x=>x.id===id);if(!p)return;window.open('https://wa.me/?text='+encodeURIComponent(ficha(p)),'_blank')}
-function copyFicha(id){const p=props.find(x=>x.id===id);if(!p)return;navigator.clipboard.writeText(ficha(p)).then(()=>toast('📋 Ficha copiada')).catch(()=>toast('⚠️ No se pudo copiar'))}
+    function renderProspects() {
+        const list = document.getElementById('prospectList');
+        list.innerHTML = '';
+        appData.prospects.forEach((p, index) => {
+            list.innerHTML += `
+                <div class="card">
+                    <span class="delete-btn" onclick="deleteItem('prospects', ${index})"><i class="fas fa-trash"></i></span>
+                    <input type="text" placeholder="Nombre del Cliente" value="${p.nombre}" oninput="updatePros(${index}, 'nombre', this.value)" style="font-weight:bold; margin-bottom:10px;">
+                    <div class="grid">
+                        <input type="text" placeholder="Propiedad de Interés" value="${p.interes}" oninput="updatePros(${index}, 'interes', this.value)">
+                        <input type="text" placeholder="Estado (ej: Esperando dinero)" value="${p.estado}" oninput="updatePros(${index}, 'estado', this.value)">
+                    </div>
+                </div>
+            `;
+        });
+    }
 
-function buildDetail(p){
-  const fm=v=>v?`<span class="val-gold">$${Number(v).toLocaleString('es-MX')}</span>`:'—';
-  const fv=v=>v||'—';
-  const yn=v=>v==='sí'?'<span class="val-green">✅ Sí</span>':v==='no'?'<span class="val-red">❌ No</span>':fv(v);
-  let ph='';if(p.fotos&&p.fotos.length)ph=`<div class="detail-photos">${p.fotos.map(f=>`<div class="detail-photo"><img src="${f}" loading="lazy"></div>`).join('')}</div>`;
-  const sv=(p.serv||[]).length?(p.serv||[]).map(s=>`<span class="chip">${s}</span>`).join(''):'—';
-  const gan=p.gan||(p.pl&&p.pm?Number(p.pl)-Number(p.pm):null);
-  const fc=ficha(p);
-  return`${ph}
-<div class="ficha-box"><h3>📤 Ficha para Compartir</h3><div class="ficha-preview">${fc}</div><div style="display:flex;gap:8px"><button class="btn btn-whatsapp" style="flex:1;padding:12px;font-size:14px" onclick="shareWA('${p.id}')">📲 WhatsApp</button><button class="btn btn-secondary" style="flex:1;padding:12px;font-size:14px" onclick="copyFicha('${p.id}')">📋 Copiar</button></div></div>
-<div class="detail-section"><h3>🏷️ General</h3>
-<div class="detail-row"><span class="lbl">Tipo</span><span class="val">${fv(p.tipo)}</span></div>
-<div class="detail-row"><span class="lbl">Estado</span><span class="val">${fv(p.estado)}</span></div>
-<div class="detail-row"><span class="lbl">Fotos</span><span class="val">${(p.fotos||[]).length}</span></div></div>
-<div class="detail-section"><h3>📍 Ubicación</h3>
-<div class="detail-row"><span class="lbl">Dirección</span><span class="val">${fv(p.dir)}</span></div>
-<div class="detail-row"><span class="lbl">Municipio</span><span class="val">${fv(p.mun)}</span></div>
-<div class="detail-row"><span class="lbl">A CDMX</span><span class="val">${p.dcdmx||'—'} km · ${p.tcdmx||'—'}</span></div>
-<div class="detail-row"><span class="lbl">A Pachuca</span><span class="val">${p.dpach||'—'} km · ${p.tpach||'—'}</span></div>
-<div class="detail-row"><span class="lbl">Pavimentada</span><span class="val">${yn(p.pav)}</span></div>
-<div class="detail-row"><span class="lbl">Luz pública</span><span class="val">${yn(p.luz)}</span></div>
-${p.maps?`<div class="detail-row"><span class="lbl">Maps</span><span class="val"><a href="${p.maps}" target="_blank" style="color:var(--accent)">Ver mapa 🗺️</a></span></div>`:''}</div>
-<div class="detail-section"><h3>📐 Medidas</h3>
-<div class="detail-row"><span class="lbl">Frente</span><span class="val">${p.fr||'—'} m</span></div>
-<div class="detail-row"><span class="lbl">Fondo</span><span class="val">${p.fo||'—'} m</span></div>
-<div class="detail-row"><span class="lbl">Lado izq.</span><span class="val">${p.li||'—'} m</span></div>
-<div class="detail-row"><span class="lbl">Lado der.</span><span class="val">${p.ld||'—'} m</span></div>
-<div class="detail-row"><span class="lbl">Área total</span><span class="val val-gold">${p.area||'—'} m²</span></div></div>
-<div class="detail-section"><h3>⚡ Servicios</h3><div style="padding:8px 0">${sv}</div></div>
-<div class="detail-section"><h3>📄 Documentación y Contratos</h3>
-<div class="detail-row"><span class="lbl">Tipo doc.</span><span class="val">${fv(p.docTipo)}</span></div>
-<div class="detail-row"><span class="lbl">Archivos/Contratos</span><span class="val" style="white-space:pre-wrap">${fv(p.docN)}</span></div></div>
-<div class="detail-section"><h3>💰 Financiero</h3>
-<div class="detail-row"><span class="lbl">Precio lista</span><span class="val">${fm(p.pl)}</span></div>
-<div class="detail-row"><span class="lbl">Precio mínimo</span><span class="val">${fm(p.pm)}</span></div>
-<div class="detail-row"><span class="lbl">¿Se puede subir?</span><span class="val">${yn(p.subir)}</span></div>
-<div class="detail-row"><span class="lbl">Comisión</span><span class="val">${fm(p.com)}</span></div>
-<div class="detail-row"><span class="lbl">Ganancia estimada</span><span class="val val-green">${gan?'$'+Number(gan).toLocaleString('es-MX'):'—'}</span></div></div>
-<div class="detail-section"><h3>📊 Estado de Venta</h3>
-<div class="detail-row"><span class="lbl">¿Apartada?</span><span class="val">${fv(p.apart)}</span></div>
-<div class="detail-row"><span class="lbl">Para apartar</span><span class="val">${fm(p.map)}</span></div>
-<div class="detail-row"><span class="lbl">Enganche dado</span><span class="val">${fm(p.eng)}</span></div>
-<div class="detail-row"><span class="lbl">Lo que se debe</span><span class="val val-red">${p.deu?'$'+Number(p.deu).toLocaleString('es-MX'):'—'}</span></div>
-<div class="detail-row"><span class="lbl">Fecha límite</span><span class="val">${p.fech||'—'}</span></div></div>
-${p.estado==='preventa'?`<div class="detail-section"><h3>🏗️ Preventa</h3><div class="detail-row"><span class="lbl">Tiempo const.</span><span class="val">${fv(p.tc)}</span></div><div class="detail-row"><span class="lbl">Pisos</span><span class="val">${fv(p.pisos)}</span></div></div>`:''}
-<div class="detail-section"><h3>👤 Propietario / Cliente</h3>
-<div class="detail-row"><span class="lbl">Propietario</span><span class="val">${fv(p.prop)}</span></div>
-${p.cliente?`<div class="detail-row"><span class="lbl">👥 Cliente interesado</span><span class="val" style="color:var(--accent);font-weight:600">${p.cliente}</span></div>`:''}
-<div class="detail-row"><span class="lbl">Teléfono</span><span class="val">${p.tel?`<a href="tel:${p.tel}" style="color:var(--accent)">${p.tel}</a>`:'—'}</span></div>
-<div class="detail-row"><span class="lbl">Estado civil</span><span class="val">${fv(p.civil)}</span></div></div>
-<div class="detail-section"><h3>📝 Descripción</h3><p style="font-size:14px;line-height:1.7;white-space:pre-wrap">${fv(p.desc)}</p></div>
-<div class="detail-section"><h3>🔒 Notas Privadas</h3><p style="font-size:14px;line-height:1.7;color:var(--muted);white-space:pre-wrap">${fv(p.notas)}</p></div>
-<div style="padding-bottom:40px;margin-top:16px"><button class="btn btn-primary" onclick="editCurrent()">✏️ Editar esta propiedad</button></div>`;
-}
+    function updateProp(i, key, val) { appData.properties[i][key] = val; }
+    function updatePros(i, key, val) { appData.prospects[i][key] = val; }
 
-function addPhotos(input){Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{photos.push(e.target.result);renderPG()};r.readAsDataURL(f)});input.value=''}
-function renderPG(){const g=document.getElementById('photosGrid');g.innerHTML=photos.map((d,i)=>`<div class="photo-thumb"><img src="${d}" loading="lazy"><button class="del-photo" onclick="rmPhoto(${i})">✕</button></div>`).join('')+`<label class="photo-add" for="photoInput"><span>+</span>Fotos</label>`;document.getElementById('photoCount').textContent=`${photos.length} foto${photos.length!==1?'s':''}`+(photos.length>0&&photos.length<20?' (recom. 20+)':'')}
-function rmPhoto(i){photos.splice(i,1);renderPG()}
-function selT(g,el){document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.remove('selected'));el.classList.add('selected')}
-function selM(g,el){el.classList.toggle('selected')}
-function gT(g){const s=document.querySelector(`#${g} .toggle-opt.selected`);return s?s.dataset.val:''}
-function gM(g){return Array.from(document.querySelectorAll(`#${g} .toggle-opt.selected`)).map(e=>e.dataset.val)}
-function stT(g,v){document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.toggle('selected',o.dataset.val===v))}
-function stM(g,v){if(!v)return;document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.toggle('selected',(v||[]).includes(o.dataset.val)))}
-function gv(id){const e=document.getElementById(id);return e?e.value.trim():''}
-function sv(id,v){const e=document.getElementById(id);if(e&&v!=null)e.value=v}
-function clearF(){['fDir','fMun','fDCDMX','fTCDMX','fDPach','fTPach','fMaps','fFr','fFo','fLi','fLd','fArea','fDocN','fPL','fPM','fCom','fGan','fMAp','fEng','fDeu','fFech','fTC','fProp','fCliente','fTel','fDesc','fNotas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});['tTipo','tEstado','tPav','tLuz','tDoc','tSubir','tApart','tPisos','tCivil','tServ'].forEach(g=>document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.remove('selected')))}
-function fillF(p){photos=p.fotos?[...p.fotos]:[];renderPG();sv('fDir',p.dir);sv('fMun',p.mun);sv('fDCDMX',p.dcdmx);sv('fTCDMX',p.tcdmx);sv('fDPach',p.dpach);sv('fTPach',p.tpach);sv('fMaps',p.maps);sv('fFr',p.fr);sv('fFo',p.fo);sv('fLi',p.li);sv('fLd',p.ld);sv('fArea',p.area);sv('fDocN',p.docN);sv('fPL',p.pl);sv('fPM',p.pm);sv('fCom',p.com);sv('fGan',p.gan);sv('fMAp',p.map);sv('fEng',p.eng);sv('fDeu',p.deu);sv('fFech',p.fech);sv('fTC',p.tc);sv('fProp',p.prop);sv('fCliente',p.cliente);sv('fTel',p.tel);sv('fDesc',p.desc);sv('fNotas',p.notas);stT('tTipo',p.tipo);stT('tEstado',p.estado);stT('tPav',p.pav);stT('tLuz',p.luz);stT('tDoc',p.docTipo);stT('tSubir',p.subir);stT('tApart',p.apart);stT('tPisos',p.pisos);stT('tCivil',p.civil);stM('tServ',p.serv)}
-function saveP(){const fr=parseFloat(gv('fFr')),fo=parseFloat(gv('fFo'));let area=gv('fArea');if(!area&&fr&&fo)area=(fr*fo).toFixed(1);const p={id:editId||Date.now().toString(),fotos:[...photos],tipo:gT('tTipo'),estado:gT('tEstado'),dir:gv('fDir'),mun:gv('fMun'),dcdmx:gv('fDCDMX'),tcdmx:gv('fTCDMX'),dpach:gv('fDPach'),tpach:gv('fTPach'),pav:gT('tPav'),luz:gT('tLuz'),maps:gv('fMaps'),fr:gv('fFr'),fo:gv('fFo'),li:gv('fLi'),ld:gv('fLd'),area:area,serv:gM('tServ'),docTipo:gT('tDoc'),docN:gv('fDocN'),pl:gv('fPL'),pm:gv('fPM'),subir:gT('tSubir'),com:gv('fCom'),gan:gv('fGan'),apart:gT('tApart'),map:gv('fMAp'),eng:gv('fEng'),deu:gv('fDeu'),fech:gv('fFech'),tc:gv('fTC'),pisos:gT('tPisos'),prop:gv('fProp'),cliente:gv('fCliente'),tel:gv('fTel'),civil:gT('tCivil'),desc:gv('fDesc'),notas:gv('fNotas'),upd:new Date().toISOString()};if(editId){const i=props.findIndex(x=>x.id===editId);if(i>=0)props[i]=p}else{props.unshift(p)}save();toast(editId?'✅ Propiedad actualizada':'✅ Propiedad guardada');editId=p.id;showDetail(p.id)}
-function deleteP(){if(!editId)return;if(!confirm('¿Eliminar esta propiedad?'))return;props=props.filter(x=>x.id!==editId);save();toast('🗑️ Eliminada');editId=null;showList()}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+    function deleteItem(type, index) {
+        if(confirm('¿Borrar este elemento?')) {
+            appData[type].splice(index, 1);
+            type === 'properties' ? renderProperties() : renderProspects();
+        }
+    }
 
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
-load();render();
+    function saveAll() {
+        appData.legal = document.getElementById('contratosNote').value;
+        appData.notes = document.getElementById('myNotes').value;
+        localStorage.setItem('voxi_data_v4', JSON.stringify(appData));
+        alert('✅ ¡Información guardada con éxito en tu dispositivo!');
+    }
+
+    function loadAll() {
+        const saved = localStorage.getItem('voxi_data_v4');
+        if(saved) {
+            appData = JSON.parse(saved);
+            renderProperties();
+            renderProspects();
+            document.getElementById('contratosNote').value = appData.legal || '';
+            document.getElementById('myNotes').value = appData.notes || '';
+        }
+    }
+
+    window.onload = loadAll;
 </script>
+
 </body>
 </html>
