@@ -1,1 +1,1 @@
-{"short_name": "Voxi", "name": "Voxi Propiedades", "icons": [{"src": "https://cdn-icons-png.flaticon.com/512/609/609803.png", "type": "image/png", "sizes": "512x512"}], "start_url": "/Mis-propiedades-/index.html", "display": "standalone", "scope": "/Mis-propiedades-/", "theme_color": "#004aad"}
+{"short_name": "Voxi HR", "name": "Casas Modernas HR", "icons": [{"src": "logo.jpg", "type": "image/jpeg", "sizes": "512x512"}], "start_url": "/Mis-propiedades-/index.html", "display": "standalone", "scope": "/Mis-propiedades-/", "theme_color": "#004aad"}
