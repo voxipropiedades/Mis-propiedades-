@@ -1,27 +1,16 @@
-const CACHE_NAME = 'propiedades-v1';
-const ASSETS = [
-  'index.html',
-  'manifest.json'
-];
-
-self.addEventListener('install', e => {
+self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open('voxi-hr-v1').then((cache) => cache.addAll([
+      '/Mis-propiedades-/',
+      '/Mis-propiedades-/index.html',
+      '/Mis-propiedades-/manifest.json',
+      '/Mis-propiedades-/logo.jpg'
+    ])),
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', e => {
+self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('index.html')))
+    caches.match(e.request).then((response) => response || fetch(e.request)),
   );
 });
