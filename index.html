@@ -91,6 +91,18 @@
         .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccd0d5; width: auto; background: none; font-size: 1.3em; }
         .btn-delete:hover { color: var(--danger); }
 
+        /* Estilos de fotos */
+        .photo-main-preview {
+            width: 100%; height: 200px; background: #eee; border-radius: 12px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            border: 2px dashed #ccc; cursor: pointer; position: relative;
+        }
+        .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .photo-thumb { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 8px; overflow: hidden; position: relative; }
+        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-thumb .remove { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; cursor: pointer; }
+
         /* Modal */
         #proposalModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -114,6 +126,8 @@
 
         .empty-state { text-align: center; padding: 60px 20px; color: #8a8d91; }
         .empty-state i { font-size: 4em; margin-bottom: 20px; color: #ddd; }
+
+        .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -169,24 +183,29 @@
 <!-- Modal de Ficha para Compartir -->
 <div id="proposalModal">
     <div class="proposal-content">
-        <div style="padding:25px; text-align:center; border-bottom:1px solid #f0f2f5; background: #fafafa;">
-            <img src="icon.png" style="max-width:90px; margin-bottom:15px; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary);">Propiedad HR</h2>
-            <p id="modalBadge" style="background:var(--secondary); color:white; display:inline-block; padding:5px 15px; border-radius:20px; font-size:0.85em; margin-top:12px; font-weight:bold;"></p>
+        <div id="modalPhotoContainer" style="width:100%; height:250px; background:#eee; position:relative; overflow:hidden;">
+            <img id="modalMainImg" style="width:100%; height:100%; object-fit:cover;">
+            <div style="position:absolute; bottom:15px; left:15px; background:rgba(0,74,173,0.9); color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.9em;" id="modalBadge"></div>
         </div>
         <div style="padding:25px;">
-            <div id="modalPrice" style="font-size:2.8em; color:var(--success); font-weight:900; text-align:center; margin-bottom:12px;"></div>
-            <p style="text-align:center; color:var(--danger); font-weight:800; margin-bottom:25px; font-size:1.1em;">¡OFERTA ÚNICA EN EFECTIVO!</p>
+            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary); font-size:1.5em;"></h2>
+            <div id="modalPrice" style="font-size:2.5em; color:var(--success); font-weight:900; margin:10px 0;"></div>
+            <p style="color:var(--danger); font-weight:800; margin-bottom:20px; font-size:1em;">¡OFERTA ÚNICA EN EFECTIVO!</p>
             
             <div style="background:#f0f2f5; padding:20px; border-radius:18px; border: 1px solid #e4e6eb;">
-                <p style="margin:10px 0;"><strong>📍 Ubicación:</strong> <span id="modalLoc"></span></p>
-                <p style="margin:10px 0;"><strong>📐 Medidas:</strong> <span id="modalSize"></span></p>
-                <p style="margin:10px 0;"><strong>🏗️ Estatus:</strong> <span id="modalStatus"></span></p>
+                <p style="margin:8px 0;"><strong>📍 Ubicación:</strong> <span id="modalLoc"></span></p>
+                <p style="margin:8px 0;"><strong>📐 Medidas:</strong> <span id="modalSize"></span></p>
+                <p style="margin:8px 0;"><strong>🏗️ Estatus:</strong> <span id="modalStatus"></span></p>
                 <hr style="border:none; border-top: 1px solid #ddd; margin:15px 0;">
                 <p id="modalDesc" style="color:#4b4f56; line-height:1.5; font-style: italic;"></p>
             </div>
+
+            <div id="modalGallery" style="display:flex; gap:8px; overflow-x:auto; margin-top:20px; padding-bottom:10px;"></div>
             
-            <button class="btn" style="background:var(--primary); color:white; margin-top:25px;" onclick="document.getElementById('proposalModal').style.display='none'">ENTENDIDO</button>
+            <div class="share-grid">
+                <button class="btn" style="background:#25D366; color:white;" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> COMPARTIR</button>
+                <button class="btn" style="background:#eee; color:#333;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR</button>
+            </div>
         </div>
     </div>
 </div>
@@ -213,7 +232,8 @@
         if(type === 'properties') {
             voxiData.properties.unshift({ 
                 id: Date.now(), tipo: 'Casa', estado: 'Preventa', titulo: '', ubicacion: '', 
-                precio_lista: '', precio_efectivo: '', ganancia: '', medidas: '', descripcion: '' 
+                precio_lista: '', precio_efectivo: '', ganancia: '', medidas: '', descripcion: '',
+                mainPhoto: null, gallery: [] 
             });
             renderProperties();
         } else {
@@ -227,51 +247,127 @@
     }
 
     function deleteItem(type, index) {
-        if(confirm('¿Estás seguro de eliminar este registro permanentemente?')) {
+        if(confirm('¿Estás seguro de eliminar este registro?')) {
             voxiData[type].splice(index, 1);
             type === 'properties' ? renderProperties() : renderProspects();
         }
     }
 
+    // Utilidad para reducir tamaño de fotos (Vital para LocalStorage)
+    function processImage(file, maxWidth, callback) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                // Calidad baja para ahorrar espacio
+                callback(canvas.toDataURL('image/jpeg', 0.5));
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleMainPhoto(index, input) {
+        if (input.files && input.files[0]) {
+            processImage(input.files[0], 600, (base64) => {
+                voxiData.properties[index].mainPhoto = base64;
+                renderProperties();
+            });
+        }
+    }
+
+    function handleGallery(index, input) {
+        if (input.files) {
+            const files = Array.from(input.files).slice(0, 20); // Máximo 20
+            files.forEach(file => {
+                processImage(file, 400, (base64) => {
+                    if (voxiData.properties[index].gallery.length < 20) {
+                        voxiData.properties[index].gallery.push(base64);
+                        renderProperties();
+                    }
+                });
+            });
+        }
+    }
+
+    function removeGalleryItem(propIndex, imgIndex) {
+        voxiData.properties[propIndex].gallery.splice(imgIndex, 1);
+        renderProperties();
+    }
+
     function renderProperties() {
         const list = document.getElementById('propertyList');
         if (voxiData.properties.length === 0) {
-            list.innerHTML = '<div class="empty-state"><i class="fas fa-home"></i><br>No hay propiedades registradas.<br>Toca el botón azul arriba para empezar.</div>';
+            list.innerHTML = '<div class="empty-state"><i class="fas fa-home"></i><br>No hay propiedades registradas.</div>';
             return;
         }
         list.innerHTML = '';
         voxiData.properties.forEach((p, i) => {
             const card = document.createElement('div');
             card.className = 'card';
+            
+            // Construir galería
+            let galleryHTML = '';
+            p.gallery.forEach((img, gi) => {
+                galleryHTML += `
+                    <div class="photo-thumb">
+                        <img src="${img}">
+                        <button class="remove" onclick="removeGalleryItem(${i}, ${gi})">X</button>
+                    </div>`;
+            });
+
             card.innerHTML = `
                 <button class="btn-delete" onclick="deleteItem('properties', ${i})"><i class="fas fa-times-circle"></i></button>
+                
+                <div class="photo-main-preview" onclick="document.getElementById('fileMain${i}').click()">
+                    ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera" style="font-size:2em; color:#ccc;"></i><br>Toca para foto principal'}
+                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handleMainPhoto(${i}, this)">
+                </div>
+
                 <div class="box-container">
-                    <div class="box"><label>Tipo de Inmueble</label>
+                    <div class="box"><label>Tipo</label>
                         <select onchange="update('properties', ${i}, 'tipo', this.value)">
                             <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
                             <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option>
-                            <option value="Local" ${p.tipo==='Local'?'selected':''}>Local</option>
                         </select>
                     </div>
-                    <div class="box"><label>Estado de Obra</label>
+                    <div class="box"><label>Estado</label>
                         <select onchange="update('properties', ${i}, 'estado', this.value)">
                             <option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option>
                             <option value="Terminada" ${p.estado==='Terminada'?'selected':''}>Terminada</option>
-                            <option value="En Construcción" ${p.estado==='En Construcción'?'selected':''}>En Construcción</option>
-                            <option value="Terreno" ${p.estado==='Terreno'?'selected':''}>Solo Terreno</option>
+                            <option value="Terreno" ${p.estado==='Terreno'?'selected':''}>Terreno</option>
                         </select>
                     </div>
-                    <div class="box full-box"><label>Nombre del Proyecto</label><input type="text" placeholder="Ej: Casa 150m2 Zapotlán" value="${p.titulo || ''}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
-                    <div class="box full-box"><label>Ubicación Exacta</label><input type="text" placeholder="Calle y Colonia" value="${p.ubicacion || ''}" oninput="update('properties', ${i}, 'ubicacion', this.value)"></div>
-                    <div class="box"><label>Precio de Lista</label><input type="text" placeholder="$0.00" value="${p.precio_lista || ''}" oninput="update('properties', ${i}, 'precio_lista', this.value)"></div>
-                    <div class="box"><label>Precio de Remate</label><input type="text" placeholder="$0.00" value="${p.precio_efectivo || ''}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:800;"></div>
-                    <div class="box"><label>Medidas (m2)</label><input type="text" placeholder="Ej: 150m2" value="${p.medidas || ''}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
-                    <div class="box"><label>Tu Ganancia ($)</label><input type="text" placeholder="$0.00" value="${p.ganancia || ''}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="color:var(--primary); font-weight:800;"></div>
-                    <div class="box full-box"><label>Descripción Detallada / Notas del Dueño</label>
-                        <textarea placeholder="Escribe aquí los acabados, si es trato directo, facilidades..." rows="4" oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion || ''}</textarea>
+                    <div class="box full-box"><label>Nombre / Título</label><input type="text" placeholder="Ej: Casa 150m2 Zapotlán" value="${p.titulo || ''}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
+                    <div class="box full-box"><label>Ubicación</label><input type="text" placeholder="Calle y Colonia" value="${p.ubicacion || ''}" oninput="update('properties', ${i}, 'ubicacion', this.value)"></div>
+                    <div class="box"><label>Precio Remate</label><input type="text" placeholder="$0.00" value="${p.precio_efectivo || ''}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:800;"></div>
+                    <div class="box"><label>Medidas</label><input type="text" placeholder="Ej: 150m2" value="${p.medidas || ''}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
+                    <div class="box full-box"><label>Descripción Detallada</label>
+                        <textarea placeholder="Detalles de la casa..." rows="3" oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion || ''}</textarea>
                     </div>
                 </div>
-                <button class="btn btn-proposal" onclick="openProposal(${i})"><i class="fas fa-eye"></i> VER FICHA PARA CLIENTE</button>
+
+                <div class="photo-gallery">
+                    ${galleryHTML}
+                    <div class="photo-thumb" style="border:2px dashed #ccc; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('fileGal${i}').click()">
+                        <i class="fas fa-plus" style="color:#ccc;"></i>
+                        <input type="file" id="fileGal${i}" hidden accept="image/*" multiple onchange="handleGallery(${i}, this)">
+                    </div>
+                </div>
+                <p style="font-size:0.7em; color:#999; margin-top:5px; text-align:right;">Máximo 20 fotos</p>
+
+                <button class="btn btn-proposal" onclick="openProposal(${i})"><i class="fas fa-share-alt"></i> GENERAR FICHA Y COMPARTIR</button>
             `;
             list.appendChild(card);
         });
@@ -280,7 +376,7 @@
     function renderProspects() {
         const list = document.getElementById('prospectList');
         if (voxiData.prospects.length === 0) {
-            list.innerHTML = '<div class="empty-state"><i class="fas fa-user-tie"></i><br>No tienes prospectos activos.<br>Agrega uno para no perder la venta.</div>';
+            list.innerHTML = '<div class="empty-state"><i class="fas fa-user-tie"></i><br>No hay prospectos.</div>';
             return;
         }
         list.innerHTML = '';
@@ -291,9 +387,9 @@
             card.innerHTML = `
                 <button class="btn-delete" onclick="deleteItem('prospects', ${i})"><i class="fas fa-times"></i></button>
                 <div class="box-container">
-                    <div class="box full-box"><label>Nombre del Prospecto</label><input type="text" placeholder="Nombre completo" value="${p.nombre || ''}" oninput="update('prospects', ${i}, 'nombre', this.value)" style="font-weight:bold; font-size:1.1em;"></div>
-                    <div class="box"><label>Propiedad de Interés</label><input type="text" placeholder="¿Qué busca?" value="${p.interes || ''}" oninput="update('prospects', ${i}, 'interes', this.value)"></div>
-                    <div class="box"><label>Estatus / Seguimiento</label><input type="text" placeholder="Ej: Esperando pago" value="${p.estado || ''}" oninput="update('prospects', ${i}, 'estado', this.value)"></div>
+                    <div class="box full-box"><label>Nombre</label><input type="text" value="${p.nombre || ''}" oninput="update('prospects', ${i}, 'nombre', this.value)" style="font-weight:bold;"></div>
+                    <div class="box"><label>Interés</label><input type="text" value="${p.interes || ''}" oninput="update('prospects', ${i}, 'interes', this.value)"></div>
+                    <div class="box"><label>Estatus</label><input type="text" value="${p.estado || ''}" oninput="update('prospects', ${i}, 'estado', this.value)"></div>
                 </div>
             `;
             list.appendChild(card);
@@ -303,37 +399,63 @@
     function openProposal(index) {
         const p = voxiData.properties[index];
         document.getElementById('modalTitle').innerText = p.titulo || 'Oportunidad de Inversión';
-        document.getElementById('modalBadge').innerText = (p.tipo || 'Inmueble') + ' - ' + (p.estado || 'Especial');
+        document.getElementById('modalBadge').innerText = p.tipo + ' - ' + p.estado;
         document.getElementById('modalPrice').innerText = '$' + (p.precio_efectivo || '0.00');
-        document.getElementById('modalLoc').innerText = p.ubicacion || 'Consultar ubicación';
+        document.getElementById('modalLoc').innerText = p.ubicacion || 'Consultar';
         document.getElementById('modalSize').innerText = p.medidas || 'A convenir';
-        document.getElementById('modalStatus').innerText = p.estado || 'Preventa';
-        document.getElementById('modalDesc').innerText = p.descripcion || 'Sin descripción adicional.';
+        document.getElementById('modalStatus').innerText = p.estado;
+        document.getElementById('modalDesc').innerText = p.descripcion || '';
+        
+        const mainImg = document.getElementById('modalMainImg');
+        if(p.mainPhoto) {
+            mainImg.src = p.mainPhoto;
+            mainImg.style.display = 'block';
+        } else {
+            mainImg.style.display = 'none';
+        }
+
+        const gallery = document.getElementById('modalGallery');
+        gallery.innerHTML = '';
+        p.gallery.forEach(img => {
+            const imgEl = document.createElement('img');
+            imgEl.src = img;
+            imgEl.style.height = '100px';
+            imgEl.style.borderRadius = '10px';
+            gallery.appendChild(imgEl);
+        });
+
+        document.getElementById('btnWhatsApp').onclick = () => shareWhatsApp(p);
         document.getElementById('proposalModal').style.display = 'block';
+    }
+
+    function shareWhatsApp(p) {
+        const text = `🏠 *${p.titulo || 'Propiedad HR'}*\n\n` +
+                     `💰 *PRECIO REMATE:* $${p.precio_efectivo || '---'}\n` +
+                     `📍 *Ubicación:* ${p.ubicacion || '---'}\n` +
+                     `📐 *Medidas:* ${p.medidas || '---'}\n` +
+                     `🏗️ *Estatus:* ${p.estado || '---'}\n\n` +
+                     `📝 *Descripción:* ${p.descripcion || 'Sin descripción'}\n\n` +
+                     `¡Interesados favor de contactarme!`;
+        
+        const url = "https://wa.me/?text=" + encodeURIComponent(text);
+        window.open(url, '_blank');
     }
 
     function saveData() {
         voxiData.legal = document.getElementById('legalNote').value;
         voxiData.notes = document.getElementById('userNotes').value;
         try {
-            localStorage.setItem('hr_final_pro_data', JSON.stringify(voxiData));
-            alert('✅ ¡TODO GUARDADO PERFECTAMENTE!\n\nTu información ya está segura en el celular.');
+            localStorage.setItem('hr_final_pro_data_v2', JSON.stringify(voxiData));
+            alert('✅ ¡TODO GUARDADO!');
         } catch(e) {
-            alert('❌ Error al guardar. Intenta borrar algunas fotos de tu celular para liberar espacio.');
+            alert('❌ La memoria está llena. Intenta borrar algunas propiedades o fotos.');
         }
     }
 
     function loadData() {
         document.getElementById('strategyBox').innerText = STRATEGY_TEXT;
-        const saved = localStorage.getItem('hr_final_pro_data');
-        if(saved) {
-            voxiData = JSON.parse(saved);
-        } else {
-            // Ejemplo inicial
-            voxiData.properties = [
-                { id: 1, tipo: 'Casa', estado: 'Preventa', titulo: 'Casa de Muestra (Ejemplo)', ubicacion: 'Acayuca, Hidalgo', precio_lista: '700,000', precio_efectivo: '550,000', ganancia: '50,000', medidas: '107 m2', descripcion: 'Excelente opción para inversión en efectivo.' }
-            ];
-        }
+        const saved = localStorage.getItem('hr_final_pro_data_v2');
+        if(saved) voxiData = JSON.parse(saved);
         renderProperties();
         renderProspects();
         document.getElementById('legalNote').value = voxiData.legal || '';
