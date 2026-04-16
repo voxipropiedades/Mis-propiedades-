@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voxi Propiedades V4 - Gestión Elite</title>
+    <title>Voxi Propiedades V5 - Business Elite</title>
     <link rel="manifest" href="manifest.json">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -16,132 +16,103 @@
             --text: #333;
             --success: #28a745;
             --danger: #dc3545;
+            --card-bg: #ffffff;
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
         
         header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            color: white; padding: 15px; text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .container { max-width: 900px; margin: auto; padding: 15px; }
+        .container { max-width: 1000px; margin: auto; padding: 10px; }
+
+        .tabs-nav {
+            display: flex; overflow-x: auto; gap: 8px; margin: 10px 0; padding: 5px;
+            scrollbar-width: none;
+        }
+        .tab-btn {
+            background: #e0e0e0; border: none; padding: 8px 15px; border-radius: 20px;
+            white-space: nowrap; cursor: pointer; font-weight: 600; color: #666;
+        }
+        .tab-btn.active { background: var(--primary); color: white; }
 
         .section-card {
-            background: var(--white);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            background: var(--white); border-radius: 12px; padding: 15px;
+            margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        h2 { border-left: 5px solid var(--secondary); padding-left: 10px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        h2 { border-left: 4px solid var(--secondary); padding-left: 10px; font-size: 1.2em; color: var(--primary); margin-top: 0; }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
-
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
+        /* Estilo de Cuadritos / Grid */
+        .property-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;
         }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            justify-content: center;
-            transition: 0.3s;
-        }
-        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-        .btn-success { background: var(--success); }
-        .btn-add { background: var(--secondary); margin-bottom: 10px; }
 
         .card {
-            background: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            position: relative;
+            background: var(--card-bg); border: 2px solid #eee; border-radius: 15px;
+            padding: 15px; position: relative; transition: 0.3s;
+        }
+        .card:hover { border-color: var(--secondary); }
+
+        .box-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+        }
+        .box {
+            background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;
+            padding: 8px;
+        }
+        .box label { font-size: 0.75em; font-weight: bold; color: #777; display: block; margin-bottom: 2px; }
+        .box input, .box select {
+            width: 100%; border: none; background: transparent; font-size: 0.95em;
+            color: var(--text); padding: 2px 0; outline: none;
         }
 
-        .badge {
-            padding: 4px 8px;
-            border-radius: 5px;
-            font-size: 0.75em;
-            font-weight: bold;
-            color: white;
-            background: var(--secondary);
-        }
+        .full-box { grid-column: span 2; }
 
-        .price-tag { color: var(--success); font-weight: bold; font-size: 1.1em; }
-        .profit-tag { color: var(--primary); font-weight: bold; background: #eef4ff; padding: 5px; border-radius: 5px; }
-
-        .delete-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: var(--danger);
-            cursor: pointer;
+        .btn {
+            border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;
+            font-weight: bold; display: flex; align-items: center; gap: 6px;
+            justify-content: center; width: 100%; transition: 0.2s;
         }
+        .btn-add { background: var(--secondary); color: white; margin-bottom: 15px; }
+        .btn-save { background: var(--success); color: white; }
+        .btn-proposal { background: var(--accent); color: #333; margin-top: 10px; }
+        .btn-delete { position: absolute; top: 10px; right: 10px; color: #ccc; width: auto; background: none; }
+        .btn-delete:hover { color: var(--danger); }
+
+        /* Modal Propuesta */
+        #proposalModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; overflow-y: auto;
+        }
+        .proposal-content {
+            background: white; max-width: 500px; margin: auto; border-radius: 20px;
+            overflow: hidden; position: relative;
+        }
+        .proposal-header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        .proposal-body { padding: 20px; }
+        .proposal-price { font-size: 2em; color: var(--success); font-weight: 800; text-align: center; margin: 10px 0; }
+        .proposal-info { border-top: 1px solid #eee; padding-top: 15px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
 
         .fixed-footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: white;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
+            position: fixed; bottom: 0; width: 100%; background: white; padding: 12px;
+            display: flex; gap: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;
         }
 
         .tab-content { display: none; }
         .active-tab { display: block; }
-
-        .tabs-nav {
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 5px;
-        }
-        .tab-btn {
-            background: #eee;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 20px;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-        .tab-btn.active { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>VOXI ELITE V4</h1>
-    <p>Control Total de Propiedades y Cierres</p>
+    <h1>VOXI BUSINESS V5</h1>
+    <p>Inmobiliaria & Gestión de Cierres</p>
 </header>
 
 <div class="container">
@@ -149,53 +120,76 @@
         <button class="tab-btn active" onclick="showTab('inventario')">🏠 Inventario</button>
         <button class="tab-btn" onclick="showTab('prospectos')">👥 Prospectos</button>
         <button class="tab-btn" onclick="showTab('legal')">📜 Contratos</button>
-        <button class="tab-btn" onclick="showTab('estrategia')">💡 Mi Estrategia</button>
+        <button class="tab-btn" onclick="showTab('estrategia')">💡 Estrategia</button>
     </div>
 
-    <!-- SECCIÓN INVENTARIO -->
+    <!-- INVENTARIO -->
     <div id="inventario" class="tab-content active-tab">
-        <div class="section-card">
-            <h2><i class="fas fa-home"></i> Casas y Terrenos</h2>
-            <button class="btn btn-add" onclick="addProperty()"><i class="fas fa-plus"></i> Nueva Propiedad</button>
-            <div id="propertyList"></div>
-        </div>
+        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus"></i> AGREGAR PROPIEDAD / TERRENO</button>
+        <div id="propertyList" class="property-grid"></div>
     </div>
 
-    <!-- SECCIÓN PROSPECTOS -->
+    <!-- PROSPECTOS -->
     <div id="prospectos" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-users"></i> Seguimiento de Prospectos</h2>
-            <button class="btn btn-add" onclick="addProspect()"><i class="fas fa-plus"></i> Nuevo Prospecto</button>
+            <h2><i class="fas fa-users"></i> Mis 5 Prospectos Clave</h2>
+            <button class="btn btn-add" onclick="addItem('prospects')"><i class="fas fa-plus"></i> Nuevo Cliente</button>
             <div id="prospectList"></div>
         </div>
     </div>
 
-    <!-- SECCIÓN LEGAL -->
+    <!-- LEGAL -->
     <div id="legal" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-file-contract"></i> Gestión de Contratos</h2>
-            <textarea id="contratosNote" placeholder="Anota aquí el estado de las escrituras, pagos pendientes de terrenos, y trámites Fovissste/Issfam..." rows="10"></textarea>
+            <h2><i class="fas fa-file-contract"></i> Control de Contratos</h2>
+            <textarea id="legalNote" placeholder="Anota aquí deudas de terrenos, trámites de escrituras, estatus de Fovissste..." rows="12" style="width:100%; padding:10px; border-radius:10px;"></textarea>
         </div>
     </div>
 
-    <!-- SECCIÓN ESTRATEGIA -->
+    <!-- ESTRATEGIA -->
     <div id="estrategia" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-lightbulb"></i> Propuestas de Zapia</h2>
-            <div id="strategyContent" style="background: #fff9db; padding: 15px; border-radius: 10px; border: 1px dashed #fab005;">
-                Aquí pegaremos los guiones de venta y estrategias de cierre que vayamos armando.
+            <h2><i class="fas fa-bullhorn"></i> Mi Plan de Venta</h2>
+            <div id="strategyBox" style="background:#fff9db; padding:15px; border-radius:10px; border:1px dashed #fab005; font-size:0.95em;">
+                Aquí aparecerán los guiones que Zapia me envíe para copiar y pegar.
             </div>
-            <textarea id="myNotes" placeholder="Mis propias notas de cierre..." rows="5" style="margin-top:15px;"></textarea>
+            <textarea id="userNotes" placeholder="Mis apuntes personales..." rows="6" style="width:100%; margin-top:15px; padding:10px; border-radius:10px;"></textarea>
         </div>
     </div>
 </div>
 
 <div class="fixed-footer">
-    <button class="btn btn-success" onclick="saveAll()"><i class="fas fa-save"></i> GUARDAR TODO</button>
+    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR CAMBIOS</button>
+</div>
+
+<!-- MODAL DE PROPUESTA -->
+<div id="proposalModal">
+    <div class="proposal-content">
+        <div class="proposal-header">
+            <h3 id="propTitle">Oportunidad Inmobiliaria</h3>
+            <p id="propTypeBadge" style="background:rgba(255,255,255,0.2); display:inline-block; padding:2px 10px; border-radius:10px; font-size:0.8em;"></p>
+        </div>
+        <div class="proposal-body">
+            <div class="proposal-price" id="propPrice"></div>
+            <p style="text-align:center; color:#666; font-size:0.9em; margin-bottom:15px;">*Precio especial por pago de contado*</p>
+            
+            <div class="proposal-info">
+                <div class="info-row"><strong>📍 Ubicación:</strong> <span id="propLoc"></span></div>
+                <div class="info-row"><strong>📐 Medidas:</strong> <span id="propSize"></span></div>
+                <div class="info-row"><strong>💳 Pago:</strong> <span id="propPay"></span></div>
+                <div class="info-row"><strong>🏗️ Estado:</strong> <span id="propStatus"></span></div>
+            </div>
+            
+            <div style="margin-top:20px; text-align:center;">
+                <p style="font-size:0.8em; color:#999;">Toma una captura de pantalla para enviarla a tu cliente</p>
+                <button class="btn" style="background:#eee;" onclick="closeProposal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    let appData = {
+    let voxiData = {
         properties: [],
         prospects: [],
         legal: "",
@@ -209,130 +203,131 @@
         event.target.classList.add('active');
     }
 
-    function addProperty() {
-        appData.properties.push({
-            id: Date.now(),
-            tipo: 'Casa',
-            condicion: 'Preventa',
-            titulo: '',
-            ubicacion: '',
-            precio: '',
-            contado: '',
-            ganancia: '',
-            pago: 'Contado',
-            fotos: '',
-            medidas: ''
-        });
-        renderProperties();
+    function addItem(type) {
+        if(type === 'properties') {
+            voxiData.properties.push({
+                id: Date.now(), tipo: 'Casa', estado: 'Preventa', titulo: '', ubicacion: '',
+                precio_lista: '', precio_efectivo: '', ganancia: '', pago: 'Contado',
+                fotos: '', medidas: '', contrato: ''
+            });
+            renderProperties();
+        } else {
+            voxiData.prospects.push({ nombre: '', interes: '', estado: '' });
+            renderProspects();
+        }
     }
 
     function renderProperties() {
         const list = document.getElementById('propertyList');
         list.innerHTML = '';
-        appData.properties.forEach((p, index) => {
+        voxiData.properties.forEach((p, i) => {
             list.innerHTML += `
                 <div class="card">
-                    <span class="delete-btn" onclick="deleteItem('properties', ${index})"><i class="fas fa-trash"></i></span>
-                    <div class="grid">
-                        <div class="input-group">
-                            <label>Tipo</label>
-                            <select onchange="updateProp(${index}, 'tipo', this.value)">
-                                <option value="Casa" ${p.tipo === 'Casa' ? 'selected' : ''}>Casa</option>
-                                <option value="Terreno" ${p.tipo === 'Terreno' ? 'selected' : ''}>Terreno</option>
+                    <button class="btn-delete" onclick="deleteItem('properties', ${i})"><i class="fas fa-trash"></i></button>
+                    <div class="box-container">
+                        <div class="box"><label>TIPO</label>
+                            <select onchange="update('properties', ${i}, 'tipo', this.value)">
+                                <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
+                                <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option>
                             </select>
                         </div>
-                        <div class="input-group">
-                            <label>Estado</label>
-                            <select onchange="updateProp(${index}, 'condicion', this.value)">
-                                <option value="Preventa" ${p.condicion === 'Preventa' ? 'selected' : ''}>Preventa</option>
-                                <option value="Nueva" ${p.condicion === 'Nueva' ? 'selected' : ''}>Nueva</option>
-                                <option value="Usada" ${p.condicion === 'Usada' ? 'selected' : ''}>Usada</option>
+                        <div class="box"><label>ESTADO</label>
+                            <select onchange="update('properties', ${i}, 'estado', this.value)">
+                                <option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option>
+                                <option value="Nueva" ${p.estado==='Nueva'?'selected':''}>Nueva</option>
+                                <option value="Usada" ${p.estado==='Usada'?'selected':''}>Usada</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Título / Nombre</label>
-                        <input type="text" value="${p.titulo}" oninput="updateProp(${index}, 'titulo', this.value)" placeholder="Ej: Casa 107m2 Acayuca">
-                    </div>
-                    <div class="input-group">
-                        <label>Ubicación (o link Maps)</label>
-                        <input type="text" value="${p.ubicacion}" oninput="updateProp(${index}, 'ubicacion', this.value)">
-                    </div>
-                    <div class="grid">
-                        <div class="input-group"><label>Precio Lista</label><input type="text" value="${p.precio}" oninput="updateProp(${index}, 'precio', this.value)"></div>
-                        <div class="input-group"><label>Precio Efectivo</label><input type="text" value="${p.contado}" oninput="updateProp(${index}, 'contado', this.value)"></div>
-                    </div>
-                    <div class="grid">
-                        <div class="input-group"><label>GANANCIA $</label><input type="text" class="profit-tag" value="${p.ganancia}" oninput="updateProp(${index}, 'ganancia', this.value)"></div>
-                        <div class="input-group">
-                            <label>Forma de Pago</label>
-                            <select onchange="updateProp(${index}, 'pago', this.value)">
-                                <option value="Contado" ${p.pago === 'Contado' ? 'selected' : ''}>Efectivo / Contado</option>
-                                <option value="Credito" ${p.pago === 'Credito' ? 'selected' : ''}>Fovissste / Issfam</option>
-                                <option value="Mixto" ${p.pago === 'Mixto' ? 'selected' : ''}>Mixto</option>
-                            </select>
+                        <div class="box full-box"><label>NOMBRE / TÍTULO</label>
+                            <input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)" placeholder="Ej: Preventa Acayuca 107m">
+                        </div>
+                        <div class="box full-box"><label>UBICACIÓN</label>
+                            <input type="text" value="${p.ubicacion}" oninput="update('properties', ${i}, 'ubicacion', this.value)">
+                        </div>
+                        <div class="box"><label>PRECIO LISTA</label>
+                            <input type="text" value="${p.precio_lista}" oninput="update('properties', ${i}, 'precio_lista', this.value)">
+                        </div>
+                        <div class="box"><label>PRECIO EFECTIVO</label>
+                            <input type="text" value="${p.precio_efectivo}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:bold;">
+                        </div>
+                        <div class="box"><label>GANANCIA $</label>
+                            <input type="text" value="${p.ganancia}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="background:#eef4ff; font-weight:bold; color:var(--primary);">
+                        </div>
+                        <div class="box"><label>MEDIDAS (m2)</label>
+                            <input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)">
+                        </div>
+                        <div class="box full-box"><label>LINK FOTOS / DRIVE</label>
+                            <input type="text" value="${p.fotos}" oninput="update('properties', ${i}, 'fotos', this.value)" placeholder="https://...">
+                        </div>
+                        <div class="box full-box"><label>ESTATUS CONTRATO</label>
+                            <input type="text" value="${p.contrato}" oninput="update('properties', ${i}, 'contrato', this.value)" placeholder="Ej: Terreno pagado, falta escritura">
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label>Link a Fotos (Drive/WhatsApp)</label>
-                        <input type="text" value="${p.fotos}" oninput="updateProp(${index}, 'fotos', this.value)" placeholder="https://...">
-                    </div>
+                    <button class="btn btn-proposal" onclick="generateProposal(${i})"><i class="fas fa-bullseye"></i> GENERAR PROPUESTA</button>
                 </div>
             `;
         });
-    }
-
-    function addProspect() {
-        appData.prospects.push({ nombre: '', interes: '', estado: '', fecha: '' });
-        renderProspects();
     }
 
     function renderProspects() {
         const list = document.getElementById('prospectList');
         list.innerHTML = '';
-        appData.prospects.forEach((p, index) => {
+        voxiData.prospects.forEach((p, i) => {
             list.innerHTML += `
-                <div class="card">
-                    <span class="delete-btn" onclick="deleteItem('prospects', ${index})"><i class="fas fa-trash"></i></span>
-                    <input type="text" placeholder="Nombre del Cliente" value="${p.nombre}" oninput="updatePros(${index}, 'nombre', this.value)" style="font-weight:bold; margin-bottom:10px;">
-                    <div class="grid">
-                        <input type="text" placeholder="Propiedad de Interés" value="${p.interes}" oninput="updatePros(${index}, 'interes', this.value)">
-                        <input type="text" placeholder="Estado (ej: Esperando dinero)" value="${p.estado}" oninput="updatePros(${index}, 'estado', this.value)">
+                <div class="card" style="margin-bottom:10px;">
+                    <button class="btn-delete" onclick="deleteItem('prospects', ${i})"><i class="fas fa-trash"></i></button>
+                    <input type="text" value="${p.nombre}" oninput="update('prospects', ${i}, 'nombre', this.value)" placeholder="Nombre del Cliente" style="width:100%; border:none; border-bottom:1px solid #eee; font-weight:bold; padding:5px; margin-bottom:10px;">
+                    <div class="box-container">
+                        <div class="box"><label>INTERÉS</label><input type="text" value="${p.interes}" oninput="update('prospects', ${i}, 'interes', this.value)"></div>
+                        <div class="box"><label>ESTADO</label><input type="text" value="${p.estado}" oninput="update('prospects', ${i}, 'estado', this.value)"></div>
                     </div>
                 </div>
             `;
         });
     }
 
-    function updateProp(i, key, val) { appData.properties[i][key] = val; }
-    function updatePros(i, key, val) { appData.prospects[i][key] = val; }
+    function update(type, i, key, val) { voxiData[type][i][key] = val; }
 
-    function deleteItem(type, index) {
-        if(confirm('¿Borrar este elemento?')) {
-            appData[type].splice(index, 1);
+    function deleteItem(type, i) {
+        if(confirm('¿Borrar este registro?')) {
+            voxiData[type].splice(i, 1);
             type === 'properties' ? renderProperties() : renderProspects();
         }
     }
 
-    function saveAll() {
-        appData.legal = document.getElementById('contratosNote').value;
-        appData.notes = document.getElementById('myNotes').value;
-        localStorage.setItem('voxi_data_v4', JSON.stringify(appData));
-        alert('✅ ¡Información guardada con éxito en tu dispositivo!');
+    function generateProposal(i) {
+        const p = voxiData.properties[i];
+        document.getElementById('propTitle').innerText = p.titulo || 'Oportunidad Inmobiliaria';
+        document.getElementById('propTypeBadge').innerText = `${p.tipo} - ${p.estado}`;
+        document.getElementById('propPrice').innerText = `$${p.precio_efectivo || '---'}`;
+        document.getElementById('propLoc').innerText = p.ubicacion || 'Consultar';
+        document.getElementById('propSize').innerText = p.medidas || 'N/A';
+        document.getElementById('propPay').innerText = 'Contado / Efectivo';
+        document.getElementById('propStatus').innerText = p.estado;
+        document.getElementById('proposalModal').style.display = 'block';
     }
 
-    function loadAll() {
-        const saved = localStorage.getItem('voxi_data_v4');
+    function closeProposal() { document.getElementById('proposalModal').style.display = 'none'; }
+
+    function saveData() {
+        voxiData.legal = document.getElementById('legalNote').value;
+        voxiData.notes = document.getElementById('userNotes').value;
+        localStorage.setItem('voxi_v5_pro', JSON.stringify(voxiData));
+        alert('✅ ¡Datos guardados exitosamente!');
+    }
+
+    function loadData() {
+        const saved = localStorage.getItem('voxi_v5_pro');
         if(saved) {
-            appData = JSON.parse(saved);
+            voxiData = JSON.parse(saved);
             renderProperties();
             renderProspects();
-            document.getElementById('contratosNote').value = appData.legal || '';
-            document.getElementById('myNotes').value = appData.notes || '';
+            document.getElementById('legalNote').value = voxiData.legal || '';
+            document.getElementById('userNotes').value = voxiData.notes || '';
         }
     }
 
-    window.onload = loadAll;
+    window.onload = loadData;
 </script>
 
 </body>
