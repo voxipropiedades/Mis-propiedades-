@@ -66,10 +66,8 @@
         .card {
             background: var(--card-bg); border: 1px solid #e4e6eb; border-radius: 16px;
             padding: 20px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: 0.3s;
         }
 
-        /* REINSTALACIÓN DE LOS CUADRITOS QUE LE GUSTABAN AL USUARIO */
         .box-container {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;
         }
@@ -92,9 +90,8 @@
         }
         .btn-add { background: var(--primary); color: white; margin-bottom: 25px; font-size: 1.1em; }
         .btn-save { background: var(--success); color: white; font-size: 1.2em; }
-        .btn-proposal { background: var(--accent); color: #333; margin-top: 15px; border: 1px solid #e5c543; }
+        .btn-proposal { background: var(--accent); color: #333; margin-top: 15px; border: 1px solid #e5c543; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccd0d5; width: auto; background: none; font-size: 1.3em; }
-        .btn-delete:hover { color: var(--danger); }
 
         /* Estilos de fotos */
         .photo-main-preview {
@@ -106,18 +103,28 @@
         .photo-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .photo-thumb { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 8px; overflow: hidden; position: relative; }
         .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-thumb .remove { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; cursor: pointer; }
+        .photo-thumb .remove { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; }
 
-        /* Modal */
+        /* Modal y Flyer Styles */
         #proposalModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000; padding: 20px; overflow-y: auto;
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.9); z-index: 2000; padding: 10px; overflow-y: auto;
         }
         .proposal-content {
-            background: white; max-width: 500px; margin: 40px auto; border-radius: 24px;
-            overflow: hidden; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            background: white; max-width: 500px; margin: 20px auto; border-radius: 20px;
+            overflow: hidden; position: relative;
         }
+        
+        /* Estilos de Flyer */
+        .flyer-professional { border: 10px solid var(--primary); padding: 0; }
+        .flyer-modern { background: #1a1a1a; color: white; }
+        .flyer-impact { background: #fff; border-top: 20px solid var(--danger); }
+
+        .style-selector {
+            display: flex; gap: 5px; margin-bottom: 15px; padding: 10px; background: #eee; border-radius: 10px;
+        }
+        .style-btn { flex: 1; padding: 8px; border: none; border-radius: 5px; font-size: 0.8em; font-weight: bold; cursor: pointer; }
+        .style-btn.active { background: var(--primary); color: white; }
 
         .fixed-footer {
             position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 20px;
@@ -125,11 +132,8 @@
         }
 
         .tab-content { display: none; }
-        .active-tab { display: block; animation: fadeIn 0.4s ease-out; }
+        .active-tab { display: block; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .empty-state { text-align: center; padding: 60px 20px; color: #8a8d91; }
         .loading-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.8); z-index: 3000; flex-direction: column;
@@ -172,16 +176,16 @@
     <!-- CONTRATOS -->
     <div id="contratos" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-scroll"></i> Oficina de Contratos (Hidalgo)</h2>
-            <div style="display:flex; gap:10px; margin-bottom:15px; overflow-x: auto; padding-bottom:5px;">
-                <button class="tab-btn" style="padding:10px; font-size:0.8em;" onclick="loadTemplate('promesa')">Promesa</button>
-                <button class="tab-btn" style="padding:10px; font-size:0.8em;" onclick="loadTemplate('compraventa')">Venta</button>
-                <button class="tab-btn" style="padding:10px; font-size:0.8em;" onclick="loadTemplate('permuta')">Permuta</button>
-                <button class="tab-btn" style="padding:10px; font-size:0.8em;" onclick="loadTemplate('mutuo')">Mutuo</button>
+            <h2><i class="fas fa-scroll"></i> Oficina de Contratos</h2>
+            <div style="display:flex; gap:10px; margin-bottom:15px; overflow-x: auto;">
+                <button class="tab-btn" onclick="loadTemplate('promesa')">Promesa</button>
+                <button class="tab-btn" onclick="loadTemplate('compraventa')">Venta</button>
+                <button class="tab-btn" onclick="loadTemplate('permuta')">Permuta</button>
+                <button class="tab-btn" onclick="loadTemplate('mutuo')">Mutuo</button>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <button class="btn" style="background:#7b1fa2; color:white; font-size:0.9em;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
-                <button class="btn" style="background:#d32f2f; color:white; font-size:0.9em;" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> BAJAR PDF</button>
+                <button class="btn" style="background:#7b1fa2; color:white;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
+                <button class="btn" style="background:#d32f2f; color:white;" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> BAJAR PDF</button>
             </div>
             <input type="file" id="ocrInput" hidden accept="image/*" onchange="performOCR(this)">
             <textarea id="contractText" placeholder="Redacta el contrato aquí..." rows="18" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:1em;"></textarea>
@@ -192,8 +196,8 @@
     <div id="estrategia" class="tab-content">
         <div class="section-card">
             <h2><i class="fas fa-bullhorn"></i> Mi Plan de Venta</h2>
-            <div id="strategyBox" style="background:#fff9db; padding:20px; border-radius:14px; border:2px dashed #fab005; font-size:1.1em; color:#856404; line-height:1.6; margin-bottom:25px;"></div>
-            <textarea id="userNotes" placeholder="Mis metas del día..." rows="10" style="width:100%; padding:18px; border:2px solid #f0f2f5; border-radius:14px; font-size:1.1em;"></textarea>
+            <div id="strategyBox" style="background:#fff9db; padding:20px; border-radius:14px; border:2px dashed #fab005; font-size:1.1em; color:#856404; line-height:1.6;"></div>
+            <textarea id="userNotes" placeholder="Mis metas del día..." rows="10" style="width:100%; padding:18px; border:2px solid #f0f2f5; border-radius:14px; font-size:1.1em; margin-top:20px;"></textarea>
         </div>
     </div>
 </div>
@@ -202,40 +206,50 @@
     <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
 
-<!-- Modal Compartir -->
+<!-- Modal FICHA PARA CLIENTE (FLYER) -->
 <div id="proposalModal">
-    <div class="proposal-content">
-        <div id="modalPhotoContainer" style="width:100%; height:200px; background:#eee; position:relative; overflow:hidden;">
+    <div class="style-selector">
+        <button class="style-btn active" onclick="setFlyerStyle('professional')">PROFESIONAL</button>
+        <button class="style-btn" onclick="setFlyerStyle('modern')">MODERNO</button>
+        <button class="style-btn" onclick="setFlyerStyle('impact')">IMPACTO</button>
+    </div>
+    
+    <div id="flyerArea" class="proposal-content flyer-professional">
+        <div id="modalPhotoContainer" style="width:100%; height:250px; background:#eee; position:relative; overflow:hidden;">
             <img id="modalMainImg" style="width:100%; height:100%; object-fit:cover;">
-            <div style="position:absolute; bottom:15px; left:15px; background:var(--primary); color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.9em;" id="modalBadge"></div>
+            <div style="position:absolute; top:15px; left:15px; background:var(--primary); color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.9em;" id="modalBadge"></div>
         </div>
-        <div style="padding:25px;">
-            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary);"></h2>
-            <div id="modalPrice" style="font-size:2.2em; color:var(--success); font-weight:900; margin:5px 0;"></div>
-            <div style="background:#f0f2f5; padding:15px; border-radius:15px; margin:15px 0; font-size:0.95em;">
-                <p>📍 <span id="modalLoc"></span></p>
-                <p>📐 <span id="modalSize"></span></p>
-                <p>🏗️ <span id="modalStatus"></span></p>
-                <hr>
-                <p id="modalDesc" style="color:#666; font-style:italic;"></p>
+        <div style="padding:25px;" id="modalContentArea">
+            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary); font-size:1.6em;"></h2>
+            <div id="modalPrice" style="font-size:2.5em; color:var(--success); font-weight:900; margin:10px 0;"></div>
+            <p id="modalPromoTag" style="color:var(--danger); font-weight:800; margin-bottom:20px; font-size:1.1em;">¡OFERTA ÚNICA EN EFECTIVO!</p>
+            
+            <div style="background:#f0f2f5; padding:20px; border-radius:18px; border: 1px solid #e4e6eb; color:#333;" id="modalInfoBox">
+                <p style="margin:8px 0;"><strong>📍 Ubicación:</strong> <span id="modalLoc"></span></p>
+                <p style="margin:8px 0;"><strong>📐 Medidas:</strong> <span id="modalSize"></span></p>
+                <p style="margin:8px 0;"><strong>🏗️ Estatus:</strong> <span id="modalStatus"></span></p>
+                <hr style="border:none; border-top: 1px solid #ccc; margin:15px 0;">
+                <p id="modalDesc" style="line-height:1.5; font-style: italic;"></p>
             </div>
-            <div id="modalGallery" style="display:flex; gap:8px; overflow-x:auto; margin-bottom:20px; padding:10px;"></div>
-            <button class="btn" style="background:#25D366; color:white;" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> ENVIAR AL CLIENTE</button>
-            <button class="btn" style="background:#eee; margin-top:10px;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR</button>
+            
+            <div id="modalGallery" style="display:flex; gap:8px; overflow-x:auto; margin-top:20px; padding-bottom:10px;"></div>
+            
+            <div style="margin-top:20px; text-align:center; font-weight:bold; color:var(--primary); font-size:0.9em;">
+                🏠 PROPIEDADES HR - Trato Directo y Seguro
+            </div>
         </div>
+    </div>
+    
+    <div style="max-width:500px; margin: 10px auto; display:flex; gap:10px;">
+        <button class="btn" style="background:#25D366; color:white; flex:2;" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> ENVIAR FLYER</button>
+        <button class="btn" style="background:#fff; color:#333; flex:1;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR</button>
     </div>
 </div>
 
 <script>
     const STRATEGY_TEXT = "💡 ESTRATEGIA: Cierre rápido antes de 2 semanas con descuento especial por liquidación inmediata.";
-    const TEMPLATES = {
-        promesa: { text: "CONTRATO DE PROMESA DE COMPRAVENTA (HIDALGO)..." },
-        compraventa: { text: "CONTRATO DE COMPRAVENTA PRIVADO (HIDALGO)..." },
-        permuta: { text: "CONTRATO DE PERMUTA (HIDALGO)..." },
-        mutuo: { text: "CONTRATO DE MUTUO ACUERDO (HIDALGO)..." }
-    };
-
     let voxiData = { properties: [], prospects: [], legal: "", notes: "" };
+    let currentPropIndex = null;
 
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
@@ -302,43 +316,28 @@
         voxiData.properties.forEach((p, i) => {
             const card = document.createElement('div');
             card.className = 'card';
-            
             let galleryHTML = '';
             p.gallery.forEach((img, gi) => {
                 galleryHTML += `<div class="photo-thumb"><img src="${img}"><button class="remove" onclick="voxiData.properties[${i}].gallery.splice(${gi},1);renderProperties();">X</button></div>`;
             });
 
             card.innerHTML = `
-                <button class="btn-delete" onclick="voxiData.properties.splice(${i},1);renderProperties();"><i class="fas fa-trash"></i></button>
-                
+                <button class="btn-delete" onclick="if(confirm('¿Borrar?')){voxiData.properties.splice(${i},1);renderProperties();}"><i class="fas fa-trash"></i></button>
                 <div class="photo-main-preview" onclick="document.getElementById('fileMain${i}').click()">
-                    ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera"></i> Subir Foto Principal'}
+                    ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera"></i> Foto Principal'}
                     <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handleMainPhoto(${i}, this)">
                 </div>
-
                 <div class="box-container">
-                    <div class="box"><label>Tipo</label>
-                        <select onchange="update('properties', ${i}, 'tipo', this.value)">
-                            <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
-                            <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option>
-                        </select>
-                    </div>
-                    <div class="box"><label>Estatus</label>
-                        <select onchange="update('properties', ${i}, 'estado', this.value)">
-                            <option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option>
-                            <option value="Terminada" ${p.estado==='Terminada'?'selected':''}>Terminada</option>
-                            <option value="Terreno" ${p.estado==='Terreno'?'selected':''}>Terreno</option>
-                        </select>
-                    </div>
-                    <div class="box full-box"><label>Nombre del Proyecto</label><input type="text" value="${p.titulo || ''}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
-                    <div class="box full-box"><label>Ubicación</label><input type="text" value="${p.ubicacion || ''}" oninput="update('properties', ${i}, 'ubicacion', this.value)"></div>
-                    <div class="box"><label>Precio Lista</label><input type="text" value="${p.precio_lista || ''}" oninput="update('properties', ${i}, 'precio_lista', this.value)"></div>
-                    <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio_efectivo || ''}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:900;"></div>
-                    <div class="box"><label>Medidas</label><input type="text" value="${p.medidas || ''}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
-                    <div class="box"><label>Ganancia Estimada</label><input type="text" value="${p.ganancia || ''}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="color:var(--primary); font-weight:800;"></div>
-                    <div class="box full-box"><label>Descripción Detallada</label><textarea rows="3" oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion || ''}</textarea></div>
+                    <div class="box"><label>Tipo</label><select onchange="update('properties', ${i}, 'tipo', this.value)"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option></select></div>
+                    <div class="box"><label>Estatus</label><select onchange="update('properties', ${i}, 'estado', this.value)"><option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option><option value="Terminada" ${p.estado==='Terminada'?'selected':''}>Terminada</option></select></div>
+                    <div class="box full-box"><label>Nombre del Proyecto</label><input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
+                    <div class="box full-box"><label>Ubicación</label><input type="text" value="${p.ubicacion}" oninput="update('properties', ${i}, 'ubicacion', this.value)"></div>
+                    <div class="box"><label>Precio Lista</label><input type="text" value="${p.precio_lista}" oninput="update('properties', ${i}, 'precio_lista', this.value)"></div>
+                    <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio_efectivo}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:900;"></div>
+                    <div class="box"><label>Medidas</label><input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
+                    <div class="box"><label>Tu Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="color:var(--primary); font-weight:800;"></div>
+                    <div class="box full-box"><label>Descripción para el cliente</label><textarea rows="3" oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion}</textarea></div>
                 </div>
-
                 <div class="photo-gallery">
                     ${galleryHTML}
                     <div class="photo-thumb" style="border:2px dashed #ccc; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('fileGal${i}').click()">
@@ -346,89 +345,85 @@
                         <input type="file" id="fileGal${i}" hidden accept="image/*" multiple onchange="handleGallery(${i}, this)">
                     </div>
                 </div>
-
-                <button class="btn btn-proposal" onclick="openProposal(${i})"><i class="fas fa-share-alt"></i> VER Y ENVIAR FICHA</button>
-            `;
-            list.appendChild(card);
-        });
-    }
-
-    function renderProspects() {
-        const list = document.getElementById('prospectList');
-        list.innerHTML = '';
-        voxiData.prospects.forEach((p, i) => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="box-container">
-                    <div class="box full-box"><label>Nombre</label><input type="text" value="${p.nombre}" oninput="update('prospects', ${i}, 'nombre', this.value)"></div>
-                    <div class="box"><label>Interés</label><input type="text" value="${p.interes}" oninput="update('prospects', ${i}, 'interes', this.value)"></div>
-                    <div class="box"><label>Estatus</label><input type="text" value="${p.estado}" oninput="update('prospects', ${i}, 'estado', this.value)"></div>
-                </div>
-                <button class="btn" style="background:#f44336; margin-top:10px; color:white;" onclick="voxiData.prospects.splice(${i},1);renderProspects();">BORRAR</button>
+                <button class="btn btn-proposal" onclick="openProposal(${i})"><i class="fas fa-bullhorn"></i> GENERAR FICHA Y FLYER</button>
             `;
             list.appendChild(card);
         });
     }
 
     function openProposal(index) {
+        currentPropIndex = index;
         const p = voxiData.properties[index];
-        document.getElementById('modalTitle').innerText = p.titulo || 'Oportunidad HR';
-        document.getElementById('modalBadge').innerText = p.tipo + ' - ' + p.estado;
-        document.getElementById('modalPrice').innerText = '$' + (p.precio_efectivo || '0.00');
+        document.getElementById('modalTitle').innerText = p.titulo || 'Gran Oportunidad HR';
+        document.getElementById('modalBadge').innerText = (p.tipo || 'Casa') + ' - ' + (p.estado || 'Especial');
+        document.getElementById('modalPrice').innerText = '$' + (p.precio_efectivo || '---');
         document.getElementById('modalLoc').innerText = p.ubicacion || 'Consultar';
-        document.getElementById('modalSize').innerText = p.medidas || 'A convenir';
+        document.getElementById('modalSize').innerText = p.medidas || '---';
         document.getElementById('modalStatus').innerText = p.estado;
-        document.getElementById('modalDesc').innerText = p.descripcion || '';
+        document.getElementById('modalDesc').innerText = p.descripcion || 'Contáctanos para más detalles.';
         document.getElementById('modalMainImg').src = p.mainPhoto || '';
         
         const gallery = document.getElementById('modalGallery');
         gallery.innerHTML = '';
         p.gallery.forEach(img => {
-            const imgEl = document.createElement('img'); imgEl.src = img; imgEl.style.height = '100px'; imgEl.style.borderRadius = '8px'; gallery.appendChild(imgEl);
+            const imgEl = document.createElement('img'); imgEl.src = img; imgEl.style.height = '80px'; imgEl.style.borderRadius = '8px'; gallery.appendChild(imgEl);
         });
 
         document.getElementById('btnWhatsApp').onclick = () => {
-            const text = `🏠 *${p.titulo}*\n💰 *PRECIO:* $${p.precio_efectivo}\n📍 *Ubicación:* ${p.ubicacion}\n📏 *Medidas:* ${p.medidas}\n📝 *Descripción:* ${p.descripcion}`;
+            const text = `🏠 *${p.titulo}*\n💰 *PRECIO REMATE:* $${p.precio_efectivo}\n📍 *Ubicación:* ${p.ubicacion}\n📏 *Medidas:* ${p.medidas}\n🏗️ *Estatus:* ${p.estado}\n📝 *Descripción:* ${p.descripcion}\n\n_Enviado desde Propiedades HR_`;
             window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
         };
+        
+        setFlyerStyle('professional');
         document.getElementById('proposalModal').style.display = 'block';
     }
 
-    async function performOCR(input) {
-        if (!input.files[0]) return;
-        document.getElementById('loader').style.display = 'flex';
-        try {
-            const worker = await Tesseract.createWorker('spa');
-            const ret = await worker.recognize(input.files[0]);
-            document.getElementById('contractText').value += "\n\n--- ESCANEO ---\n" + ret.data.text;
-            await worker.terminate();
-        } finally { document.getElementById('loader').style.display = 'none'; }
-    }
+    function setFlyerStyle(style) {
+        const area = document.getElementById('flyerArea');
+        const btns = document.querySelectorAll('.style-btn');
+        btns.forEach(b => b.classList.remove('active'));
+        event.target.classList && event.target.classList.add('active');
 
-    function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text(doc.splitTextToSize(document.getElementById('contractText').value, 180), 10, 20);
-        doc.save('Contrato_HR.pdf');
+        area.className = 'proposal-content flyer-' + style;
+        
+        const title = document.getElementById('modalTitle');
+        const info = document.getElementById('modalInfoBox');
+        
+        if(style === 'modern') {
+            area.style.background = '#1a1a1a';
+            area.style.color = 'white';
+            title.style.color = 'var(--accent)';
+            info.style.background = '#333';
+            info.style.color = 'white';
+        } else if(style === 'impact') {
+            area.style.background = '#fff';
+            area.style.color = '#1c1e21';
+            title.style.color = 'var(--danger)';
+            info.style.background = '#fff0f0';
+            info.style.color = '#1c1e21';
+        } else {
+            area.style.background = '#fff';
+            area.style.color = '#1c1e21';
+            title.style.color = 'var(--primary)';
+            info.style.background = '#f0f2f5';
+            info.style.color = '#333';
+        }
     }
-
-    function loadTemplate(t) { document.getElementById('contractText').value = TEMPLATES[t].text; }
 
     function saveData() {
         voxiData.legal = document.getElementById('contractText').value;
         voxiData.notes = document.getElementById('userNotes').value;
-        localStorage.setItem('hr_pro_master_v11', JSON.stringify(voxiData));
+        localStorage.setItem('hr_pro_master_v12', JSON.stringify(voxiData));
         alert('✅ ¡TODO GUARDADO!');
     }
 
     function loadData() {
-        const saved = localStorage.getItem('hr_pro_master_v11');
+        const saved = localStorage.getItem('hr_pro_master_v12');
         if(saved) voxiData = JSON.parse(saved);
         document.getElementById('contractText').value = voxiData.legal || '';
         document.getElementById('userNotes').value = voxiData.notes || '';
         document.getElementById('strategyBox').innerText = STRATEGY_TEXT;
-        renderProperties(); renderProspects();
+        renderProperties();
     }
 
     window.onload = loadData;
