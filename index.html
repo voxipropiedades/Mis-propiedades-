@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voxi Propiedades V5 - Business Elite</title>
+    <title>Voxi Business V5 - OFICIAL</title>
     <link rel="manifest" href="manifest.json">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -47,9 +47,8 @@
 
         h2 { border-left: 4px solid var(--secondary); padding-left: 10px; font-size: 1.2em; color: var(--primary); margin-top: 0; }
 
-        /* Estilo de Cuadritos / Grid */
         .property-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px;
         }
 
         .card {
@@ -84,7 +83,6 @@
         .btn-delete { position: absolute; top: 10px; right: 10px; color: #ccc; width: auto; background: none; }
         .btn-delete:hover { color: var(--danger); }
 
-        /* Modal Propuesta */
         #proposalModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; overflow-y: auto;
@@ -95,9 +93,9 @@
         }
         .proposal-header { background: var(--primary); color: white; padding: 20px; text-align: center; }
         .proposal-body { padding: 20px; }
-        .proposal-price { font-size: 2em; color: var(--success); font-weight: 800; text-align: center; margin: 10px 0; }
+        .proposal-price { font-size: 2.2em; color: var(--success); font-weight: 800; text-align: center; margin: 10px 0; }
         .proposal-info { border-top: 1px solid #eee; padding-top: 15px; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #f9f9f9; padding-bottom: 4px; }
 
         .fixed-footer {
             position: fixed; bottom: 0; width: 100%; background: white; padding: 12px;
@@ -112,7 +110,7 @@
 
 <header>
     <h1>VOXI BUSINESS V5</h1>
-    <p>Inmobiliaria & Gestión de Cierres</p>
+    <p>Inmobiliaria - Acayuca, Hidalgo</p>
 </header>
 
 <div class="container">
@@ -142,16 +140,16 @@
     <div id="legal" class="tab-content">
         <div class="section-card">
             <h2><i class="fas fa-file-contract"></i> Control de Contratos</h2>
-            <textarea id="legalNote" placeholder="Anota aquí deudas de terrenos, trámites de escrituras, estatus de Fovissste..." rows="12" style="width:100%; padding:10px; border-radius:10px;"></textarea>
+            <textarea id="legalNote" placeholder="Anota aquí deudas de terrenos, trámites de escrituras..." rows="12" style="width:100%; padding:10px; border-radius:10px;"></textarea>
         </div>
     </div>
 
     <!-- ESTRATEGIA -->
     <div id="estrategia" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-bullhorn"></i> Mi Plan de Venta</h2>
-            <div id="strategyBox" style="background:#fff9db; padding:15px; border-radius:10px; border:1px dashed #fab005; font-size:0.95em;">
-                Aquí aparecerán los guiones que Zapia me envíe para copiar y pegar.
+            <h2><i class="fas fa-bullhorn"></i> Plan de Cierre Urgente</h2>
+            <div id="strategyBox" style="background:#fff9db; padding:15px; border-radius:10px; border:1px dashed #fab005; font-size:0.95em; white-space: pre-line;">
+                CARGANDO ESTRATEGIA...
             </div>
             <textarea id="userNotes" placeholder="Mis apuntes personales..." rows="6" style="width:100%; margin-top:15px; padding:10px; border-radius:10px;"></textarea>
         </div>
@@ -159,7 +157,7 @@
 </div>
 
 <div class="fixed-footer">
-    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR CAMBIOS</button>
+    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO EN ESTE CELULAR</button>
 </div>
 
 <!-- MODAL DE PROPUESTA -->
@@ -171,29 +169,48 @@
         </div>
         <div class="proposal-body">
             <div class="proposal-price" id="propPrice"></div>
-            <p style="text-align:center; color:#666; font-size:0.9em; margin-bottom:15px;">*Precio especial por pago de contado*</p>
+            <p style="text-align:center; color:#666; font-size:0.9em; margin-bottom:15px;">*PRECIO EXCLUSIVO PAGO DE CONTADO*</p>
             
             <div class="proposal-info">
                 <div class="info-row"><strong>📍 Ubicación:</strong> <span id="propLoc"></span></div>
                 <div class="info-row"><strong>📐 Medidas:</strong> <span id="propSize"></span></div>
-                <div class="info-row"><strong>💳 Pago:</strong> <span id="propPay"></span></div>
+                <div class="info-row"><strong>💳 Forma de Pago:</strong> <span id="propPay"></span></div>
                 <div class="info-row"><strong>🏗️ Estado:</strong> <span id="propStatus"></span></div>
             </div>
             
             <div style="margin-top:20px; text-align:center;">
-                <p style="font-size:0.8em; color:#999;">Toma una captura de pantalla para enviarla a tu cliente</p>
-                <button class="btn" style="background:#eee;" onclick="closeProposal()">Cerrar</button>
+                <p style="font-size:0.85em; color:#d9534f; font-weight:bold;">¡Válido solo por los próximos 10 días!</p>
+                <p style="font-size:0.75em; color:#999; margin-top:5px;">Toma una captura de pantalla para enviarla a tu cliente</p>
+                <button class="btn" style="background:#eee; margin-top:10px;" onclick="closeProposal()">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    const STRATEGY_TEXT = `MENSAJE PARA CLIENTES (COPIAR Y PEGAR):
+"Hola [Nombre], tengo una actualización. Por cierre de ciclo de preventa, me autorizaron un PRECIO ESPECIAL DE LIQUIDACIÓN si el pago es en efectivo en los próximos 10 días. El precio baja de $700k a solo $[Precio Efectivo]. Es un ahorro directo de más de $100,000. ¿Te interesa aprovecharlo?"
+
+REGLA DE ORO:
+1. Llamar a los 5 prospectos mañana sin falta.
+2. Publicar en grupos de Militares (Fovissste/Issfam).
+3. Recordar que los terrenos están a TU nombre y listos para escriturar.`;
+
     let voxiData = {
-        properties: [],
-        prospects: [],
-        legal: "",
-        notes: ""
+        properties: [
+            { id: 1, tipo: 'Casa', estado: 'Preventa', titulo: 'Casa Preventa 107m2', ubicacion: 'Acayuca, Hidalgo', precio_lista: '700,000', precio_efectivo: '550,000', ganancia: '50,000', pago: 'Contado', fotos: '', medidas: '107 m2', contrato: 'Terreno a mi nombre' },
+            { id: 2, tipo: 'Casa', estado: 'Preventa', titulo: 'Casa Preventa 130m2', ubicacion: 'Acayuca, Hidalgo', precio_lista: '700,000', precio_efectivo: '575,000', ganancia: '50,000', pago: 'Contado', fotos: '', medidas: '130 m2', contrato: 'Listo para escriturar' },
+            { id: 3, tipo: 'Casa', estado: 'Preventa', titulo: 'Casa Preventa 150m2', ubicacion: 'Acayuca, Hidalgo', precio_lista: '750,000', precio_efectivo: '600,000', ganancia: '60,000', pago: 'Contado', fotos: '', medidas: '150 m2', contrato: 'Propio' }
+        ],
+        prospects: [
+            { nombre: 'Prospecto 1', interes: 'Casa 107m', estado: 'Espera dinero' },
+            { nombre: 'Prospecto 2', interes: 'Casa 130m', estado: 'De vacaciones' },
+            { nombre: 'Prospecto 3', interes: 'Terreno', estado: 'Lo revisa' },
+            { nombre: 'Prospecto 4', interes: 'Indeciso', estado: 'Pendiente' },
+            { nombre: 'Prospecto 5', interes: 'Casa 150m', estado: 'Pendiente' }
+        ],
+        legal: "Deudas de terrenos a crédito: Necesito cerrar UNA venta en efectivo en 15 días para saldar todo.",
+        notes: "Meta: Cerrar un trato antes de finales de abril."
     };
 
     function showTab(tabId) {
@@ -239,7 +256,7 @@
                             </select>
                         </div>
                         <div class="box full-box"><label>NOMBRE / TÍTULO</label>
-                            <input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)" placeholder="Ej: Preventa Acayuca 107m">
+                            <input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)">
                         </div>
                         <div class="box full-box"><label>UBICACIÓN</label>
                             <input type="text" value="${p.ubicacion}" oninput="update('properties', ${i}, 'ubicacion', this.value)">
@@ -257,13 +274,13 @@
                             <input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)">
                         </div>
                         <div class="box full-box"><label>LINK FOTOS / DRIVE</label>
-                            <input type="text" value="${p.fotos}" oninput="update('properties', ${i}, 'fotos', this.value)" placeholder="https://...">
+                            <input type="text" value="${p.fotos}" oninput="update('properties', ${i}, 'fotos', this.value)">
                         </div>
                         <div class="box full-box"><label>ESTATUS CONTRATO</label>
-                            <input type="text" value="${p.contrato}" oninput="update('properties', ${i}, 'contrato', this.value)" placeholder="Ej: Terreno pagado, falta escritura">
+                            <input type="text" value="${p.contrato}" oninput="update('properties', ${i}, 'contrato', this.value)">
                         </div>
                     </div>
-                    <button class="btn btn-proposal" onclick="generateProposal(${i})"><i class="fas fa-bullseye"></i> GENERAR PROPUESTA</button>
+                    <button class="btn btn-proposal" onclick="generateProposal(${i})"><i class="fas fa-bullseye"></i> GENERAR POST PARA CLIENTE</button>
                 </div>
             `;
         });
@@ -276,7 +293,7 @@
             list.innerHTML += `
                 <div class="card" style="margin-bottom:10px;">
                     <button class="btn-delete" onclick="deleteItem('prospects', ${i})"><i class="fas fa-trash"></i></button>
-                    <input type="text" value="${p.nombre}" oninput="update('prospects', ${i}, 'nombre', this.value)" placeholder="Nombre del Cliente" style="width:100%; border:none; border-bottom:1px solid #eee; font-weight:bold; padding:5px; margin-bottom:10px;">
+                    <input type="text" value="${p.nombre}" oninput="update('prospects', ${i}, 'nombre', this.value)" style="width:100%; border:none; border-bottom:1px solid #eee; font-weight:bold; padding:5px; margin-bottom:10px;">
                     <div class="box-container">
                         <div class="box"><label>INTERÉS</label><input type="text" value="${p.interes}" oninput="update('prospects', ${i}, 'interes', this.value)"></div>
                         <div class="box"><label>ESTADO</label><input type="text" value="${p.estado}" oninput="update('prospects', ${i}, 'estado', this.value)"></div>
@@ -287,22 +304,18 @@
     }
 
     function update(type, i, key, val) { voxiData[type][i][key] = val; }
-
     function deleteItem(type, i) {
-        if(confirm('¿Borrar este registro?')) {
-            voxiData[type].splice(i, 1);
-            type === 'properties' ? renderProperties() : renderProspects();
-        }
+        if(confirm('¿Borrar?')) { voxiData[type].splice(i, 1); type === 'properties' ? renderProperties() : renderProspects(); }
     }
 
     function generateProposal(i) {
         const p = voxiData.properties[i];
-        document.getElementById('propTitle').innerText = p.titulo || 'Oportunidad Inmobiliaria';
+        document.getElementById('propTitle').innerText = p.titulo || 'Oportunidad';
         document.getElementById('propTypeBadge').innerText = `${p.tipo} - ${p.estado}`;
         document.getElementById('propPrice').innerText = `$${p.precio_efectivo || '---'}`;
-        document.getElementById('propLoc').innerText = p.ubicacion || 'Consultar';
-        document.getElementById('propSize').innerText = p.medidas || 'N/A';
-        document.getElementById('propPay').innerText = 'Contado / Efectivo';
+        document.getElementById('propLoc').innerText = p.ubicacion || 'Hidalgo';
+        document.getElementById('propSize').innerText = p.medidas || '---';
+        document.getElementById('propPay').innerText = 'Solo Contado (Efectivo)';
         document.getElementById('propStatus').innerText = p.estado;
         document.getElementById('proposalModal').style.display = 'block';
     }
@@ -312,19 +325,18 @@
     function saveData() {
         voxiData.legal = document.getElementById('legalNote').value;
         voxiData.notes = document.getElementById('userNotes').value;
-        localStorage.setItem('voxi_v5_pro', JSON.stringify(voxiData));
-        alert('✅ ¡Datos guardados exitosamente!');
+        localStorage.setItem('voxi_v5_pro_final', JSON.stringify(voxiData));
+        alert('✅ ¡Guardado en tu celular!');
     }
 
     function loadData() {
-        const saved = localStorage.getItem('voxi_v5_pro');
-        if(saved) {
-            voxiData = JSON.parse(saved);
-            renderProperties();
-            renderProspects();
-            document.getElementById('legalNote').value = voxiData.legal || '';
-            document.getElementById('userNotes').value = voxiData.notes || '';
-        }
+        document.getElementById('strategyBox').innerText = STRATEGY_TEXT;
+        const saved = localStorage.getItem('voxi_v5_pro_final');
+        if(saved) voxiData = JSON.parse(saved);
+        renderProperties();
+        renderProspects();
+        document.getElementById('legalNote').value = voxiData.legal || '';
+        document.getElementById('userNotes').value = voxiData.notes || '';
     }
 
     window.onload = loadData;
