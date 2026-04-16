@@ -1,1 +1,21 @@
-{"short_name": "HR", "name": "HR Casas Modernas", "icons": [{"src": "logo.jpg", "type": "image/jpeg", "sizes": "512x512"}], "start_url": "/Mis-propiedades-/index.html", "display": "standalone", "scope": "/Mis-propiedades-/", "theme_color": "#004aad", "background_color": "#ffffff"}
+{
+  "short_name": "HR",
+  "name": "HR Casas Modernas",
+  "icons": [
+    {
+      "src": "logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/Mis-propiedades-/",
+  "display": "standalone",
+  "scope": "/Mis-propiedades-/",
+  "theme_color": "#004aad",
+  "background_color": "#ffffff"
+}
