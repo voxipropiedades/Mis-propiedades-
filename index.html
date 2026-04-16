@@ -4,182 +4,138 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#16213e">
-<title>Mis Propiedades</title>
+<meta name="theme-color" content="#2C1A0E">
+<title>Voxi Propiedades</title>
 <link rel="manifest" href="manifest.json">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0f0f1a;
-    --card: #1a1a2e;
-    --card2: #16213e;
-    --accent: #e94560;
-    --accent2: #0f3460;
-    --text: #eaeaea;
-    --muted: #888;
-    --green: #27ae60;
-    --yellow: #f39c12;
-    --red: #e74c3c;
-    --border: #2a2a4a;
-    --input: #0d0d1a;
-  }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
-
-  /* NAV */
-  .nav { background: var(--card); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
-  .nav h1 { font-size: 18px; font-weight: 700; color: var(--accent); }
-  .nav .back-btn { background: none; border: none; color: var(--text); font-size: 22px; cursor: pointer; padding: 4px 8px; }
-  .nav .add-btn { background: var(--accent); border: none; color: #fff; font-size: 22px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-  /* SCREENS */
-  .screen { display: none; padding: 16px; }
-  .screen.active { display: block; }
-
-  /* SEARCH */
-  .search-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; color: var(--text); font-size: 15px; width: 100%; margin-bottom: 16px; outline: none; }
-
-  /* STATS */
-  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .stat-card { background: var(--card2); border-radius: 12px; padding: 14px; text-align: center; border: 1px solid var(--border); }
-  .stat-card .num { font-size: 24px; font-weight: 800; color: var(--accent); }
-  .stat-card .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
-
-  /* PROPERTY CARDS */
-  .prop-card { background: var(--card); border-radius: 14px; margin-bottom: 12px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: transform 0.15s; }
-  .prop-card:active { transform: scale(0.98); }
-  .prop-card-img { width: 100%; height: 160px; object-fit: cover; background: var(--card2); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 40px; }
-  .prop-card-img img { width: 100%; height: 100%; object-fit: cover; }
-  .prop-card-body { padding: 12px; }
-  .prop-card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .prop-card-sub { font-size: 13px; color: var(--muted); }
-  .prop-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-venta { background: #1a3a2a; color: var(--green); }
-  .badge-preventa { background: #3a2a0a; color: var(--yellow); }
-  .badge-usada { background: #2a1a3a; color: #9b59b6; }
-  .badge-apartada { background: #1a2a3a; color: #3498db; }
-  .price-tag { font-size: 15px; font-weight: 800; color: var(--accent); }
-
-  /* FILTERS */
-  .filters { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 4px; }
-  .filters::-webkit-scrollbar { display: none; }
-  .filter-btn { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; color: var(--muted); font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
-  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-  /* FORM */
-  .form-section { background: var(--card); border-radius: 14px; padding: 16px; margin-bottom: 14px; border: 1px solid var(--border); }
-  .form-section h3 { font-size: 14px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; font-weight: 700; }
-  .form-group { margin-bottom: 14px; }
-  .form-group label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; background: var(--input); border: 1px solid var(--border); border-radius: 10px;
-    padding: 10px 12px; color: var(--text); font-size: 15px; outline: none;
-  }
-  .form-group textarea { min-height: 80px; resize: vertical; }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  /* TOGGLES */
-  .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; }
-  .toggle-opt { background: var(--input); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-  .toggle-opt.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
-
-  /* PHOTOS */
-  .photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
-  .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--input); display: flex; align-items: center; justify-content: center; }
-  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .photo-thumb .del-photo { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border: none; color: #fff; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .photo-add { aspect-ratio: 1; border-radius: 8px; border: 2px dashed var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 11px; gap: 4px; transition: border-color 0.2s; }
-  .photo-add:active { border-color: var(--accent); }
-  .photo-add span { font-size: 24px; }
-
-  /* BUTTONS */
-  .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-  .btn:active { opacity: 0.8; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-secondary { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
-  .btn-danger { background: #2a0a0a; color: var(--red); border: 1px solid var(--red); margin-top: 8px; }
-  .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; padding-bottom: 40px; }
-
-  /* DETAIL VIEW */
-  .detail-photos { display: flex; overflow-x: auto; gap: 8px; margin: -16px -16px 16px; padding: 0 16px 8px; }
-  .detail-photos::-webkit-scrollbar { display: none; }
-  .detail-photo { flex-shrink: 0; width: 200px; height: 150px; border-radius: 10px; overflow: hidden; background: var(--card2); }
-  .detail-photo img { width: 100%; height: 100%; object-fit: cover; }
-  .detail-section { background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
-  .detail-section h3 { font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: 700; }
-  .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid var(--border); }
-  .detail-row:last-child { border-bottom: none; }
-  .detail-row .lbl { font-size: 13px; color: var(--muted); flex: 1; }
-  .detail-row .val { font-size: 14px; font-weight: 600; text-align: right; flex: 1.5; }
-  .val-green { color: var(--green); }
-  .val-yellow { color: var(--yellow); }
-  .val-red { color: var(--red); }
-
-  /* CHIPS */
-  .chip { display: inline-flex; align-items: center; gap: 4px; background: var(--card2); border-radius: 20px; padding: 4px 10px; font-size: 12px; margin: 3px; }
-  .chip-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-  /* EMPTY STATE */
-  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
-  .empty .icon { font-size: 60px; margin-bottom: 16px; }
-  .empty p { font-size: 15px; line-height: 1.6; }
-
-  /* TOAST */
-  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-  .toast.show { opacity: 1; }
-
-  /* MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: flex-end; }
-  .modal-overlay.show { display: flex; }
-  .modal { background: var(--card); border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-height: 80vh; overflow-y: auto; }
-  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-  .modal-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; cursor: pointer; margin-bottom: 8px; text-align: left; display: flex; align-items: center; gap: 10px; }
-  .modal-cancel { background: var(--card2); color: var(--muted); justify-content: center; }
-  .modal-opt { background: var(--input); color: var(--text); }
-
-  select option { background: #1a1a2e; }
-  .no-results { text-align: center; padding: 40px; color: var(--muted); }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1A0F06;--card:#2C1A0E;--card2:#3D2510;
+  --accent:#C8922A;--accent2:#8B5E1A;--gold:#D4A843;
+  --text:#F5EDD8;--muted:#A08060;
+  --green:#4CAF7A;--yellow:#E8B84B;--red:#D95F3B;
+  --border:#4A2E14;--input:#150B04;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+.nav{background:linear-gradient(135deg,#2C1A0E,#1A0F06);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.nav h1{font-size:18px;font-weight:700;color:var(--gold)}
+.back-btn{background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 8px}
+.add-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:20px;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.screen{display:none;padding:16px}.screen.active{display:block}
+.hero{background:linear-gradient(135deg,#3D2510,#2C1A0E,#1A0F06);border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid var(--border)}
+.hero h2{font-size:22px;font-weight:800;color:var(--gold);margin-bottom:4px}
+.hero p{font-size:13px;color:var(--muted)}
+.search-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:15px;width:100%;margin-bottom:16px;outline:none}
+.search-bar:focus{border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:var(--card2);border-radius:14px;padding:16px;text-align:center;border:1px solid var(--border)}
+.stat-card .num{font-size:28px;font-weight:800;color:var(--gold)}
+.stat-card .lbl{font-size:12px;color:var(--muted);margin-top:4px}
+.prop-card{background:var(--card);border-radius:16px;margin-bottom:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:transform .15s}
+.prop-card:active{transform:scale(.98)}
+.prop-card-img{width:100%;height:170px;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:50px}
+.prop-card-img img{width:100%;height:100%;object-fit:cover}
+.prop-card-body{padding:14px}
+.prop-card-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.prop-card-sub{font-size:13px;color:var(--muted)}
+.prop-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-venta{background:#1A3A2A;color:var(--green)}
+.badge-preventa{background:#3A2A08;color:var(--yellow)}
+.badge-usada{background:#2A1A30;color:#C07AE0}
+.badge-apartada{background:#1A2535;color:#5AB4E8}
+.price-tag{font-size:16px;font-weight:800;color:var(--gold)}
+.filters{display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;padding-bottom:4px}
+.filters::-webkit-scrollbar{display:none}
+.filter-btn{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:7px 16px;color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap}
+.filter-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent);color:#fff}
+.form-section{background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid var(--border)}
+.form-section h3{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:10px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.form-group input,.form-group textarea{width:100%;background:var(--input);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:15px;outline:none}
+.form-group textarea{min-height:80px;resize:vertical}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toggle-group{display:flex;gap:8px;flex-wrap:wrap}
+.toggle-opt{background:var(--input);border:1px solid var(--border);border-radius:20px;padding:7px 15px;font-size:13px;cursor:pointer;color:var(--muted)}
+.toggle-opt.selected{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent);color:#fff;font-weight:600}
+.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.photo-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--input)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.del-photo{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.75);border:none;color:#fff;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.photo-add{aspect-ratio:1;border-radius:10px;border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:11px;gap:4px}
+.photo-add span{font-size:28px}
+.btn{width:100%;padding:15px;border-radius:14px;border:none;font-size:16px;font-weight:700;cursor:pointer}
+.btn:active{opacity:.85}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:#2A0A06;color:var(--red);border:1px solid var(--red);margin-top:8px}
+.btn-whatsapp{background:linear-gradient(135deg,#25D366,#128C7E);color:#fff}
+.btn-group{display:flex;flex-direction:column;gap:10px;margin-top:16px;padding-bottom:50px}
+.detail-photos{display:flex;overflow-x:auto;gap:10px;margin:-16px -16px 16px;padding:0 16px 10px}
+.detail-photos::-webkit-scrollbar{display:none}
+.detail-photo{flex-shrink:0;width:220px;height:160px;border-radius:12px;overflow:hidden;background:var(--card2)}
+.detail-photo img{width:100%;height:100%;object-fit:cover}
+.detail-section{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--border)}
+.detail-section h3{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:8px}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(74,46,20,.5)}
+.detail-row:last-child{border-bottom:none}
+.lbl{font-size:13px;color:var(--muted);flex:1}
+.val{font-size:14px;font-weight:600;text-align:right;flex:1.5}
+.val-green{color:var(--green)}.val-red{color:var(--red)}.val-gold{color:var(--gold)}
+.ficha-box{background:linear-gradient(135deg,#3D2510,#2C1A0E);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--accent2)}
+.ficha-box h3{color:var(--gold);font-size:15px;margin-bottom:12px;font-weight:700}
+.ficha-preview{background:var(--input);border-radius:12px;padding:14px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;border:1px solid var(--border);margin-bottom:10px;max-height:200px;overflow-y:auto}
+.chip{display:inline-flex;background:var(--card2);border-radius:20px;padding:5px 12px;font-size:12px;margin:3px;border:1px solid var(--border)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .icon{font-size:64px;margin-bottom:16px}
+.empty p{font-size:15px;line-height:1.6}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:11px 22px;border-radius:24px;font-size:14px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.no-results{text-align:center;padding:40px;color:var(--muted)}
 </style>
 </head>
 <body>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- SCREEN: LISTA -->
+<!-- LISTA -->
 <div id="screen-list" class="screen active">
   <div class="nav">
-    <h1>🏠 Mis Propiedades</h1>
+    <h1>🏠 Voxi Propiedades</h1>
     <button class="add-btn" onclick="showAdd()">+</button>
   </div>
   <div style="padding:16px">
-    <input class="search-bar" type="text" id="searchInput" placeholder="🔍 Buscar por dirección, cliente, tipo..." oninput="renderList()">
+    <div class="hero">
+      <h2>Mis Propiedades</h2>
+      <p>Gestión profesional · Acayuca, Hidalgo</p>
+    </div>
+    <input class="search-bar" type="text" id="searchInput" placeholder="🔍 Buscar dirección, cliente, tipo..." oninput="renderList()">
     <div class="filters">
-      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Todas</button>
-      <button class="filter-btn" data-filter="nueva" onclick="setFilter('nueva',this)">Nueva</button>
-      <button class="filter-btn" data-filter="usada" onclick="setFilter('usada',this)">Usada</button>
-      <button class="filter-btn" data-filter="preventa" onclick="setFilter('preventa',this)">Preventa</button>
-      <button class="filter-btn" data-filter="terreno" onclick="setFilter('terreno',this)">Terreno</button>
-      <button class="filter-btn" data-filter="parcela" onclick="setFilter('parcela',this)">Parcela</button>
-      <button class="filter-btn" data-filter="apartada" onclick="setFilter('apartada',this)">Apartadas</button>
+      <button class="filter-btn active" onclick="setFilter('all',this)">Todas</button>
+      <button class="filter-btn" onclick="setFilter('nueva',this)">Nueva</button>
+      <button class="filter-btn" onclick="setFilter('usada',this)">Usada</button>
+      <button class="filter-btn" onclick="setFilter('preventa',this)">Preventa</button>
+      <button class="filter-btn" onclick="setFilter('terreno',this)">Terreno</button>
+      <button class="filter-btn" onclick="setFilter('parcela',this)">Parcela</button>
+      <button class="filter-btn" onclick="setFilter('apartada',this)">Apartadas</button>
     </div>
     <div class="stats" id="statsArea"></div>
     <div id="propList"></div>
   </div>
 </div>
 
-<!-- SCREEN: DETALLE -->
+<!-- DETALLE -->
 <div id="screen-detail" class="screen">
   <div class="nav">
     <button class="back-btn" onclick="showList()">←</button>
     <h1 id="detailTitle">Propiedad</h1>
-    <button class="add-btn" style="background:var(--accent2)" onclick="editCurrent()">✏️</button>
+    <button class="add-btn" style="background:linear-gradient(135deg,#5A3A1A,#3D2510);font-size:16px" onclick="editCurrent()">✏️</button>
   </div>
   <div style="padding:16px" id="detailContent"></div>
 </div>
 
-<!-- SCREEN: FORM -->
+<!-- FORMULARIO -->
 <div id="screen-form" class="screen">
   <div class="nav">
     <button class="back-btn" onclick="showList()">←</button>
@@ -187,715 +143,278 @@
     <div></div>
   </div>
   <div style="padding:16px">
-
-    <!-- FOTOS -->
     <div class="form-section">
       <h3>📷 Fotos (mín. 20)</h3>
       <div class="photos-grid" id="photosGrid">
-        <label class="photo-add" for="photoInput">
-          <span>+</span>
-          Agregar fotos
-        </label>
+        <label class="photo-add" for="photoInput"><span>+</span>Agregar</label>
       </div>
       <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="addPhotos(this)">
-      <p style="font-size:12px;color:var(--muted);margin-top:8px" id="photoCount">0 fotos agregadas</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px" id="photoCount">0 fotos</p>
     </div>
-
-    <!-- TIPO Y ESTADO -->
     <div class="form-section">
       <h3>🏷️ Tipo de Propiedad</h3>
-      <div class="form-group">
-        <label>Tipo</label>
-        <div class="toggle-group" id="toggleTipo">
-          <div class="toggle-opt" data-val="casa" onclick="selectToggle('toggleTipo',this)">Casa</div>
-          <div class="toggle-opt" data-val="terreno" onclick="selectToggle('toggleTipo',this)">Terreno</div>
-          <div class="toggle-opt" data-val="parcela" onclick="selectToggle('toggleTipo',this)">Parcela</div>
-          <div class="toggle-opt" data-val="departamento" onclick="selectToggle('toggleTipo',this)">Departamento</div>
+      <div class="form-group"><label>Tipo</label>
+        <div class="toggle-group" id="tTipo">
+          <div class="toggle-opt" data-val="casa" onclick="selT('tTipo',this)">Casa</div>
+          <div class="toggle-opt" data-val="terreno" onclick="selT('tTipo',this)">Terreno</div>
+          <div class="toggle-opt" data-val="parcela" onclick="selT('tTipo',this)">Parcela</div>
+          <div class="toggle-opt" data-val="departamento" onclick="selT('tTipo',this)">Departamento</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Estado</label>
-        <div class="toggle-group" id="toggleEstado">
-          <div class="toggle-opt" data-val="nueva" onclick="selectToggle('toggleEstado',this)">Nueva</div>
-          <div class="toggle-opt" data-val="usada" onclick="selectToggle('toggleEstado',this)">Usada</div>
-          <div class="toggle-opt" data-val="preventa" onclick="selectToggle('toggleEstado',this)">Preventa</div>
+      <div class="form-group"><label>Estado</label>
+        <div class="toggle-group" id="tEstado">
+          <div class="toggle-opt" data-val="nueva" onclick="selT('tEstado',this)">Nueva</div>
+          <div class="toggle-opt" data-val="usada" onclick="selT('tEstado',this)">Usada</div>
+          <div class="toggle-opt" data-val="preventa" onclick="selT('tEstado',this)">Preventa</div>
         </div>
       </div>
     </div>
-
-    <!-- UBICACIÓN -->
     <div class="form-section">
       <h3>📍 Ubicación</h3>
-      <div class="form-group">
-        <label>Dirección / Calle</label>
-        <input type="text" id="fDireccion" placeholder="Calle, número, colonia">
+      <div class="form-group"><label>Dirección / Calle</label><input type="text" id="fDir" placeholder="Calle, número, colonia"></div>
+      <div class="form-group"><label>Municipio / Ciudad</label><input type="text" id="fMun" placeholder="Ej. Acayuca, Hidalgo"></div>
+      <div class="form-group"><label>Distancia a CDMX</label>
+        <div class="form-row"><input type="text" id="fDCDMX" placeholder="Km"><input type="text" id="fTCDMX" placeholder="Tiempo"></div>
       </div>
-      <div class="form-group">
-        <label>Municipio / Ciudad</label>
-        <input type="text" id="fMunicipio" placeholder="Ej. Acayuca, Hidalgo">
+      <div class="form-group"><label>Distancia a Pachuca</label>
+        <div class="form-row"><input type="text" id="fDPach" placeholder="Km"><input type="text" id="fTPach" placeholder="Tiempo"></div>
       </div>
-      <div class="form-group">
-        <label>Distancia a Ciudad de México</label>
-        <div class="form-row">
-          <input type="text" id="fDistCDMX" placeholder="Km aprox.">
-          <input type="text" id="fTiempoCDMX" placeholder="Tiempo aprox.">
+      <div class="form-group"><label>Calle pavimentada</label>
+        <div class="toggle-group" id="tPav">
+          <div class="toggle-opt" data-val="sí" onclick="selT('tPav',this)">Sí</div>
+          <div class="toggle-opt" data-val="no" onclick="selT('tPav',this)">No</div>
+          <div class="toggle-opt" data-val="parcial" onclick="selT('tPav',this)">Parcial</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Distancia a Pachuca</label>
-        <div class="form-row">
-          <input type="text" id="fDistPachuca" placeholder="Km aprox.">
-          <input type="text" id="fTiempoPachuca" placeholder="Tiempo aprox.">
+      <div class="form-group"><label>Luz pública</label>
+        <div class="toggle-group" id="tLuz">
+          <div class="toggle-opt" data-val="sí" onclick="selT('tLuz',this)">Sí</div>
+          <div class="toggle-opt" data-val="no" onclick="selT('tLuz',this)">No</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Calle pavimentada</label>
-        <div class="toggle-group" id="togglePavimentada">
-          <div class="toggle-opt" data-val="sí" onclick="selectToggle('togglePavimentada',this)">Sí</div>
-          <div class="toggle-opt" data-val="no" onclick="selectToggle('togglePavimentada',this)">No</div>
-          <div class="toggle-opt" data-val="parcial" onclick="selectToggle('togglePavimentada',this)">Parcial</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Luz pública</label>
-        <div class="toggle-group" id="toggleLuzPublica">
-          <div class="toggle-opt" data-val="sí" onclick="selectToggle('toggleLuzPublica',this)">Sí</div>
-          <div class="toggle-opt" data-val="no" onclick="selectToggle('toggleLuzPublica',this)">No</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Link Google Maps / fotos aéreas (opcional)</label>
-        <input type="url" id="fGoogleMaps" placeholder="https://maps.google.com/...">
-      </div>
+      <div class="form-group"><label>Google Maps (opcional)</label><input type="url" id="fMaps" placeholder="https://maps.google.com/..."></div>
     </div>
-
-    <!-- MEDIDAS -->
     <div class="form-section">
       <h3>📐 Medidas</h3>
       <div class="form-row">
-        <div class="form-group">
-          <label>Frente (m)</label>
-          <input type="number" id="fFrente" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label>Fondo (m)</label>
-          <input type="number" id="fFondo" placeholder="0">
-        </div>
+        <div class="form-group"><label>Frente (m)</label><input type="number" id="fFr" placeholder="0"></div>
+        <div class="form-group"><label>Fondo (m)</label><input type="number" id="fFo" placeholder="0"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Lado izq. (m)</label>
-          <input type="number" id="fLadoIzq" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label>Lado der. (m)</label>
-          <input type="number" id="fLadoDer" placeholder="0">
-        </div>
+        <div class="form-group"><label>Lado izq. (m)</label><input type="number" id="fLi" placeholder="0"></div>
+        <div class="form-group"><label>Lado der. (m)</label><input type="number" id="fLd" placeholder="0"></div>
       </div>
-      <div class="form-group">
-        <label>Área total (m²)</label>
-        <input type="number" id="fArea" placeholder="Se calcula automático o ingresa manual">
-      </div>
+      <div class="form-group"><label>Área total (m²)</label><input type="number" id="fArea" placeholder="Se calcula automático"></div>
     </div>
-
-    <!-- SERVICIOS -->
     <div class="form-section">
-      <h3>⚡ Servicios Básicos</h3>
-      <div class="form-group">
-        <label>Servicios disponibles</label>
-        <div class="toggle-group" id="toggleServicios" style="flex-wrap:wrap">
-          <div class="toggle-opt" data-val="agua" onclick="selectMulti('toggleServicios',this)">💧 Agua</div>
-          <div class="toggle-opt" data-val="luz" onclick="selectMulti('toggleServicios',this)">💡 Luz</div>
-          <div class="toggle-opt" data-val="drenaje" onclick="selectMulti('toggleServicios',this)">🔩 Drenaje</div>
-          <div class="toggle-opt" data-val="gas" onclick="selectMulti('toggleServicios',this)">🔥 Gas</div>
-          <div class="toggle-opt" data-val="internet" onclick="selectMulti('toggleServicios',this)">📶 Internet</div>
-        </div>
+      <h3>⚡ Servicios</h3>
+      <div class="toggle-group" id="tServ" style="flex-wrap:wrap">
+        <div class="toggle-opt" data-val="agua" onclick="selM('tServ',this)">💧 Agua</div>
+        <div class="toggle-opt" data-val="luz" onclick="selM('tServ',this)">💡 Luz</div>
+        <div class="toggle-opt" data-val="drenaje" onclick="selM('tServ',this)">🔩 Drenaje</div>
+        <div class="toggle-opt" data-val="gas" onclick="selM('tServ',this)">🔥 Gas</div>
+        <div class="toggle-opt" data-val="internet" onclick="selM('tServ',this)">📶 Internet</div>
       </div>
     </div>
-
-    <!-- DOCUMENTACIÓN -->
     <div class="form-section">
       <h3>📄 Documentación</h3>
-      <div class="form-group">
-        <label>Tipo de documento</label>
-        <div class="toggle-group" id="toggleDoc">
-          <div class="toggle-opt" data-val="titulo" onclick="selectToggle('toggleDoc',this)">Título propiedad</div>
-          <div class="toggle-opt" data-val="escritura" onclick="selectToggle('toggleDoc',this)">Escritura pública</div>
-          <div class="toggle-opt" data-val="posesion" onclick="selectToggle('toggleDoc',this)">Posesión</div>
-          <div class="toggle-opt" data-val="tramite" onclick="selectToggle('toggleDoc',this)">En trámite</div>
+      <div class="form-group"><label>Tipo de documento</label>
+        <div class="toggle-group" id="tDoc">
+          <div class="toggle-opt" data-val="titulo" onclick="selT('tDoc',this)">Título propiedad</div>
+          <div class="toggle-opt" data-val="escritura" onclick="selT('tDoc',this)">Escritura pública</div>
+          <div class="toggle-opt" data-val="posesion" onclick="selT('tDoc',this)">Posesión</div>
+          <div class="toggle-opt" data-val="tramite" onclick="selT('tDoc',this)">En trámite</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Notas de documentación</label>
-        <textarea id="fDocNotas" placeholder="Detalles adicionales de escritura, trámites, etc."></textarea>
-      </div>
+      <div class="form-group"><label>Notas de documentación</label><textarea id="fDocN" placeholder="Detalles adicionales..."></textarea></div>
     </div>
-
-    <!-- PRECIOS Y COMISIONES -->
     <div class="form-section">
       <h3>💰 Precios y Comisiones</h3>
-      <div class="form-group">
-        <label>Precio lista ($)</label>
-        <input type="number" id="fPrecioLista" placeholder="700000">
-      </div>
-      <div class="form-group">
-        <label>Precio mínimo / efectivo ($)</label>
-        <input type="number" id="fPrecioMin" placeholder="550000">
-      </div>
-      <div class="form-group">
-        <label>¿Se puede subir el precio?</label>
-        <div class="toggle-group" id="toggleSubir">
-          <div class="toggle-opt" data-val="sí" onclick="selectToggle('toggleSubir',this)">Sí, se puede subir</div>
-          <div class="toggle-opt" data-val="no" onclick="selectToggle('toggleSubir',this)">No, precio fijo</div>
+      <div class="form-group"><label>Precio lista ($)</label><input type="number" id="fPL" placeholder="700000"></div>
+      <div class="form-group"><label>Precio mínimo / efectivo ($)</label><input type="number" id="fPM" placeholder="550000"></div>
+      <div class="form-group"><label>¿Se puede subir el precio?</label>
+        <div class="toggle-group" id="tSubir">
+          <div class="toggle-opt" data-val="sí" onclick="selT('tSubir',this)">Sí, se puede subir</div>
+          <div class="toggle-opt" data-val="no" onclick="selT('tSubir',this)">No, precio fijo</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Comisión que da el propietario ($)</label>
-        <input type="number" id="fComision" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label>Ganancia estimada por venta ($)</label>
-        <input type="number" id="fGanancia" placeholder="0" id="fGanancia">
-      </div>
+      <div class="form-group"><label>Comisión del propietario ($)</label><input type="number" id="fCom" placeholder="0"></div>
+      <div class="form-group"><label>Ganancia estimada ($)</label><input type="number" id="fGan" placeholder="0"></div>
     </div>
-
-    <!-- ESTADO DE VENTA -->
     <div class="form-section">
       <h3>📊 Estado de Venta</h3>
-      <div class="form-group">
-        <label>¿Está apartada?</label>
-        <div class="toggle-group" id="toggleApartada">
-          <div class="toggle-opt" data-val="no" onclick="selectToggle('toggleApartada',this)">No</div>
-          <div class="toggle-opt" data-val="sí" onclick="selectToggle('toggleApartada',this)">Sí, apartada</div>
-          <div class="toggle-opt" data-val="vendida" onclick="selectToggle('toggleApartada',this)">Vendida</div>
+      <div class="form-group"><label>¿Está apartada?</label>
+        <div class="toggle-group" id="tApart">
+          <div class="toggle-opt" data-val="no" onclick="selT('tApart',this)">No</div>
+          <div class="toggle-opt" data-val="sí" onclick="selT('tApart',this)">Sí, apartada</div>
+          <div class="toggle-opt" data-val="vendida" onclick="selT('tApart',this)">Vendida</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Monto para apartar ($)</label>
-        <input type="number" id="fMontoApartar" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label>Enganche dado ($)</label>
-        <input type="number" id="fEnganche" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label>Monto que se debe ($)</label>
-        <input type="number" id="fDeuda" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label>Fecha límite de pago</label>
-        <input type="date" id="fFechaLimite">
-      </div>
+      <div class="form-group"><label>Monto para apartar ($)</label><input type="number" id="fMAp" placeholder="0"></div>
+      <div class="form-group"><label>Enganche dado ($)</label><input type="number" id="fEng" placeholder="0"></div>
+      <div class="form-group"><label>Monto que se debe ($)</label><input type="number" id="fDeu" placeholder="0"></div>
+      <div class="form-group"><label>Fecha límite de pago</label><input type="date" id="fFech"></div>
     </div>
-
-    <!-- PREVENTA -->
     <div class="form-section">
       <h3>🏗️ Preventa (si aplica)</h3>
-      <div class="form-group">
-        <label>Tiempo estimado de construcción</label>
-        <input type="text" id="fTiempoConst" placeholder="Ej. 3 meses">
-      </div>
-      <div class="form-group">
-        <label>Número de pisos</label>
-        <div class="toggle-group" id="togglePisos">
-          <div class="toggle-opt" data-val="1" onclick="selectToggle('togglePisos',this)">1 piso</div>
-          <div class="toggle-opt" data-val="2" onclick="selectToggle('togglePisos',this)">2 pisos</div>
-          <div class="toggle-opt" data-val="personalizable" onclick="selectToggle('togglePisos',this)">A petición</div>
+      <div class="form-group"><label>Tiempo de construcción</label><input type="text" id="fTC" placeholder="Ej. 3 meses"></div>
+      <div class="form-group"><label>Número de pisos</label>
+        <div class="toggle-group" id="tPisos">
+          <div class="toggle-opt" data-val="1" onclick="selT('tPisos',this)">1 piso</div>
+          <div class="toggle-opt" data-val="2" onclick="selT('tPisos',this)">2 pisos</div>
+          <div class="toggle-opt" data-val="personalizable" onclick="selT('tPisos',this)">A petición</div>
         </div>
       </div>
     </div>
-
-    <!-- OTROS AGENTES -->
     <div class="form-section">
-      <h3>🤝 Otros Agentes</h3>
-      <div class="form-group">
-        <label>¿Otros agentes trabajando esta propiedad?</label>
-        <div class="toggle-group" id="toggleOtrosAgentes">
-          <div class="toggle-opt" data-val="no" onclick="selectToggle('toggleOtrosAgentes',this)">Solo yo</div>
-          <div class="toggle-opt" data-val="sí" onclick="selectToggle('toggleOtrosAgentes',this)">Sí, hay otros</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Nombres / contacto de otros agentes</label>
-        <textarea id="fOtrosAgentes" placeholder="Nombre, teléfono..."></textarea>
-      </div>
-    </div>
-
-    <!-- CLIENTE / PROPIETARIO -->
-    <div class="form-section">
-      <h3>👤 Propietario / Cliente</h3>
-      <div class="form-group">
-        <label>Nombre del propietario</label>
-        <input type="text" id="fPropietario" placeholder="Nombre completo">
-      </div>
-      <div class="form-group">
-        <label>Teléfono</label>
-        <input type="tel" id="fTelProp" placeholder="771 000 0000">
-      </div>
-      <div class="form-group">
-        <label>Estado civil</label>
-        <div class="toggle-group" id="toggleEstCivil">
-          <div class="toggle-opt" data-val="soltero" onclick="selectToggle('toggleEstCivil',this)">Soltero/a</div>
-          <div class="toggle-opt" data-val="casado" onclick="selectToggle('toggleEstCivil',this)">Casado/a</div>
-          <div class="toggle-opt" data-val="divorciado" onclick="selectToggle('toggleEstCivil',this)">Divorciado/a</div>
-          <div class="toggle-opt" data-val="viudo" onclick="selectToggle('toggleEstCivil',this)">Viudo/a</div>
+      <h3>👤 Propietario</h3>
+      <div class="form-group"><label>Nombre</label><input type="text" id="fProp" placeholder="Nombre completo"></div>
+      <div class="form-group"><label>Teléfono</label><input type="tel" id="fTel" placeholder="771 000 0000"></div>
+      <div class="form-group"><label>Estado civil</label>
+        <div class="toggle-group" id="tCivil">
+          <div class="toggle-opt" data-val="soltero" onclick="selT('tCivil',this)">Soltero/a</div>
+          <div class="toggle-opt" data-val="casado" onclick="selT('tCivil',this)">Casado/a</div>
+          <div class="toggle-opt" data-val="divorciado" onclick="selT('tCivil',this)">Divorciado/a</div>
         </div>
       </div>
     </div>
-
-    <!-- DESCRIPCIÓN -->
     <div class="form-section">
       <h3>📝 Descripción</h3>
-      <div class="form-group">
-        <label>Descripción general de la propiedad</label>
-        <textarea id="fDescripcion" placeholder="Describe la propiedad, características especiales, estado de conservación, etc." style="min-height:120px"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Notas privadas</label>
-        <textarea id="fNotas" placeholder="Notas internas que solo tú verás..."></textarea>
-      </div>
+      <div class="form-group"><label>Descripción general</label><textarea id="fDesc" placeholder="Describe la propiedad..." style="min-height:120px"></textarea></div>
+      <div class="form-group"><label>Notas privadas</label><textarea id="fNotas" placeholder="Solo las ves tú..."></textarea></div>
     </div>
-
     <div class="btn-group">
-      <button class="btn btn-primary" onclick="saveProperty()">💾 Guardar Propiedad</button>
+      <button class="btn btn-primary" onclick="saveP()">💾 Guardar Propiedad</button>
       <button class="btn btn-secondary" onclick="showList()">Cancelar</button>
-      <button class="btn btn-danger" id="deleteBtn" onclick="deleteProperty()" style="display:none">🗑️ Eliminar Propiedad</button>
+      <button class="btn btn-danger" id="deleteBtn" onclick="deleteP()" style="display:none">🗑️ Eliminar Propiedad</button>
     </div>
   </div>
 </div>
 
 <script>
-// ===================== DATA =====================
-let properties = [];
-let currentFilter = 'all';
-let editingId = null;
-let photoData = []; // base64 array
+let props=[],filter='all',editId=null,photos=[];
 
-function loadData() {
-  try {
-    properties = JSON.parse(localStorage.getItem('propiedades') || '[]');
-  } catch(e) { properties = []; }
-}
+function load(){try{props=JSON.parse(localStorage.getItem('voxiProps')||'[]')}catch(e){props=[]}}
+function save(){localStorage.setItem('voxiProps',JSON.stringify(props))}
 
-function saveData() {
-  localStorage.setItem('propiedades', JSON.stringify(properties));
-}
+function showList(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-list').classList.add('active');editId=null;render()}
+function showAdd(){editId=null;photos=[];document.getElementById('formTitle').textContent='Nueva Propiedad';document.getElementById('deleteBtn').style.display='none';clearF();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-form').classList.add('active');renderPG();window.scrollTo(0,0)}
+function showDetail(id){const p=props.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById('detailTitle').textContent=p.tipo?p.tipo[0].toUpperCase()+p.tipo.slice(1):'Propiedad';document.getElementById('detailContent').innerHTML=buildDetail(p);document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-detail').classList.add('active');window.scrollTo(0,0)}
+function editCurrent(){if(!editId)return;const p=props.find(x=>x.id===editId);if(!p)return;fillF(p);document.getElementById('formTitle').textContent='Editar Propiedad';document.getElementById('deleteBtn').style.display='block';document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-form').classList.add('active');window.scrollTo(0,0)}
 
-// ===================== NAVIGATION =====================
-function showList() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-list').classList.add('active');
-  editingId = null;
-  renderList();
-}
+function setFilter(f,btn){filter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render()}
 
-function showAdd() {
-  editingId = null;
-  photoData = [];
-  document.getElementById('formTitle').textContent = 'Nueva Propiedad';
-  document.getElementById('deleteBtn').style.display = 'none';
-  clearForm();
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-form').classList.add('active');
-  renderPhotosGrid();
-  window.scrollTo(0,0);
-}
-
-function showDetail(id) {
-  const p = properties.find(x => x.id === id);
-  if (!p) return;
-  editingId = id;
-  document.getElementById('detailTitle').textContent = p.tipo ? p.tipo.charAt(0).toUpperCase()+p.tipo.slice(1) : 'Propiedad';
-  document.getElementById('detailContent').innerHTML = buildDetailHTML(p);
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-detail').classList.add('active');
-  window.scrollTo(0,0);
-}
-
-function editCurrent() {
-  if (!editingId) return;
-  const p = properties.find(x => x.id === editingId);
-  if (!p) return;
-  fillForm(p);
-  document.getElementById('formTitle').textContent = 'Editar Propiedad';
-  document.getElementById('deleteBtn').style.display = 'block';
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-form').classList.add('active');
-  window.scrollTo(0,0);
-}
-
-// ===================== FILTERS =====================
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderList();
-}
-
-// ===================== RENDER LIST =====================
-function renderList() {
-  const q = (document.getElementById('searchInput').value || '').toLowerCase();
-  let filtered = properties.filter(p => {
-    const matchFilter = currentFilter === 'all' ||
-      (currentFilter === 'apartada' ? p.apartada === 'sí' : p.tipo === currentFilter || p.estado === currentFilter);
-    const matchSearch = !q || JSON.stringify(p).toLowerCase().includes(q);
-    return matchFilter && matchSearch;
+function render(){
+  const q=(document.getElementById('searchInput').value||'').toLowerCase();
+  let list=props.filter(p=>{
+    const mf=filter==='all'||(filter==='apartada'?p.apart==='sí':p.tipo===filter||p.estado===filter);
+    return mf&&(!q||JSON.stringify(p).toLowerCase().includes(q));
   });
-
-  // Stats
-  const total = properties.length;
-  const apartadas = properties.filter(p => p.apartada === 'sí').length;
-  document.getElementById('statsArea').innerHTML = `
-    <div class="stat-card"><div class="num">${total}</div><div class="lbl">Total propiedades</div></div>
-    <div class="stat-card"><div class="num">${apartadas}</div><div class="lbl">Apartadas</div></div>
-  `;
-
-  if (filtered.length === 0) {
-    document.getElementById('propList').innerHTML = properties.length === 0
-      ? `<div class="empty"><div class="icon">🏠</div><p>Aún no tienes propiedades.<br>Toca <b>+</b> para agregar la primera.</p></div>`
-      : `<div class="no-results">Sin resultados para "${q}"</div>`;
-    return;
-  }
-
-  document.getElementById('propList').innerHTML = filtered.map(p => {
-    const imgHTML = p.fotos && p.fotos.length > 0
-      ? `<div class="prop-card-img"><img src="${p.fotos[0]}" loading="lazy"></div>`
-      : `<div class="prop-card-img">🏠</div>`;
-    const badge = p.estado === 'preventa' ? 'badge-preventa' : p.estado === 'usada' ? 'badge-usada' : 'badge-venta';
-    const estadoLabel = p.estado || p.tipo || 'N/D';
-    const price = p.precioLista ? '$' + Number(p.precioLista).toLocaleString('es-MX') : 'Sin precio';
-    const apartBadge = p.apartada === 'sí' ? '<span class="badge badge-apartada">Apartada</span>' : '';
-    return `<div class="prop-card" onclick="showDetail('${p.id}')">
-      ${imgHTML}
-      <div class="prop-card-body">
-        <div class="prop-card-title">${p.direccion || 'Sin dirección'}</div>
-        <div class="prop-card-sub">${p.municipio || ''} ${p.area ? '· '+p.area+' m²' : ''}</div>
-        <div class="prop-card-footer">
-          <div>${apartBadge}<span class="badge ${badge}">${estadoLabel}</span></div>
-          <div class="price-tag">${price}</div>
-        </div>
-      </div>
-    </div>`;
+  document.getElementById('statsArea').innerHTML=`<div class="stat-card"><div class="num">${props.length}</div><div class="lbl">Total</div></div><div class="stat-card"><div class="num">${props.filter(p=>p.apart==='sí').length}</div><div class="lbl">Apartadas</div></div>`;
+  if(!list.length){document.getElementById('propList').innerHTML=!props.length?`<div class="empty"><div class="icon">🏠</div><p>Aún no tienes propiedades.<br>Toca <b>+</b> para agregar la primera.</p></div>`:`<div class="no-results">Sin resultados</div>`;return}
+  document.getElementById('propList').innerHTML=list.map(p=>{
+    const img=p.fotos&&p.fotos.length?`<div class="prop-card-img"><img src="${p.fotos[0]}" loading="lazy"></div>`:`<div class="prop-card-img">🏠</div>`;
+    const bg=p.estado==='preventa'?'badge-preventa':p.estado==='usada'?'badge-usada':'badge-venta';
+    const price=p.pl?'$'+Number(p.pl).toLocaleString('es-MX'):'Sin precio';
+    const ab=p.apart==='sí'?'<span class="badge badge-apartada" style="margin-right:4px">Apartada</span>':'';
+    return`<div class="prop-card" onclick="showDetail('${p.id}')">${img}<div class="prop-card-body"><div class="prop-card-title">${p.dir||'Sin dirección'}</div><div class="prop-card-sub">${p.mun||''}${p.area?' · '+p.area+' m²':''}</div><div class="prop-card-footer"><div>${ab}<span class="badge ${bg}">${p.estado||p.tipo||'N/D'}</span></div><div class="price-tag">${price}</div></div></div></div>`;
   }).join('');
 }
 
-// ===================== DETAIL HTML =====================
-function buildDetailHTML(p) {
-  const fmtMoney = v => v ? '$' + Number(v).toLocaleString('es-MX') : '—';
-  const fmtVal = v => v || '—';
-  const yesno = v => v === 'sí' ? '<span class="val-green">✅ Sí</span>' : v === 'no' ? '<span class="val-red">❌ No</span>' : fmtVal(v);
+function ficha(p){
+  const fm=v=>v?'$'+Number(v).toLocaleString('es-MX'):'—';
+  const sv=(p.serv||[]).join(', ')||'—';
+  let f=`🏠 *${(p.tipo||'PROPIEDAD').toUpperCase()} EN ${(p.estado||'VENTA').toUpperCase()}*\n`;
+  f+=`📍 ${p.dir||''}${p.mun?', '+p.mun:''}\n\n`;
+  if(p.area)f+=`📐 Superficie: *${p.area} m²*\n`;
+  if(p.fr&&p.fo)f+=`   Frente: ${p.fr}m × Fondo: ${p.fo}m\n`;
+  f+=`\n💰 *Precio: ${fm(p.pl)}*\n`;
+  if(p.pm&&p.pm!==p.pl)f+=`   En efectivo: ${fm(p.pm)}\n`;
+  f+=`\n⚡ Servicios: ${sv}\n`;
+  if(p.pav)f+=`🛣️ Calle pavimentada: ${p.pav}\n`;
+  if(p.dcdmx)f+=`\n🚗 A CDMX: ${p.dcdmx} km (${p.tcdmx||'—'})\n`;
+  if(p.dpach)f+=`🚗 A Pachuca: ${p.dpach} km (${p.tpach||'—'})\n`;
+  if(p.desc)f+=`\n📋 ${p.desc}\n`;
+  if(p.estado==='preventa'){f+=`\n🏗️ *PREVENTA* — Entrega en ${p.tc||'3 meses'}\n`;if(p.pisos)f+=`   ${p.pisos} piso(s) — diseño a tu gusto\n`}
+  f+=`\n📞 *¡Escríbeme para más info y visita!*`;
+  return f;
+}
+function shareWA(id){const p=props.find(x=>x.id===id);if(!p)return;window.open('https://wa.me/?text='+encodeURIComponent(ficha(p)),'_blank')}
+function copyFicha(id){const p=props.find(x=>x.id===id);if(!p)return;navigator.clipboard.writeText(ficha(p)).then(()=>toast('📋 Ficha copiada')).catch(()=>toast('⚠️ No se pudo copiar'))}
 
-  let photosHTML = '';
-  if (p.fotos && p.fotos.length > 0) {
-    photosHTML = `<div class="detail-photos">${p.fotos.map(f => `<div class="detail-photo"><img src="${f}" loading="lazy"></div>`).join('')}</div>`;
-  }
-
-  const serviciosArr = p.servicios || [];
-  const serviciosHTML = serviciosArr.length > 0
-    ? serviciosArr.map(s => `<span class="chip">${s}</span>`).join('')
-    : '—';
-
-  const ganancia = p.ganancia || (p.precioLista && p.precioMin ? Number(p.precioLista) - Number(p.precioMin) : null);
-
-  return `
-    ${photosHTML}
-    <div class="detail-section">
-      <h3>🏷️ General</h3>
-      <div class="detail-row"><span class="lbl">Tipo</span><span class="val">${fmtVal(p.tipo)}</span></div>
-      <div class="detail-row"><span class="lbl">Estado</span><span class="val">${fmtVal(p.estado)}</span></div>
-      <div class="detail-row"><span class="lbl">Fotos</span><span class="val">${(p.fotos||[]).length} fotos</span></div>
-    </div>
-    <div class="detail-section">
-      <h3>📍 Ubicación</h3>
-      <div class="detail-row"><span class="lbl">Dirección</span><span class="val">${fmtVal(p.direccion)}</span></div>
-      <div class="detail-row"><span class="lbl">Municipio</span><span class="val">${fmtVal(p.municipio)}</span></div>
-      <div class="detail-row"><span class="lbl">A CDMX</span><span class="val">${p.distCDMX||'—'} km · ${p.tiempoCDMX||'—'}</span></div>
-      <div class="detail-row"><span class="lbl">A Pachuca</span><span class="val">${p.distPachuca||'—'} km · ${p.tiempoPachuca||'—'}</span></div>
-      <div class="detail-row"><span class="lbl">Calle pavimentada</span><span class="val">${yesno(p.pavimentada)}</span></div>
-      <div class="detail-row"><span class="lbl">Luz pública</span><span class="val">${yesno(p.luzPublica)}</span></div>
-      ${p.googleMaps ? `<div class="detail-row"><span class="lbl">Google Maps</span><span class="val"><a href="${p.googleMaps}" target="_blank" style="color:var(--accent)">Ver mapa</a></span></div>` : ''}
-    </div>
-    <div class="detail-section">
-      <h3>📐 Medidas</h3>
-      <div class="detail-row"><span class="lbl">Frente</span><span class="val">${p.frente||'—'} m</span></div>
-      <div class="detail-row"><span class="lbl">Fondo</span><span class="val">${p.fondo||'—'} m</span></div>
-      <div class="detail-row"><span class="lbl">Lado izq.</span><span class="val">${p.ladoIzq||'—'} m</span></div>
-      <div class="detail-row"><span class="lbl">Lado der.</span><span class="val">${p.ladoDer||'—'} m</span></div>
-      <div class="detail-row"><span class="lbl">Área total</span><span class="val">${p.area||'—'} m²</span></div>
-    </div>
-    <div class="detail-section">
-      <h3>⚡ Servicios</h3>
-      <div style="padding:8px 0">${serviciosHTML}</div>
-    </div>
-    <div class="detail-section">
-      <h3>📄 Documentación</h3>
-      <div class="detail-row"><span class="lbl">Tipo doc.</span><span class="val">${fmtVal(p.docTipo)}</span></div>
-      <div class="detail-row"><span class="lbl">Notas</span><span class="val">${fmtVal(p.docNotas)}</span></div>
-    </div>
-    <div class="detail-section">
-      <h3>💰 Financiero</h3>
-      <div class="detail-row"><span class="lbl">Precio lista</span><span class="val">${fmtMoney(p.precioLista)}</span></div>
-      <div class="detail-row"><span class="lbl">Precio mínimo</span><span class="val">${fmtMoney(p.precioMin)}</span></div>
-      <div class="detail-row"><span class="lbl">¿Se puede subir?</span><span class="val">${yesno(p.subirPrecio)}</span></div>
-      <div class="detail-row"><span class="lbl">Comisión</span><span class="val">${fmtMoney(p.comision)}</span></div>
-      <div class="detail-row"><span class="lbl">Ganancia estimada</span><span class="val val-green">${ganancia ? fmtMoney(ganancia) : '—'}</span></div>
-    </div>
-    <div class="detail-section">
-      <h3>📊 Estado de Venta</h3>
-      <div class="detail-row"><span class="lbl">¿Apartada?</span><span class="val">${fmtVal(p.apartada)}</span></div>
-      <div class="detail-row"><span class="lbl">Para apartar</span><span class="val">${fmtMoney(p.montoApartar)}</span></div>
-      <div class="detail-row"><span class="lbl">Enganche dado</span><span class="val">${fmtMoney(p.enganche)}</span></div>
-      <div class="detail-row"><span class="lbl">Lo que se debe</span><span class="val val-red">${fmtMoney(p.deuda)}</span></div>
-      <div class="detail-row"><span class="lbl">Fecha límite</span><span class="val">${p.fechaLimite||'—'}</span></div>
-    </div>
-    ${p.estado === 'preventa' ? `<div class="detail-section">
-      <h3>🏗️ Preventa</h3>
-      <div class="detail-row"><span class="lbl">Tiempo construcción</span><span class="val">${fmtVal(p.tiempoConst)}</span></div>
-      <div class="detail-row"><span class="lbl">Pisos</span><span class="val">${fmtVal(p.pisos)}</span></div>
-    </div>` : ''}
-    <div class="detail-section">
-      <h3>👤 Propietario</h3>
-      <div class="detail-row"><span class="lbl">Nombre</span><span class="val">${fmtVal(p.propietario)}</span></div>
-      <div class="detail-row"><span class="lbl">Teléfono</span><span class="val">${p.telProp ? `<a href="tel:${p.telProp}" style="color:var(--accent)">${p.telProp}</a>` : '—'}</span></div>
-      <div class="detail-row"><span class="lbl">Estado civil</span><span class="val">${fmtVal(p.estCivil)}</span></div>
-    </div>
-    ${p.otrosAgentes === 'sí' ? `<div class="detail-section">
-      <h3>🤝 Otros Agentes</h3>
-      <div style="padding:8px 0;font-size:14px">${p.otrosAgentesInfo||'Sin info'}</div>
-    </div>` : ''}
-    <div class="detail-section">
-      <h3>📝 Descripción</h3>
-      <p style="font-size:14px;line-height:1.6;white-space:pre-wrap">${fmtVal(p.descripcion)}</p>
-    </div>
-    <div class="detail-section">
-      <h3>🔒 Notas Privadas</h3>
-      <p style="font-size:14px;line-height:1.6;color:var(--muted);white-space:pre-wrap">${fmtVal(p.notas)}</p>
-    </div>
-    <div style="padding-bottom:40px;margin-top:16px">
-      <button class="btn btn-primary" onclick="editCurrent()">✏️ Editar esta propiedad</button>
-    </div>
-  `;
+function buildDetail(p){
+  const fm=v=>v?`<span class="val-gold">$${Number(v).toLocaleString('es-MX')}</span>`:'—';
+  const fv=v=>v||'—';
+  const yn=v=>v==='sí'?'<span class="val-green">✅ Sí</span>':v==='no'?'<span class="val-red">❌ No</span>':fv(v);
+  let ph='';if(p.fotos&&p.fotos.length)ph=`<div class="detail-photos">${p.fotos.map(f=>`<div class="detail-photo"><img src="${f}" loading="lazy"></div>`).join('')}</div>`;
+  const sv=(p.serv||[]).length?(p.serv||[]).map(s=>`<span class="chip">${s}</span>`).join(''):'—';
+  const gan=p.gan||(p.pl&&p.pm?Number(p.pl)-Number(p.pm):null);
+  const fc=ficha(p);
+  return`${ph}
+<div class="ficha-box"><h3>📤 Ficha para Compartir</h3><div class="ficha-preview">${fc}</div><div style="display:flex;gap:8px"><button class="btn btn-whatsapp" style="flex:1;padding:12px;font-size:14px" onclick="shareWA('${p.id}')">📲 WhatsApp</button><button class="btn btn-secondary" style="flex:1;padding:12px;font-size:14px" onclick="copyFicha('${p.id}')">📋 Copiar</button></div></div>
+<div class="detail-section"><h3>🏷️ General</h3>
+<div class="detail-row"><span class="lbl">Tipo</span><span class="val">${fv(p.tipo)}</span></div>
+<div class="detail-row"><span class="lbl">Estado</span><span class="val">${fv(p.estado)}</span></div>
+<div class="detail-row"><span class="lbl">Fotos</span><span class="val">${(p.fotos||[]).length}</span></div></div>
+<div class="detail-section"><h3>📍 Ubicación</h3>
+<div class="detail-row"><span class="lbl">Dirección</span><span class="val">${fv(p.dir)}</span></div>
+<div class="detail-row"><span class="lbl">Municipio</span><span class="val">${fv(p.mun)}</span></div>
+<div class="detail-row"><span class="lbl">A CDMX</span><span class="val">${p.dcdmx||'—'} km · ${p.tcdmx||'—'}</span></div>
+<div class="detail-row"><span class="lbl">A Pachuca</span><span class="val">${p.dpach||'—'} km · ${p.tpach||'—'}</span></div>
+<div class="detail-row"><span class="lbl">Pavimentada</span><span class="val">${yn(p.pav)}</span></div>
+<div class="detail-row"><span class="lbl">Luz pública</span><span class="val">${yn(p.luz)}</span></div>
+${p.maps?`<div class="detail-row"><span class="lbl">Maps</span><span class="val"><a href="${p.maps}" target="_blank" style="color:var(--accent)">Ver mapa 🗺️</a></span></div>`:''}</div>
+<div class="detail-section"><h3>📐 Medidas</h3>
+<div class="detail-row"><span class="lbl">Frente</span><span class="val">${p.fr||'—'} m</span></div>
+<div class="detail-row"><span class="lbl">Fondo</span><span class="val">${p.fo||'—'} m</span></div>
+<div class="detail-row"><span class="lbl">Lado izq.</span><span class="val">${p.li||'—'} m</span></div>
+<div class="detail-row"><span class="lbl">Lado der.</span><span class="val">${p.ld||'—'} m</span></div>
+<div class="detail-row"><span class="lbl">Área total</span><span class="val val-gold">${p.area||'—'} m²</span></div></div>
+<div class="detail-section"><h3>⚡ Servicios</h3><div style="padding:8px 0">${sv}</div></div>
+<div class="detail-section"><h3>📄 Documentación</h3>
+<div class="detail-row"><span class="lbl">Tipo doc.</span><span class="val">${fv(p.docTipo)}</span></div>
+<div class="detail-row"><span class="lbl">Notas</span><span class="val">${fv(p.docN)}</span></div></div>
+<div class="detail-section"><h3>💰 Financiero</h3>
+<div class="detail-row"><span class="lbl">Precio lista</span><span class="val">${fm(p.pl)}</span></div>
+<div class="detail-row"><span class="lbl">Precio mínimo</span><span class="val">${fm(p.pm)}</span></div>
+<div class="detail-row"><span class="lbl">¿Se puede subir?</span><span class="val">${yn(p.subir)}</span></div>
+<div class="detail-row"><span class="lbl">Comisión</span><span class="val">${fm(p.com)}</span></div>
+<div class="detail-row"><span class="lbl">Ganancia estimada</span><span class="val val-green">${gan?'$'+Number(gan).toLocaleString('es-MX'):'—'}</span></div></div>
+<div class="detail-section"><h3>📊 Estado de Venta</h3>
+<div class="detail-row"><span class="lbl">¿Apartada?</span><span class="val">${fv(p.apart)}</span></div>
+<div class="detail-row"><span class="lbl">Para apartar</span><span class="val">${fm(p.map)}</span></div>
+<div class="detail-row"><span class="lbl">Enganche dado</span><span class="val">${fm(p.eng)}</span></div>
+<div class="detail-row"><span class="lbl">Lo que se debe</span><span class="val val-red">${p.deu?'$'+Number(p.deu).toLocaleString('es-MX'):'—'}</span></div>
+<div class="detail-row"><span class="lbl">Fecha límite</span><span class="val">${p.fech||'—'}</span></div></div>
+${p.estado==='preventa'?`<div class="detail-section"><h3>🏗️ Preventa</h3><div class="detail-row"><span class="lbl">Tiempo const.</span><span class="val">${fv(p.tc)}</span></div><div class="detail-row"><span class="lbl">Pisos</span><span class="val">${fv(p.pisos)}</span></div></div>`:''}
+<div class="detail-section"><h3>👤 Propietario</h3>
+<div class="detail-row"><span class="lbl">Nombre</span><span class="val">${fv(p.prop)}</span></div>
+<div class="detail-row"><span class="lbl">Teléfono</span><span class="val">${p.tel?`<a href="tel:${p.tel}" style="color:var(--accent)">${p.tel}</a>`:'—'}</span></div>
+<div class="detail-row"><span class="lbl">Estado civil</span><span class="val">${fv(p.civil)}</span></div></div>
+<div class="detail-section"><h3>📝 Descripción</h3><p style="font-size:14px;line-height:1.7;white-space:pre-wrap">${fv(p.desc)}</p></div>
+<div class="detail-section"><h3>🔒 Notas Privadas</h3><p style="font-size:14px;line-height:1.7;color:var(--muted);white-space:pre-wrap">${fv(p.notas)}</p></div>
+<div style="padding-bottom:40px;margin-top:16px"><button class="btn btn-primary" onclick="editCurrent()">✏️ Editar esta propiedad</button></div>`;
 }
 
-// ===================== PHOTOS =====================
-function addPhotos(input) {
-  const files = Array.from(input.files);
-  let loaded = 0;
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      photoData.push(e.target.result);
-      loaded++;
-      if (loaded === files.length) renderPhotosGrid();
-    };
-    reader.readAsDataURL(file);
-  });
-  input.value = '';
-}
+function addPhotos(input){Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{photos.push(e.target.result);renderPG()};r.readAsDataURL(f)});input.value=''}
+function renderPG(){const g=document.getElementById('photosGrid');g.innerHTML=photos.map((d,i)=>`<div class="photo-thumb"><img src="${d}" loading="lazy"><button class="del-photo" onclick="rmPhoto(${i})">✕</button></div>`).join('')+`<label class="photo-add" for="photoInput"><span>+</span>Fotos</label>`;document.getElementById('photoCount').textContent=`${photos.length} foto${photos.length!==1?'s':''}`+(photos.length>0&&photos.length<20?' (recom. 20+)':'')}
+function rmPhoto(i){photos.splice(i,1);renderPG()}
+function selT(g,el){document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.remove('selected'));el.classList.add('selected')}
+function selM(g,el){el.classList.toggle('selected')}
+function gT(g){const s=document.querySelector(`#${g} .toggle-opt.selected`);return s?s.dataset.val:''}
+function gM(g){return Array.from(document.querySelectorAll(`#${g} .toggle-opt.selected`)).map(e=>e.dataset.val)}
+function stT(g,v){document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.toggle('selected',o.dataset.val===v))}
+function stM(g,v){if(!v)return;document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.toggle('selected',(v||[]).includes(o.dataset.val)))}
+function gv(id){const e=document.getElementById(id);return e?e.value.trim():''}
+function sv(id,v){const e=document.getElementById(id);if(e&&v!=null)e.value=v}
+function clearF(){['fDir','fMun','fDCDMX','fTCDMX','fDPach','fTPach','fMaps','fFr','fFo','fLi','fLd','fArea','fDocN','fPL','fPM','fCom','fGan','fMAp','fEng','fDeu','fFech','fTC','fProp','fTel','fDesc','fNotas'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});['tTipo','tEstado','tPav','tLuz','tDoc','tSubir','tApart','tPisos','tCivil','tServ'].forEach(g=>document.querySelectorAll(`#${g} .toggle-opt`).forEach(o=>o.classList.remove('selected')))}
+function fillF(p){photos=p.fotos?[...p.fotos]:[];renderPG();sv('fDir',p.dir);sv('fMun',p.mun);sv('fDCDMX',p.dcdmx);sv('fTCDMX',p.tcdmx);sv('fDPach',p.dpach);sv('fTPach',p.tpach);sv('fMaps',p.maps);sv('fFr',p.fr);sv('fFo',p.fo);sv('fLi',p.li);sv('fLd',p.ld);sv('fArea',p.area);sv('fDocN',p.docN);sv('fPL',p.pl);sv('fPM',p.pm);sv('fCom',p.com);sv('fGan',p.gan);sv('fMAp',p.map);sv('fEng',p.eng);sv('fDeu',p.deu);sv('fFech',p.fech);sv('fTC',p.tc);sv('fProp',p.prop);sv('fTel',p.tel);sv('fDesc',p.desc);sv('fNotas',p.notas);stT('tTipo',p.tipo);stT('tEstado',p.estado);stT('tPav',p.pav);stT('tLuz',p.luz);stT('tDoc',p.docTipo);stT('tSubir',p.subir);stT('tApart',p.apart);stT('tPisos',p.pisos);stT('tCivil',p.civil);stM('tServ',p.serv)}
+function saveP(){const fr=parseFloat(gv('fFr')),fo=parseFloat(gv('fFo'));let area=gv('fArea');if(!area&&fr&&fo)area=(fr*fo).toFixed(1);const p={id:editId||Date.now().toString(),fotos:[...photos],tipo:gT('tTipo'),estado:gT('tEstado'),dir:gv('fDir'),mun:gv('fMun'),dcdmx:gv('fDCDMX'),tcdmx:gv('fTCDMX'),dpach:gv('fDPach'),tpach:gv('fTPach'),pav:gT('tPav'),luz:gT('tLuz'),maps:gv('fMaps'),fr:gv('fFr'),fo:gv('fFo'),li:gv('fLi'),ld:gv('fLd'),area:area,serv:gM('tServ'),docTipo:gT('tDoc'),docN:gv('fDocN'),pl:gv('fPL'),pm:gv('fPM'),subir:gT('tSubir'),com:gv('fCom'),gan:gv('fGan'),apart:gT('tApart'),map:gv('fMAp'),eng:gv('fEng'),deu:gv('fDeu'),fech:gv('fFech'),tc:gv('fTC'),pisos:gT('tPisos'),prop:gv('fProp'),tel:gv('fTel'),civil:gT('tCivil'),desc:gv('fDesc'),notas:gv('fNotas'),upd:new Date().toISOString()};if(editId){const i=props.findIndex(x=>x.id===editId);if(i>=0)props[i]=p}else{props.unshift(p)}save();toast(editId?'✅ Propiedad actualizada':'✅ Propiedad guardada');editId=p.id;showDetail(p.id)}
+function deleteP(){if(!editId)return;if(!confirm('¿Eliminar esta propiedad?'))return;props=props.filter(x=>x.id!==editId);save();toast('🗑️ Eliminada');editId=null;showList()}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 
-function renderPhotosGrid() {
-  const grid = document.getElementById('photosGrid');
-  const count = document.getElementById('photoCount');
-  const thumbs = photoData.map((d, i) => `
-    <div class="photo-thumb">
-      <img src="${d}" loading="lazy">
-      <button class="del-photo" onclick="removePhoto(${i})">✕</button>
-    </div>
-  `).join('');
-  grid.innerHTML = thumbs + `<label class="photo-add" for="photoInput"><span>+</span>Fotos</label>`;
-  count.textContent = `${photoData.length} foto${photoData.length !== 1 ? 's' : ''} agregada${photoData.length !== 1 ? 's' : ''}`;
-  const warn = photoData.length > 0 && photoData.length < 20 ? ` (mínimo recomendado: 20)` : '';
-  count.textContent += warn;
-  count.style.color = photoData.length >= 20 ? 'var(--green)' : 'var(--muted)';
-}
-
-function removePhoto(i) {
-  photoData.splice(i, 1);
-  renderPhotosGrid();
-}
-
-// ===================== TOGGLES =====================
-function selectToggle(groupId, el) {
-  document.querySelectorAll(`#${groupId} .toggle-opt`).forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
-function selectMulti(groupId, el) {
-  el.classList.toggle('selected');
-}
-
-function getToggleVal(groupId) {
-  const sel = document.querySelector(`#${groupId} .toggle-opt.selected`);
-  return sel ? sel.dataset.val : '';
-}
-
-function getMultiVal(groupId) {
-  return Array.from(document.querySelectorAll(`#${groupId} .toggle-opt.selected`)).map(e => e.dataset.val);
-}
-
-function setToggleVal(groupId, val) {
-  document.querySelectorAll(`#${groupId} .toggle-opt`).forEach(o => {
-    o.classList.toggle('selected', o.dataset.val === val);
-  });
-}
-
-function setMultiVal(groupId, vals) {
-  if (!vals) return;
-  document.querySelectorAll(`#${groupId} .toggle-opt`).forEach(o => {
-    o.classList.toggle('selected', vals.includes(o.dataset.val));
-  });
-}
-
-// ===================== FORM =====================
-function clearForm() {
-  ['fDireccion','fMunicipio','fDistCDMX','fTiempoCDMX','fDistPachuca','fTiempoPachuca',
-   'fGoogleMaps','fFrente','fFondo','fLadoIzq','fLadoDer','fArea','fDocNotas',
-   'fPrecioLista','fPrecioMin','fComision','fGanancia','fMontoApartar','fEnganche',
-   'fDeuda','fFechaLimite','fTiempoConst','fOtrosAgentes','fPropietario','fTelProp',
-   'fDescripcion','fNotas'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  ['toggleTipo','toggleEstado','togglePavimentada','toggleLuzPublica','toggleDoc',
-   'toggleSubir','toggleApartada','togglePisos','toggleOtrosAgentes','toggleEstCivil'].forEach(id => {
-    document.querySelectorAll(`#${id} .toggle-opt`).forEach(o => o.classList.remove('selected'));
-  });
-  document.querySelectorAll('#toggleServicios .toggle-opt').forEach(o => o.classList.remove('selected'));
-}
-
-function fillForm(p) {
-  photoData = p.fotos ? [...p.fotos] : [];
-  renderPhotosGrid();
-  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
-  setVal('fDireccion', p.direccion);
-  setVal('fMunicipio', p.municipio);
-  setVal('fDistCDMX', p.distCDMX);
-  setVal('fTiempoCDMX', p.tiempoCDMX);
-  setVal('fDistPachuca', p.distPachuca);
-  setVal('fTiempoPachuca', p.tiempoPachuca);
-  setVal('fGoogleMaps', p.googleMaps);
-  setVal('fFrente', p.frente);
-  setVal('fFondo', p.fondo);
-  setVal('fLadoIzq', p.ladoIzq);
-  setVal('fLadoDer', p.ladoDer);
-  setVal('fArea', p.area);
-  setVal('fDocNotas', p.docNotas);
-  setVal('fPrecioLista', p.precioLista);
-  setVal('fPrecioMin', p.precioMin);
-  setVal('fComision', p.comision);
-  setVal('fGanancia', p.ganancia);
-  setVal('fMontoApartar', p.montoApartar);
-  setVal('fEnganche', p.enganche);
-  setVal('fDeuda', p.deuda);
-  setVal('fFechaLimite', p.fechaLimite);
-  setVal('fTiempoConst', p.tiempoConst);
-  setVal('fOtrosAgentes', p.otrosAgentesInfo);
-  setVal('fPropietario', p.propietario);
-  setVal('fTelProp', p.telProp);
-  setVal('fDescripcion', p.descripcion);
-  setVal('fNotas', p.notas);
-  setToggleVal('toggleTipo', p.tipo);
-  setToggleVal('toggleEstado', p.estado);
-  setToggleVal('togglePavimentada', p.pavimentada);
-  setToggleVal('toggleLuzPublica', p.luzPublica);
-  setToggleVal('toggleDoc', p.docTipo);
-  setToggleVal('toggleSubir', p.subirPrecio);
-  setToggleVal('toggleApartada', p.apartada);
-  setToggleVal('togglePisos', p.pisos);
-  setToggleVal('toggleOtrosAgentes', p.otrosAgentes);
-  setToggleVal('toggleEstCivil', p.estCivil);
-  setMultiVal('toggleServicios', p.servicios);
-}
-
-function saveProperty() {
-  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-  const frente = parseFloat(g('fFrente'));
-  const fondo = parseFloat(g('fFondo'));
-  let area = g('fArea');
-  if (!area && frente && fondo) area = (frente * fondo).toFixed(1);
-
-  const p = {
-    id: editingId || Date.now().toString(),
-    fotos: [...photoData],
-    tipo: getToggleVal('toggleTipo'),
-    estado: getToggleVal('toggleEstado'),
-    direccion: g('fDireccion'),
-    municipio: g('fMunicipio'),
-    distCDMX: g('fDistCDMX'),
-    tiempoCDMX: g('fTiempoCDMX'),
-    distPachuca: g('fDistPachuca'),
-    tiempoPachuca: g('fTiempoPachuca'),
-    pavimentada: getToggleVal('togglePavimentada'),
-    luzPublica: getToggleVal('toggleLuzPublica'),
-    googleMaps: g('fGoogleMaps'),
-    frente: g('fFrente'),
-    fondo: g('fFondo'),
-    ladoIzq: g('fLadoIzq'),
-    ladoDer: g('fLadoDer'),
-    area: area,
-    servicios: getMultiVal('toggleServicios'),
-    docTipo: getToggleVal('toggleDoc'),
-    docNotas: g('fDocNotas'),
-    precioLista: g('fPrecioLista'),
-    precioMin: g('fPrecioMin'),
-    subirPrecio: getToggleVal('toggleSubir'),
-    comision: g('fComision'),
-    ganancia: g('fGanancia'),
-    apartada: getToggleVal('toggleApartada'),
-    montoApartar: g('fMontoApartar'),
-    enganche: g('fEnganche'),
-    deuda: g('fDeuda'),
-    fechaLimite: g('fFechaLimite'),
-    tiempoConst: g('fTiempoConst'),
-    pisos: getToggleVal('togglePisos'),
-    otrosAgentes: getToggleVal('toggleOtrosAgentes'),
-    otrosAgentesInfo: g('fOtrosAgentes'),
-    propietario: g('fPropietario'),
-    telProp: g('fTelProp'),
-    estCivil: getToggleVal('toggleEstCivil'),
-    descripcion: g('fDescripcion'),
-    notas: g('fNotas'),
-    updatedAt: new Date().toISOString()
-  };
-
-  if (editingId) {
-    const idx = properties.findIndex(x => x.id === editingId);
-    if (idx >= 0) properties[idx] = p;
-  } else {
-    properties.unshift(p);
-  }
-
-  saveData();
-  showToast(editingId ? '✅ Propiedad actualizada' : '✅ Propiedad guardada');
-  editingId = p.id;
-  showDetail(p.id);
-}
-
-function deleteProperty() {
-  if (!editingId) return;
-  if (!confirm('¿Eliminar esta propiedad? Esta acción no se puede deshacer.')) return;
-  properties = properties.filter(x => x.id !== editingId);
-  saveData();
-  showToast('🗑️ Propiedad eliminada');
-  editingId = null;
-  showList();
-}
-
-// ===================== TOAST =====================
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ===================== INIT =====================
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-
-loadData();
-renderList();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+load();render();
 </script>
 </body>
 </html>
