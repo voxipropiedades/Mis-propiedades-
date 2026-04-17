@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - SISTEMA MASTER V27</title>
+    <title>Propiedades HR - SISTEMA MASTER V28</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -41,6 +41,7 @@
 
         .container { max-width: 800px; margin: auto; padding: 10px; }
 
+        /* NAVEGACION SUPERIOR */
         .nav-tabs {
             display: flex; gap: 5px; margin: 15px 0; background: white; padding: 10px;
             border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -55,6 +56,7 @@
         .tab-btn i { font-size: 1.3em; }
         .tab-btn.active { background: var(--primary); color: white; transform: scale(1.05); }
 
+        /* TARJETAS Y CUADRITOS */
         .card {
             background: var(--white); border-radius: 18px; padding: 20px;
             margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -113,14 +115,10 @@
         }
 
         .file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .file-info { display: flex; flex-direction: column; gap: 2px; }
-        .file-name { font-weight: 800; font-size: 0.9em; color: var(--primary); }
-        .file-date { font-size: 0.7em; color: #888; }
         
-        /* Estilo impresión carátula */
         @media print {
             body { background: white; padding: 0; }
-            .nav-tabs, header, .fixed-footer, .btn, .btn-delete, .photo-gallery input, .photo-main-preview input { display: none !important; }
+            .nav-tabs, header, .fixed-footer, .btn, .btn-delete, .photo-gallery input, .photo-main input { display: none !important; }
             .card { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; margin: 0; padding: 10px; }
             .container { max-width: 100%; padding: 0; }
         }
@@ -130,10 +128,11 @@
 
 <header>
     <img src="icon.png" class="header-logo" alt="HR">
-    <span style="font-weight: 900; font-size: 1.3em;">PROPIEDADES HR MASTER V27</span>
+    <span style="font-weight: 900; font-size: 1.3em;">PROPIEDADES HR MASTER V28</span>
 </header>
 
 <div class="container">
+    <!-- NAVEGACIÓN SUPERIOR -->
     <div class="nav-tabs">
         <button class="tab-btn active" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
         <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')"><i class="fas fa-users"></i> PROSPECTOS</button>
@@ -158,7 +157,7 @@
 
     <!-- CONTRATOS -->
     <div id="papeleo" class="tab-content">
-        <div class="card" id="printAreaContrato">
+        <div class="card">
             <h2 style="margin:0; font-size:1.1em; color:var(--primary);"><i class="fas fa-file-signature"></i> Oficina de Papeleo</h2>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
                 <button class="btn" style="background:#7b1fa2; color:white; font-size:0.8em;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
@@ -168,10 +167,10 @@
                 <div id="editor" contenteditable="true">Haz clic para escribir el contrato...</div>
             </div>
             <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:15px;">
-                <button class="btn" style="background:#d32f2f; color:white; font-size:0.6em; padding:8px;" onclick="exportPDF()">PDF</button>
-                <button class="btn" style="background:#2b579a; color:white; font-size:0.6em; padding:8px;" onclick="exportWord()">WORD</button>
-                <button class="btn" style="background:#ff9800; color:white; font-size:0.6em; padding:8px;" onclick="exportJPG()">IMAGEN</button>
-                <button class="btn" style="background:#333; color:white; font-size:0.6em; padding:8px;" onclick="window.print()">IMPRIMIR</button>
+                <button class="btn" style="background:#d32f2f; color:white; font-size:0.65em;" onclick="exportPDF()">PDF</button>
+                <button class="btn" style="background:#2b579a; color:white; font-size:0.65em;" onclick="exportWord()">WORD</button>
+                <button class="btn" style="background:#ff9800; color:white; font-size:0.65em;" onclick="exportJPG()">IMAGEN</button>
+                <button class="btn" style="background:#333; color:white; font-size:0.65em;" onclick="window.print()">IMPRIMIR</button>
             </div>
             <div style="margin-top:15px;">
                 <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="saveContractAsFile()"><i class="fas fa-save"></i> GUARDAR ESTE CONTRATO</button>
@@ -185,7 +184,7 @@
         <div class="section-card">
             <h2><i class="fas fa-archive"></i> Archivos y Documentos</h2>
             <div style="background:#fffde7; padding:15px; border-radius:12px; margin-bottom:15px; border-left:5px solid #fbc02d;">
-                <label style="font-weight:900; font-size:0.8em;">SUBIR DOCUMENTO MANUAL (PDF/IMG):</label>
+                <label style="font-weight:900; font-size:0.8em;">SUBIR ARCHIVO MANUAL (PDF/IMG):</label>
                 <input type="file" id="manualFile" style="margin-top:10px;" onchange="uploadManualFile(this)">
             </div>
             <div id="fileList" class="file-list"></div>
@@ -232,7 +231,8 @@
             voxiData.props.unshift({
                 id: Date.now(), dueño: '', tipo: 'Casa', estatus: 'Preventa', titulo: '', ubicacion: '', maps: '', precio: '', ganancia: '',
                 norte: '', sur: '', este: '', oeste: '', area: '',
-                sala: '', recamaras: '', banos: '', cocina: '', cisterna: '', ventanas: '', puertas: '',
+                sala: '', cocina: '', cocina_integral: 'No', recamaras: '', banos: '', patio: '', estacionamiento: '', 
+                cisterna: '', tinacos: 'Ninguno', calentador: 'Ninguno', zaguan: 'No', ventanas: '', puertas: '',
                 bardeado: 'No', calle: 'Terracería', antiguedad: 'Nueva', docto: 'Escritura Pública', permisos: 'No',
                 luz: false, agua: false, drenaje: false, mainImg: null, gallery: [], desc: '', docImg: null
             });
@@ -268,6 +268,7 @@
                 
                 <div class="box-container">
                     <div class="box full-box"><label>Dueño del Terreno</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value"></div>
+                    
                     <div class="box"><label>Tipo</label>
                         <select onchange="voxiData.props[${i}].tipo=this.value; renderProps();">
                             <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
@@ -283,7 +284,9 @@
                             <option value="Construida" ${p.estatus==='Construida'?'selected':''}>Construida</option>
                         </select>
                     </div>
+
                     <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value"></div>
+                    
                     <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value" style="color:var(--success);"></div>
                     <div class="box"><label>Tu Ganancia</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value" style="color:var(--primary);"></div>
                     
@@ -292,11 +295,13 @@
                     <div class="box full-box"><label>Enlace Maps / GPS</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value"></div>
 
                     <div class="section-label">🗺️ MEDIDAS Y COLINDANCIAS</div>
-                    <div class="box"><label>Norte (E/ NO y NE)</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value"></div>
-                    <div class="box"><label>Sur (E/ SO y SE)</label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value"></div>
-                    <div class="box"><label>Este (Ote) (E/ NE y SE)</label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value"></div>
-                    <div class="box"><label>Oeste (Pte) (E/ NO y SO)</label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value"></div>
-                    <div class="box full-box" style="border:2.5px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary);">ÁREA TOTAL DE SUPERFICIE</label><input type="text" placeholder="Ej: 200m2" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:900; font-size:1.1em;"></div>
+                    <div class="box"><label>Norte <b>(E/ NO y NE)</b></label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value"></div>
+                    <div class="box"><label>Sur <b>(E/ SO y SE)</b></label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value"></div>
+                    <div class="box"><label>Este (Ote) <b>(E/ NE y SE)</b></label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value"></div>
+                    <div class="box"><label>Oeste (Pte) <b>(E/ NO y SO)</b></label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value"></div>
+
+                    <!-- AREA TOTAL ABAJO -->
+                    <div class="box full-box" style="border:2px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary);">ÁREA TOTAL DE SUPERFICIE</label><input type="text" placeholder="Ej: 200m2" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:900; font-size:1.1em;"></div>
 
                     <div class="section-label">📋 DOCUMENTACIÓN Y CALLE</div>
                     <div class="box"><label>Documento</label>
@@ -312,12 +317,31 @@
                             <option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option>
                         </select>
                     </div>
-                    
-                    <!-- ESCANEAR/SUBIR ESCRITURA -->
+                    <div class="box"><label>Calle</label>
+                        <select onchange="voxiData.props[${i}].calle=this.value">
+                            <option value="Terracería" ${p.calle==='Terracería'?'selected':''}>Terracería</option>
+                            <option value="Pavimentada" ${p.calle==='Pavimentada'?'selected':''}>Pavimentada</option>
+                        </select>
+                    </div>
+                    <div class="box"><label>¿Bardeado?</label>
+                        <select onchange="voxiData.props[${i}].bardeado=this.value">
+                            <option value="No" ${p.bardeado==='No'?'selected':''}>No</option>
+                            <option value="Sí" ${p.bardeado==='Sí'?'selected':''}>Sí</option>
+                            <option value="Parcial" ${p.bardeado==='Parcial'?'selected':''}>Parcial</option>
+                        </select>
+                    </div>
+                    <div class="box full-box"><label>Antigüedad</label>
+                        <select onchange="voxiData.props[${i}].antiguedad=this.value">
+                            <option value="Nueva" ${p.antiguedad==='Nueva'?'selected':''}>Nueva</option>
+                            <option value="Usada" ${p.antiguedad==='Usada'?'selected':''}>Usada (Años...)</option>
+                        </select>
+                    </div>
+
+                    <!-- ESCANEO DE DOCUMENTO -->
                     <div class="box full-box" style="background:#e8f5e9; border:1px solid #c8e6c9;">
                         <label style="color:#2e7d32;">📄 ESCANEAR / SUBIR ${p.docto}</label>
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <button class="btn" style="background:#2e7d32; color:white; padding:5px; font-size:0.7em;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR</button>
+                            <button class="btn" style="background:#2e7d32; color:white; padding:5px; font-size:0.75em;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR</button>
                             ${p.docImg ? '<span style="color:#2e7d32; font-size:0.7em; font-weight:800;">✅ GUARDADO</span>' : '<span style="color:#888; font-size:0.7em;">Sin archivo</span>'}
                         </div>
                         <input type="file" id="docUp${i}" hidden accept="image/*" onchange="if(this.files[0])processImg(this.files[0],800,(b)=>{voxiData.props[${i}].docImg=b; voxiData.files.push({name: '${p.docto}_${p.titulo}', date: new Date().toLocaleString(), content: b}); renderProps(); renderFiles();})">
@@ -325,9 +349,45 @@
 
                     ${esCasa ? `
                         <div class="section-label">🏠 DETALLES DE LA CASA</div>
-                        <div class="box"><label>Sala</label><input type="text" value="${p.sala||''}" oninput="voxiData.props[${i}].sala=this.value"></div>
+                        <div class="box"><label>Sala</label><input type="text" placeholder="Ej: Amplia" value="${p.sala||''}" oninput="voxiData.props[${i}].sala=this.value"></div>
+                        <div class="box"><label>Cocina</label><input type="text" placeholder="Sencilla/Barrita" value="${p.cocina||''}" oninput="voxiData.props[${i}].cocina=this.value"></div>
+                        
+                        <div class="box"><label>¿Cocina Integral?</label>
+                            <select onchange="voxiData.props[${i}].cocina_integral=this.value">
+                                <option value="No" ${p.cocina_integral==='No'?'selected':''}>No</option>
+                                <option value="Sí" ${p.cocina_integral==='Sí'?'selected':''}>Sí</option>
+                            </select>
+                        </div>
                         <div class="box"><label>Recámaras</label><input type="text" value="${p.recamaras||''}" oninput="voxiData.props[${i}].recamaras=this.value"></div>
                         <div class="box"><label>Baños</label><input type="text" value="${p.banos||''}" oninput="voxiData.props[${i}].banos=this.value"></div>
+                        <div class="box"><label>Patio de Servicio</label><input type="text" placeholder="Ej: Sí, amplio" value="${p.patio||''}" oninput="voxiData.props[${i}].patio=this.value"></div>
+                        <div class="box"><label>Estacionamiento</label><input type="text" placeholder="Ej: 2 autos" value="${p.estacionamiento||''}" oninput="voxiData.props[${i}].estacionamiento=this.value"></div>
+                        <div class="box"><label>Cisterna</label><input type="text" placeholder="Ej: 8,000L" value="${p.cisterna||''}" oninput="voxiData.props[${i}].cisterna=this.value"></div>
+                        
+                        <div class="box"><label>Tinacos</label>
+                            <select onchange="voxiData.props[${i}].tinacos=this.value">
+                                <option value="Ninguno" ${p.tinacos==='Ninguno'?'selected':''}>Ninguno</option>
+                                <option value="1 Tinaco" ${p.tinacos==='1 Tinaco'?'selected':''}>1 Tinaco</option>
+                                <option value="2 Tinacos" ${p.tinacos==='2 Tinacos'?'selected':''}>2 Tinacos</option>
+                            </select>
+                        </div>
+                        <div class="box"><label>Calentador</label>
+                            <select onchange="voxiData.props[${i}].calentador=this.value">
+                                <option value="Ninguno" ${p.calentador==='Ninguno'?'selected':''}>Ninguno</option>
+                                <option value="Solar" ${p.calentador==='Solar'?'selected':''}>Solar</option>
+                                <option value="Boiler" ${p.calentador==='Boiler'?'selected':''}>Boiler</option>
+                                <option value="Ambos" ${p.calentador==='Ambos'?'selected':''}>Ambos</option>
+                            </select>
+                        </div>
+                        <div class="box"><label>Zaguán</label>
+                            <select onchange="voxiData.props[${i}].zaguan=this.value">
+                                <option value="No" ${p.zaguan==='No'?'selected':''}>No</option>
+                                <option value="Sí" ${p.zaguan==='Sí'?'selected':''}>Sí</option>
+                            </select>
+                        </div>
+                        <div class="box"><label>Ventanas</label><input type="text" placeholder="Ej: Aluminio" value="${p.ventanas||''}" oninput="voxiData.props[${i}].ventanas=this.value"></div>
+                        <div class="box full-box"><label>Puertas</label><input type="text" placeholder="Ej: Madera" value="${p.puertas||''}" oninput="voxiData.props[${i}].puertas=this.value"></div>
+
                         <div class="service-row">
                             <label class="service-check"><input type="checkbox" ${p.luz?'checked':''} onchange="voxiData.props[${i}].luz=this.checked"> LUZ</label>
                             <label class="service-check"><input type="checkbox" ${p.agua?'checked':''} onchange="voxiData.props[${i}].agua=this.checked"> AGUA</label>
@@ -376,7 +436,7 @@
         const div = document.getElementById('fileList');
         div.innerHTML = '';
         voxiData.files.forEach((f, i) => {
-            div.innerHTML += `<div class="file-item"><div class="file-info"><span class="file-name">${f.name}</span><span class="file-date">${f.date || ''}</span></div><div style="display:flex; gap:5px;"><button style="background:var(--info); color:white; border:none; padding:5px 10px; border-radius:5px;" onclick="viewFile(${i})">Ver</button><button style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:5px;" onclick="voxiData.files.splice(${i},1);renderFiles();">X</button></div></div>`;
+            div.innerHTML += `<div class="file-item"><div><b>${f.name}</b><br><small>${f.date}</small></div><div style="display:flex; gap:5px;"><button onclick="viewFile(${i})">Ver</button><button onclick="voxiData.files.splice(${i},1);renderFiles();">X</button></div></div>`;
         });
     }
 
@@ -386,7 +446,8 @@
             const w = window.open("");
             w.document.write(`<img src="${f.content}" style="width:100%;">`);
         } else {
-            alert("Contenido:\n" + f.content);
+            const w = window.open("");
+            w.document.write(`<pre>${f.content}</pre>`);
         }
     }
 
@@ -397,52 +458,47 @@
         reader.onload = (e) => {
             voxiData.files.push({ name: f.name, date: new Date().toLocaleString(), content: e.target.result });
             renderFiles();
-            alert('Archivo guardado en el sistema.');
+            alert('Archivo guardado.');
         };
         reader.readAsDataURL(f);
     }
 
     function printListing(i) {
-        // Ocultar todo menos la tarjeta seleccionada y mandar a imprimir
         const originalContent = document.body.innerHTML;
         const cardContent = document.getElementById('propCard' + i).outerHTML;
-        document.body.innerHTML = `
-            <div style="padding:40px; background:white;">
-                <h1 style="text-align:center; color:#b71c1c;">PROPIEDADES HR - CARÁTULA DE VENTA</h1>
-                ${cardContent}
-                <div style="margin-top:20px; text-align:center; font-size:0.8em; color:#888;">Documento generado por Propiedades HR Master V27</div>
-            </div>`;
+        document.body.innerHTML = `<div style="padding:40px;">${cardContent}</div>`;
         window.print();
-        location.reload(); // Recargar para restaurar la app
+        location.reload();
     }
 
     function exportFlyer(i) {
         html2canvas(document.getElementById('propCard' + i)).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'Flyer_HR_' + db.props[i].titulo + '.jpg';
+            link.download = 'Flyer_HR.jpg';
             link.href = canvas.toDataURL('image/jpeg', 0.9);
             link.click();
         });
     }
 
-    function shareWA(i) {
+    function sharePropWA(i) {
         const p = voxiData.props[i];
-        const text = `🏠 *${p.titulo}*\n💰 *PRECIO:* $${p.precio}\n📏 *AREA:* ${p.area}\n📍 *Ubicación:* ${p.ubicacion}\n📝 *Detalles:* ${p.desc}`;
+        const text = `🏠 *${p.titulo}*\n💰 *PRECIO:* $${p.precio}\n📏 *AREA:* ${p.area}\n📍 *Ubicación:* ${p.ubicacion}\n📝 *Desc:* ${p.desc}`;
         window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
     }
 
     function saveContractAsFile() {
         const txt = document.getElementById('editor').innerText;
         voxiData.files.push({ name: 'Contrato_' + Date.now(), date: new Date().toLocaleString(), content: txt });
-        renderFiles(); alert('Contrato guardado en ARCHIVOS.');
+        renderFiles(); alert('Contrato guardado.');
     }
 
-    function saveMaster() { localStorage.setItem('hr_v27_db', JSON.stringify(voxiData)); alert('✅ ¡TODO EL SISTEMA GUARDADO!'); }
-    function loadMaster() { const s = localStorage.getItem('hr_v27_db'); if(s) voxiData = JSON.parse(s); renderProps(); renderProspects(); renderFiles(); }
+    function saveMaster() { localStorage.setItem('hr_v28_db', JSON.stringify(voxiData)); alert('✅ SISTEMA GUARDADO'); }
+    function loadMaster() { const s = localStorage.getItem('hr_v28_db'); if(s) voxiData = JSON.parse(s); renderProps(); renderProspects(); renderFiles(); }
 
-    function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(d.splitTextToSize(document.getElementById('editor').innerText,180),10,20); d.save('HR_Doc.pdf'); }
-    function exportWord() { let c=document.getElementById('editor').innerHTML; let b=new Blob(['<html><body>'+c+'</body></html>'],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='HR_Doc.doc'; a.click(); }
-    function exportJPG() { html2canvas(document.getElementById('editorArea')).then(c => { let a=document.createElement('a'); a.download='HR_Doc.jpg'; a.href=c.toDataURL('image/jpeg',0.9); a.click(); }); }
+    function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(d.splitTextToSize(document.getElementById('editor').innerText,180),10,20); d.save('HR.pdf'); }
+    function exportWord() { let c=document.getElementById('editor').innerHTML; let b=new Blob(['<html><body>'+c+'</body></html>'],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='HR.doc'; a.click(); }
+    function exportJPG() { html2canvas(document.getElementById('editorArea')).then(c => { let a=document.createElement('a'); a.download='HR.jpg'; a.href=c.toDataURL('image/jpeg',0.9); a.click(); }); }
+    function shareWA() { window.open("https://wa.me/?text="+encodeURIComponent(document.getElementById('editor').innerText),'_blank'); }
     async function doOCR(i) { if(!i.files[0])return; document.getElementById('editor').innerText="Escaneando..."; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('editor').innerText=r.data.text; voxiData.files.push({name: 'Escaneo_'+Date.now()+'.txt', content: r.data.text, date: new Date().toLocaleString()}); renderFiles(); await w.terminate(); }
 
     window.onload = loadMaster;
