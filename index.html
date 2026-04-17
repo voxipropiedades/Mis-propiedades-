@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - Oficina Pro</title>
+    <title>Propiedades HR - Oficina Pro V14</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -85,6 +85,21 @@
 
         .full-box { grid-column: span 2; }
 
+        /* Estilos específicos para Colindancias */
+        .colindancias-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+            background: #fffafa;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ffebee;
+        }
+        .col-item { display: flex; flex-direction: column; }
+        .col-item label { font-size: 0.65em; font-weight: bold; color: #b71c1c; margin-bottom: 2px; }
+        .col-item input { border-bottom: 1px solid #ddd !important; padding: 2px 0; font-size: 0.9em; }
+
         .btn {
             border: none; padding: 15px; border-radius: 12px; cursor: pointer;
             font-weight: bold; display: flex; align-items: center; gap: 10px;
@@ -93,13 +108,10 @@
         .btn-add { background: var(--primary); color: white; margin-bottom: 25px; font-size: 1.1em; }
         .btn-save { background: var(--success); color: white; font-size: 1.2em; border: 2px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         
-        /* Botones de acción rápida */
         .btn-wa-direct { background: var(--wa-green); color: white; font-size: 0.9em; margin-top: 10px; }
         .btn-flyer-direct { background: var(--accent); color: #333; margin-top: 10px; }
-
         .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccd0d5; width: auto; background: none; font-size: 1.3em; }
 
-        /* Estilos de fotos */
         .photo-main-preview {
             width: 100%; height: 200px; background: #eee; border-radius: 12px; margin-bottom: 15px;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -107,7 +119,6 @@
         }
         .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Modal y Flyer Styles */
         #proposalModal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 2000; padding: 10px; overflow-y: auto;
@@ -156,7 +167,7 @@
 
     <!-- INVENTARIO -->
     <div id="inventario" class="tab-content active-tab">
-        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus-circle"></i> AGREGAR PROPIEDAD / TERRENO</button>
+        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus-circle"></i> AGREGAR PROPIEDAD / PARCELA</button>
         <div id="propertyList" class="property-grid"></div>
     </div>
 
@@ -171,9 +182,9 @@
         <div class="section-card">
             <h2><i class="fas fa-scroll"></i> Oficina de Papeleo</h2>
             <div style="display:flex; gap:5px; margin-bottom:15px; overflow-x: auto;">
-                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('promesa')">Promesa</button>
-                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('compraventa')">Venta</button>
-                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('permuta')">Permuta</button>
+                <button class="tab-btn" onclick="loadTemplate('promesa')">Promesa</button>
+                <button class="tab-btn" onclick="loadTemplate('compraventa')">Venta</button>
+                <button class="tab-btn" onclick="loadTemplate('permuta')">Permuta</button>
             </div>
             <div class="action-group">
                 <button class="btn" style="background:#7b1fa2; color:white;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
@@ -196,7 +207,7 @@
 </div>
 
 <div class="fixed-footer">
-    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO (PARA QUE NO SE BORRE)</button>
+    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO EL TRABAJO</button>
 </div>
 
 <!-- Modal FLYER -->
@@ -227,7 +238,6 @@
     
     <div style="padding:10px; display:flex; flex-direction:column; gap:10px;">
         <button class="btn" style="background:var(--wa-green); color:white;" id="btnWhatsAppFlyer"><i class="fab fa-whatsapp"></i> ENVIAR DATOS POR WHATSAPP</button>
-        <p style="color:white; font-size:0.75em; text-align:center;">💡 <b>Para enviar el Flyer como foto:</b> Toma una captura de pantalla (screenshot) y envíala por WhatsApp.</p>
         <button class="btn" style="background:#fff; color:#333;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR VISTA</button>
     </div>
 </div>
@@ -247,7 +257,9 @@
             voxiData.properties.unshift({ 
                 id: Date.now(), tipo: 'Casa', estado: 'Preventa', titulo: '', ubicacion: '', 
                 precio_lista: '', precio_efectivo: '', ganancia: '', medidas: '', descripcion: '', 
-                mainPhoto: null, gallery: [] 
+                mainPhoto: null,
+                norte: '', sur: '', este: '', oeste: '',
+                noreste: '', noroeste: '', sureste: '', suroeste: ''
             });
             renderProperties();
         } else {
@@ -274,7 +286,28 @@
         reader.readAsDataURL(file);
     }
 
-    function update(type, index, key, val) { voxiData[type][index][key] = val; }
+    function update(type, index, key, val) { 
+        voxiData[type][index][key] = val; 
+        if(key.match(/norte|sur|este|oeste|noreste|noroeste|sureste|suroeste/)) {
+            calculateTotal(index);
+        }
+    }
+
+    function calculateTotal(index) {
+        const p = voxiData.properties[index];
+        // Cálculo simple: promedio de pares opuestos para rectángulos aproximados
+        const n = parseFloat(p.norte) || 0;
+        const s = parseFloat(p.sur) || 0;
+        const e = parseFloat(p.este) || 0;
+        const o = parseFloat(p.oeste) || 0;
+        
+        if(n && s && e && o) {
+            const area = ((n + s) / 2) * ((e + o) / 2);
+            document.getElementById(`calcArea${index}`).innerText = `Sugerido: ${area.toFixed(2)} m2`;
+        } else {
+            document.getElementById(`calcArea${index}`).innerText = '';
+        }
+    }
 
     function renderProperties() {
         const list = document.getElementById('propertyList');
@@ -289,28 +322,55 @@
                     <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="if(this.files[0])processImage(this.files[0],600,(b64)=>{voxiData.properties[${i}].mainPhoto=b64;renderProperties();})">
                 </div>
                 <div class="box-container">
-                    <div class="box"><label>Tipo</label><select onchange="update('properties', ${i}, 'tipo', this.value)"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option></select></div>
-                    <div class="box"><label>Estatus</label><select onchange="update('properties', ${i}, 'estado', this.value)"><option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option><option value="Terminada" ${p.estado==='Terminada'?'selected':''}>Terminada</option></select></div>
-                    <div class="box full-box"><label>Nombre del Proyecto</label><input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
+                    <div class="box"><label>Tipo</label>
+                        <select onchange="update('properties', ${i}, 'tipo', this.value)">
+                            <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
+                            <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option>
+                            <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>Parcela</option>
+                        </select>
+                    </div>
+                    <div class="box"><label>Estatus</label>
+                        <select onchange="update('properties', ${i}, 'estado', this.value)">
+                            <option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option>
+                            <option value="Construida" ${p.estado==='Construida'?'selected':''}>Construida</option>
+                        </select>
+                    </div>
+                    <div class="box full-box"><label>Nombre del Proyecto / Título</label><input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
                     <div class="box full-box"><label>Ubicación</label><input type="text" value="${p.ubicacion}" oninput="update('properties', ${i}, 'ubicacion', this.value)"></div>
                     <div class="box"><label>Precio Lista</label><input type="text" value="${p.precio_lista}" oninput="update('properties', ${i}, 'precio_lista', this.value)"></div>
                     <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio_efectivo}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:900;"></div>
-                    <div class="box"><label>Medidas</label><input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
-                    <div class="box"><label>Mi Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="color:var(--primary); font-weight:800;"></div>
+                    
+                    <div class="box full-box">
+                        <label>Medidas por Punto Cardinal (m)</label>
+                        <div class="colindancias-grid">
+                            <div class="col-item"><label>Norte</label><input type="number" placeholder="0" value="${p.norte||''}" oninput="update('properties', ${i}, 'norte', this.value)"></div>
+                            <div class="col-item"><label>Sur</label><input type="number" placeholder="0" value="${p.sur||''}" oninput="update('properties', ${i}, 'sur', this.value)"></div>
+                            <div class="col-item"><label>Este</label><input type="number" placeholder="0" value="${p.este||''}" oninput="update('properties', ${i}, 'este', this.value)"></div>
+                            <div class="col-item"><label>Oeste</label><input type="number" placeholder="0" value="${p.oeste||''}" oninput="update('properties', ${i}, 'oeste', this.value)"></div>
+                            <div class="col-item"><label>Noreste</label><input type="number" placeholder="0" value="${p.noreste||''}" oninput="update('properties', ${i}, 'noreste', this.value)"></div>
+                            <div class="col-item"><label>Noroeste</label><input type="number" placeholder="0" value="${p.noroeste||''}" oninput="update('properties', ${i}, 'noroeste', this.value)"></div>
+                            <div class="col-item"><label>Sureste</label><input type="number" placeholder="0" value="${p.sureste||''}" oninput="update('properties', ${i}, 'sureste', this.value)"></div>
+                            <div class="col-item"><label>Suroeste</label><input type="number" placeholder="0" value="${p.suroeste||''}" oninput="update('properties', ${i}, 'suroeste', this.value)"></div>
+                        </div>
+                    </div>
+
+                    <div class="box"><label>Metros Totales (m2)</label><input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)" style="font-weight:bold;"><span id="calcArea${i}" style="font-size:0.7em; color:var(--primary);"></span></div>
+                    <div class="box"><label>Tu Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="color:var(--primary); font-weight:800;"></div>
                     <div class="box full-box"><label>Descripción para el cliente</label><textarea rows="3" oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion}</textarea></div>
                 </div>
                 <div class="action-group">
-                    <button class="btn btn-flyer-direct" onclick="openProposal(${i})"><i class="fas fa-bullhorn"></i> VER FLYER</button>
-                    <button class="btn btn-wa-direct" onclick="sharePropertyWA(${i})"><i class="fab fa-whatsapp"></i> ENVIAR YA</button>
+                    <button class="btn btn-flyer-direct" onclick="openProposal(${i})"><i class="fas fa-bullhorn"></i> FLYER</button>
+                    <button class="btn btn-wa-direct" onclick="sharePropertyWA(${i})"><i class="fab fa-whatsapp"></i> ENVIAR</button>
                 </div>
             `;
             list.appendChild(card);
+            calculateTotal(i);
         });
     }
 
     function sharePropertyWA(index) {
         const p = voxiData.properties[index];
-        const text = `🏠 *${p.titulo || 'Oportunidad HR'}*\n💰 *PRECIO REMATE:* $${p.precio_efectivo || '---'}\n📍 *Ubicación:* ${p.ubicacion || '---'}\n📏 *Medidas:* ${p.medidas || '---'}\n📝 *Detalles:* ${p.descripcion || '---'}\n\n_Enviado desde Propiedades HR_`;
+        const text = `🏠 *${p.titulo || 'Propiedad HR'}*\n💰 *PRECIO REMATE:* $${p.precio_efectivo || '---'}\n📍 *Ubicación:* ${p.ubicacion || '---'}\n📏 *Medidas:* ${p.medidas || '---'}\n📐 *Colindancias:* N:${p.norte||0}m, S:${p.sur||0}m, E:${p.este||0}m, O:${p.oeste||0}m\n📝 *Detalles:* ${p.descripcion || '---'}\n\n_Enviado desde Propiedades HR_`;
         window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
     }
 
@@ -372,12 +432,12 @@
     function saveData() {
         voxiData.legal = document.getElementById('contractText').value;
         voxiData.notes = document.getElementById('userNotes').value;
-        localStorage.setItem('hr_pro_final_v13', JSON.stringify(voxiData));
+        localStorage.setItem('hr_pro_v14', JSON.stringify(voxiData));
         alert('✅ ¡TODO GUARDADO!');
     }
 
     function loadData() {
-        const saved = localStorage.getItem('hr_pro_final_v13');
+        const saved = localStorage.getItem('hr_pro_v14');
         if(saved) voxiData = JSON.parse(saved);
         document.getElementById('contractText').value = voxiData.legal || '';
         document.getElementById('userNotes').value = voxiData.notes || '';
