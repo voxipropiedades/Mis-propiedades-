@@ -1,17 +1,24 @@
 {
-  "short_name": "Propiedades HR",
-  "name": "Propiedades HR",
+  "short_name": "HR",
+  "name": "HR Casas Modernas",
   "icons": [
     {
-      "src": "icon.png",
-      "type": "image/png",
+      "src": "logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.jpg",
+      "type": "image/jpeg",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/Mis-propiedades-/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#004aad",
-  "scope": "/Mis-propiedades-/"
+  "scope": "."
 }
