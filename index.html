@@ -42,12 +42,12 @@
         }
         .back-btn {
             position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-            background: rgba(255,255,255,0.2); color: white; border: none;
-            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.3); color: white; border: 2px solid white;
+            width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.2em; transition: 0.2s;
+            font-size: 1.4em; transition: 0.2s; font-weight: bold;
         }
-        .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .back-btn:hover { background: rgba(255,255,255,0.5); }
         .header-logo { max-width: 45px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
 
         .container { max-width: 800px; margin: auto; padding: 10px; }
@@ -196,7 +196,7 @@
 <body>
 
 <header>
-    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></button>
+    <button class="back-btn" onclick="goBack()">&#8592;</button>
     <img src="icon.png" class="header-logo" alt="HR">
     <span style="font-weight: 950; font-size: 1.4em;">HR MASTER V34 MASTER</span>
 </header>
@@ -209,6 +209,7 @@
         <button class="tab-btn" id="btn-citas"             onclick="openTab('citas')"><i class="fas fa-calendar-check"></i> 📅 CITAS</button>
         <button class="tab-btn" id="btn-papeleo"           onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> 📝 CONTRATOS</button>
         <button class="tab-btn" id="btn-archivos"          onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> 📂 ARCHIVOS</button>
+        <button class="tab-btn" id="btn-config"            onclick="openTab('config')"><i class="fas fa-cog"></i> ⚙️ CONFIG</button>
     </div>
 
     <!-- ══════════════════ TABLERO ══════════════════ -->
@@ -278,6 +279,31 @@
             <div id="fileList"></div>
         </div>
     </div>
+
+    <!-- ══════════════════ CONFIGURACIÓN ══════════════════ -->
+    <div id="config" class="tab-content">
+        <div class="card">
+            <h2><i class="fas fa-cog"></i> ⚙️ Configuración del Negocio</h2>
+            <div class="box-container">
+                <div class="box full-box">
+                    <label>🏢 Giro del Negocio</label>
+                    <select id="cfgGiro" onchange="voxiData.config.giro=this.value">
+                        <option value="Asesor Inmobiliario">Asesor Inmobiliario</option>
+                        <option value="Construcción / Constructora">Construcción / Constructora</option>
+                    </select>
+                </div>
+                <div class="box full-box">
+                    <label>📍 Zona de Trabajo Principal</label>
+                    <input type="text" id="cfgZona" value="Acayuca, Hidalgo" oninput="voxiData.config.zona=this.value">
+                </div>
+                <div class="box full-box">
+                    <label>🛠️ Servicios Ofrecidos (separados por coma)</label>
+                    <input type="text" id="cfgServicios" value="Venta de casas, Terrenos, Parcelas, Construcción" oninput="voxiData.config.servicios=this.value.split(',').map(s=>s.trim())">
+                </div>
+            </div>
+            <p style="font-size:0.8em; color:#666; margin-top:15px;">* Esta información se usará para generar mensajes de venta y flyers inteligentes automáticamente.</p>
+        </div>
+    </div>
 </div>
 
 <!-- ══════ MODAL FLYER ══════ -->
@@ -323,10 +349,32 @@
     </div>
 </div>
 
+<!-- ══════ MODAL SMART MESSAGE ══════ -->
+<div class="modal-overlay" id="smartMsgModal">
+    <div class="modal-card">
+        <h3>🧠 Generador Inteligente</h3>
+        <p style="font-size:0.8em; color:#888;">Elige el tipo de cliente para adaptar el mensaje.</p>
+        <div style="display:grid; gap:10px;">
+            <button class="btn" style="background:#1976d2; color:white;" onclick="generarSmartMsg('MILITAR')">🪖 CLIENTE MILITAR</button>
+            <button class="btn" style="background:#388e3c; color:white;" onclick="generarSmartMsg('PARCELA')">🌄 PARCELA</button>
+            <button class="btn" style="background:#fbc02d; color:#333;" onclick="generarSmartMsg('TERRENO')">🏞️ TERRENO</button>
+            <button class="btn" style="background:#d32f2f; color:white;" onclick="generarSmartMsg('CASA')">🏡 CASA / CONSTRUCCIÓN</button>
+        </div>
+        <button class="btn" style="background:#777; color:white; margin-top:15px;" onclick="document.getElementById('smartMsgModal').style.display='none'">CERRAR</button>
+    </div>
+</div>
+
 <div class="fixed-footer"><button class="btn btn-save" onclick="saveMaster()"><i class="fas fa-save"></i> ✅ GUARDAR TODO</button></div>
 
 <script>
-    let voxiData = { props: [], milis: [], grals: [], files: [], citas: [] };
+    let voxiData = { 
+        props: [], milis: [], grals: [], files: [], citas: [],
+        config: { 
+            giro: 'Asesor Inmobiliario', 
+            zona: 'Acayuca, Hidalgo', 
+            servicios: ['Venta de casas', 'Terrenos', 'Parcelas', 'Construcción'] 
+        }
+    };
     let currentPropIndex = null;
     let navHistory = ['tablero'];
     const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Pre-auth"];
@@ -346,6 +394,13 @@
         if (id === 'tablero') renderDashboard();
         if (id === 'citas') renderCitas();
         if (id === 'inventario') renderProps();
+        if (id === 'config') renderConfig();
+    }
+
+    function renderConfig() {
+        document.getElementById('cfgGiro').value = voxiData.config.giro || 'Asesor Inmobiliario';
+        document.getElementById('cfgZona').value = voxiData.config.zona || 'Acayuca, Hidalgo';
+        document.getElementById('cfgServicios').value = (voxiData.config.servicios || []).join(', ');
     }
 
     function goBack() {
@@ -621,8 +676,9 @@
 
                 <!-- BOTONES DE ACCIÓN -->
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
-                    <button class="btn" style="background:var(--info); color:white;" onclick="openFlyerOptions(${i})"><i class="fas fa-paper-plane"></i> FLYER</button>
-                    <button class="btn" style="background:var(--wa-green); color:white;" onclick="abrirWA(${i})"><i class="fab fa-whatsapp"></i> WHATSAPP</button>
+                    <button class="btn" style="background:var(--info); color:white; font-size:0.85em;" onclick="openFlyerOptions(${i})"><i class="fas fa-paper-plane"></i> FLYER</button>
+                    <button class="btn" style="background:var(--wa-green); color:white; font-size:0.85em;" onclick="abrirWA(${i})"><i class="fab fa-whatsapp"></i> WHATSAPP</button>
+                    <button class="btn" style="background:#444; color:white; grid-column: span 2; font-size:0.85em;" onclick="currentPropIndex=${i};document.getElementById('smartMsgModal').style.display='flex'"><i class="fas fa-brain"></i> MENSAJE INTELIGENTE (IA)</button>
                 </div>
                 <div class="btn-print-options">
                     <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="exportFullJPG(${i})">GUARDAR JPG</button>
@@ -814,13 +870,34 @@
     }
 
     // ═══════════════════════════════════════════
-    //  WHATSAPP DIRECTO
+    //  WHATSAPP Y GENERADOR INTELIGENTE
     // ═══════════════════════════════════════════
     function abrirWA(i) {
+        currentPropIndex = i;
         const p = voxiData.props[i];
         const ser = [p.luz?'✅ Luz':'', p.agua?'✅ Agua':'', p.drenaje?'✅ Drenaje':''].filter(Boolean).join(' ');
         const t = `🏠 *${p.titulo || p.tipo}*\n📍 ${p.ubicacion}\n💰 ${p.precio}\n📐 ${p.area} m²${p.recamaras?'\n🛏 '+p.recamaras+' recámaras':''}${p.banos?'\n🚿 '+p.banos+' baños':''}\n${ser}\n\n${p.desc||''}\n\n¿Te interesa? ¡Contáctame!`;
         document.getElementById('waMensaje').value = t;
+        document.getElementById('waModal').style.display = 'flex';
+    }
+
+    function generarSmartMsg(type) {
+        const p = voxiData.props[currentPropIndex];
+        const cfg = voxiData.config || { giro: 'Asesor Inmobiliario', zona: 'Acayuca, Hidalgo' };
+        let t = "";
+
+        if (type === 'MILITAR') {
+            t = `🪖 *ATENCIÓN COMPAÑERO MILITAR* 🪖\n\n¿Buscas aprovechar tu crédito ISSFAM o FOVISSSTE? Tengo la mejor opción para ti en *${cfg.zona}*.\n\n🏡 *${p.titulo}*\n📍 Ubicación: ${p.ubicacion}\n💰 Presupuesto: ${p.precio}\n\n✅ *Dos opciones para ti:*\n1. Casa ya construida lista para habitar.\n2. Construcción desde cero a tu gusto.\n\n🛡️ *Seguridad y Confianza:* Te acompaño en todo el proceso. Podemos mejorar la vivienda si decides invertir un poco más.\n\n⚠️ *Nota:* Solo trabajamos en la zona de *Acayuca, Hidalgo* para garantizarte el mejor servicio y seguimiento personal.\n\n¿Te gustaría agendar una visita o que revisemos tu presupuesto?`;
+        } else if (type === 'PARCELA') {
+            t = `🌄 *OPORTUNIDAD EN PARCELAS* 🌄\n\nTe comparto los detalles de esta excelente parcela disponible en *${cfg.zona}*:\n\n📍 *${p.titulo}*\n📐 Medidas: ${p.area} m²\n💰 Precio: ${p.precio}\n\n🤝 *Trato Abierto:* Contamos con más opciones y disponibilidad de negociación. Mi objetivo es que encuentres lo que buscas.\n\n👀 *Sin Compromiso:* Te la muestro cuando gustes para que valides la ubicación y el potencial.\n\n¿Te interesa conocer más opciones o ver esta propiedad?`;
+        } else if (type === 'TERRENO') {
+            t = `🏞️ *TERRENOS CON ALTA PLUSVALÍA* 🏞️\n\nSi buscas invertir o construir tu patrimonio en *${cfg.zona}*, esta es la opción ideal:\n\n📍 *${p.titulo}*\n📐 Área: ${p.area} m²\n💰 Inversión: ${p.precio}\n\n📈 *Uso:* Ideal para inversión patrimonial o construcción inmediata. Trato directo, accesible y con toda la documentación en regla.\n\n🗺️ *Más opciones:* Si este no te convence, tengo otros terrenos que podrían interesarte.\n\n¿Platicamos sobre las facilidades?`;
+        } else if (type === 'CASA') {
+            t = `🏡 *CASA / PREVENTA - AHORRO GARANTIZADO* 🏡\n\n¡Aprovecha esta oportunidad de preventa en *${cfg.zona}*!\n\n🏠 *${p.titulo}*\n📍 Ubicación: ${p.ubicacion}\n🔥 *Precio Oportunidad: ${p.precio}*\n(Valor real estimado: ${p.precio.replace(/\d+/g, m => parseInt(m)+100000)})\n\n💎 *Beneficios Únicos:*\n✅ Ahorro real de $100,000 a $250,000.\n✅ Transparencia total en el proceso de construcción.\n✅ Garantía por escrito.\n✅ Escritura pública y documentos en regla.\n✅ *Libertad Total:* Tú eliges la notaría para firmar.\n\n¿Quieres asegurar tu ahorro hoy mismo?`;
+        }
+
+        document.getElementById('waMensaje').value = t;
+        document.getElementById('smartMsgModal').style.display = 'none';
         document.getElementById('waModal').style.display = 'flex';
     }
 
