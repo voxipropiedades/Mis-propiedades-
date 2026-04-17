@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - SISTEMA MASTER V25</title>
+    <title>Propiedades HR - SISTEMA MASTER V26</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -99,7 +99,7 @@
         .active-tab { display: block; }
 
         .main-photo {
-            width: 100%; height: 200px; background: #eee; border-radius: 15px; margin-bottom: 15px;
+            width: 100%; height: 220px; background: #eee; border-radius: 15px; margin-bottom: 15px;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
             border: 2px dashed #bbb; cursor: pointer;
         }
@@ -121,7 +121,7 @@
 
 <header>
     <img src="icon.png" class="header-logo" alt="HR">
-    <span style="font-weight: 900; font-size: 1.3em;">PROPIEDADES HR MASTER V25</span>
+    <span style="font-weight: 900; font-size: 1.3em;">PROPIEDADES HR MASTER V26</span>
 </header>
 
 <div class="container">
@@ -164,6 +164,9 @@
                 <button class="btn" style="background:#2b579a; color:white; font-size:0.65em;" onclick="exportWord()">WORD</button>
                 <button class="btn" style="background:#ff9800; color:white; font-size:0.65em;" onclick="exportJPG()">IMAGEN</button>
             </div>
+            <div style="margin-top:15px;">
+                <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="saveContractAsFile()"><i class="fas fa-save"></i> GUARDAR ESTE CONTRATO</button>
+            </div>
             <input type="file" id="ocrInput" hidden accept="image/*" onchange="doOCR(this)">
         </div>
     </div>
@@ -171,7 +174,7 @@
     <!-- TAB: ARCHIVOS -->
     <div id="archivos" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-archive"></i> Archivos Guardados</h2>
+            <h2><i class="fas fa-archive"></i> Archivos y Contratos Guardados</h2>
             <div id="fileList" class="file-list"></div>
         </div>
     </div>
@@ -214,7 +217,7 @@
     function addItem(type) {
         if(type === 'props') {
             voxiData.props.unshift({
-                id: Date.now(), dueño: '', tipo: 'Casa', estatus: 'Preventa', titulo: '', ubicacion: '', precio: '', ganancia: '',
+                id: Date.now(), dueño: '', tipo: 'Casa', estatus: 'Preventa', titulo: '', ubicacion: '', maps: '', precio: '', ganancia: '',
                 norte: '', sur: '', este: '', oeste: '', area: '',
                 sala: '', recamaras: '', banos: '', cocina: '', cisterna: '', ventanas: '', puertas: '',
                 bardeado: 'No', calle: 'Terracería', antiguedad: 'Nueva', docto: 'Escritura Pública', permisos: 'No',
@@ -270,19 +273,20 @@
 
                     <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value"></div>
                     
-                    <!-- CUADRITO DE UBICACION -->
-                    <div class="box full-box"><label>Ubicación / Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value"></div>
-                    
                     <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value" style="color:var(--success);"></div>
                     <div class="box"><label>Tu Ganancia</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value" style="color:var(--primary);"></div>
                     
-                    <div class="section-label">📍 COLINDANCIAS</div>
+                    <!-- SECCIÓN APARTE PARA UBICACIÓN -->
+                    <div class="section-label">📍 UBICACIÓN Y MAPA</div>
+                    <div class="box full-box"><label>Dirección Exacta</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value"></div>
+                    <div class="box full-box"><label>Enlace Google Maps / GPS</label><input type="text" placeholder="https://maps.app.goo.gl/..." value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value"></div>
+
+                    <div class="section-label">🗺️ MEDIDAS Y COLINDANCIAS</div>
                     <div class="box"><label>Norte <b>(E/ NO y NE)</b></label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value"></div>
                     <div class="box"><label>Sur <b>(E/ SO y SE)</b></label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value"></div>
                     <div class="box"><label>Este (Ote) <b>(E/ NE y SE)</b></label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value"></div>
                     <div class="box"><label>Oeste (Pte) <b>(E/ NO y SO)</b></label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value"></div>
 
-                    <!-- AREA TOTAL ABAJO -->
                     <div class="box full-box" style="border:2px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary);">ÁREA TOTAL DE SUPERFICIE</label><input type="text" placeholder="Ej: 200m2" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:900; font-size:1.1em;"></div>
 
                     <div class="section-label">📋 DOCUMENTACIÓN Y CALLE</div>
@@ -293,16 +297,16 @@
                             <option value="Ejido" ${p.docto==='Ejido'?'selected':''}>Ejido</option>
                         </select>
                     </div>
-                    <div class="box"><label>Calle</label>
-                        <select onchange="voxiData.props[${i}].calle=this.value">
-                            <option value="Terracería" ${p.calle==='Terracería'?'selected':''}>Terracería</option>
-                            <option value="Pavimentada" ${p.calle==='Pavimentada'?'selected':''}>Pavimentada</option>
-                        </select>
-                    </div>
                     <div class="box"><label>Permisos Presidencia</label>
                         <select onchange="voxiData.props[${i}].permisos=this.value">
                             <option value="No" ${p.permisos==='No'?'selected':''}>No</option>
                             <option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option>
+                        </select>
+                    </div>
+                    <div class="box"><label>Calle</label>
+                        <select onchange="voxiData.props[${i}].calle=this.value">
+                            <option value="Terracería" ${p.calle==='Terracería'?'selected':''}>Terracería</option>
+                            <option value="Pavimentada" ${p.calle==='Pavimentada'?'selected':''}>Pavimentada</option>
                         </select>
                     </div>
                     <div class="box"><label>¿Bardeado?</label>
@@ -371,7 +375,7 @@
             card.innerHTML = `
                 <button class="btn-delete" onclick="voxiData.milis.splice(${i},1);renderProspects();">X</button>
                 <div class="box full-box"><label>Militar</label><input type="text" value="${m.nombre}" oninput="voxiData.milis[${i}].nombre=this.value"></div>
-                <div style="margin:8px 0; font-size:0.85em;">¿Casado / Concubina? <input type="checkbox" ${m.casado?'checked':''} onchange="voxiData.milis[${i}].casado=this.checked;renderProspects();"></div>
+                <div style="margin:8px 0; font-size:0.85em;">¿Casado / Concubina? <input type="checkbox" ${m.casado?'checked':''} onchange="db.milis[${i}].casado=this.checked;renderProspects();"></div>
                 <div class="section-label">EXPEDIENTE MILITAR</div>
                 ${m.m.map((r, ri) => `
                     <div class="check-item"><span>${r.n}</span>
@@ -414,17 +418,17 @@
 
     function sharePropWA(i) {
         const p = voxiData.props[i];
-        const text = `🏠 *${p.titulo}*\n📍 *Ubicación:* ${p.ubicacion}\n💰 *PRECIO:* $${p.precio}\n📏 *AREA:* ${p.area}\n🗺️ *Lados:* N:${p.norte}, S:${p.sur}, E:${p.este}, O:${p.oeste}\n📝 *Desc:* ${p.desc}`;
+        const text = `🏠 *${p.titulo}*\n📍 *Dirección:* ${p.ubicacion}\n🗺️ *Maps:* ${p.maps}\n💰 *PRECIO:* $${p.precio}\n📏 *AREA:* ${p.area}\n🗺️ *Lados:* N:${p.norte}, S:${p.sur}, E:${p.este}, O:${p.oeste}\n📝 *Desc:* ${p.desc}`;
         window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
     }
 
     function saveMaster() {
-        localStorage.setItem('hr_master_v25', JSON.stringify(voxiData));
+        localStorage.setItem('hr_master_v26', JSON.stringify(voxiData));
         alert('✅ ¡SISTEMA ACTUALIZADO Y GUARDADO!');
     }
 
     function loadMaster() {
-        const s = localStorage.getItem('hr_master_v25');
+        const s = localStorage.getItem('hr_master_v26');
         if(s) voxiData = JSON.parse(s);
         renderProps(); renderProspects(); renderFiles();
     }
@@ -437,11 +441,20 @@
         });
     }
 
+    function saveContractAsFile() {
+        const txt = document.getElementById('editor').innerText;
+        if(txt.length < 5) return alert('Escribe algo primero');
+        const name = "Contrato_" + new Date().toLocaleDateString() + "_" + Date.now().toString().slice(-4) + ".txt";
+        voxiData.files.push({ name, content: txt });
+        renderFiles();
+        alert('Contrato guardado en la pestaña ARCHIVOS');
+    }
+
     function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(d.splitTextToSize(document.getElementById('editor').innerText,180),10,20); d.save('Doc_HR.pdf'); }
     function exportWord() { let c=document.getElementById('editor').innerHTML; let b=new Blob(['<html><body>'+c+'</body></html>'],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Doc_HR.doc'; a.click(); }
     function exportJPG() { html2canvas(document.getElementById('editorArea')).then(c => { let a=document.createElement('a'); a.download='Doc_HR.jpg'; a.href=c.toDataURL('image/jpeg',0.9); a.click(); }); }
     function shareWA() { window.open("https://wa.me/?text="+encodeURIComponent(document.getElementById('editor').innerText),'_blank'); }
-    async function doOCR(i) { if(!i.files[0])return; document.getElementById('editor').innerText="Escaneando..."; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('editor').innerText=r.data.text; voxiData.files.push({name: 'Escaneo_'+Date.now()+'.txt'}); renderFiles(); await w.terminate(); }
+    async function doOCR(i) { if(!i.files[0])return; document.getElementById('editor').innerText="Escaneando..."; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('editor').innerText=r.data.text; voxiData.files.push({name: 'Escaneo_'+Date.now()+'.txt', content: r.data.text}); renderFiles(); await w.terminate(); }
 
     window.onload = loadMaster;
 </script>
