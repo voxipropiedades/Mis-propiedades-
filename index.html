@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - SISTEMA MASTER V33</title>
+    <title>Propiedades HR - SISTEMA MASTER V34</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -188,28 +188,32 @@
 
 <header>
     <img src="icon.png" class="header-logo" alt="HR">
-    <span style="font-weight: 950; font-size: 1.4em;">HR MASTER V33</span>
+    <span style="font-weight: 950; font-size: 1.4em;">HR MASTER V34 MASTER</span>
 </header>
 
 <div class="container">
     <div class="nav-tabs">
-        <button class="tab-btn active" id="btn-tablero"    onclick="openTab('tablero')"><i class="fas fa-chart-pie"></i> TABLERO</button>
-        <button class="tab-btn" id="btn-inventario"        onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
-        <button class="tab-btn" id="btn-prospectos"        onclick="openTab('prospectos')"><i class="fas fa-users"></i> PROSPECTOS</button>
-        <button class="tab-btn" id="btn-citas"             onclick="openTab('citas')"><i class="fas fa-calendar-check"></i> CITAS</button>
-        <button class="tab-btn" id="btn-papeleo"           onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> CONTRATOS</button>
-        <button class="tab-btn" id="btn-archivos"          onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> ARCHIVOS</button>
+        <button class="tab-btn active" id="btn-tablero"    onclick="openTab('tablero')"><i class="fas fa-chart-pie"></i> 📊 TABLERO</button>
+        <button class="tab-btn" id="btn-inventario"        onclick="openTab('inventario')"><i class="fas fa-home"></i> 🏡 INVENTARIO</button>
+        <button class="tab-btn" id="btn-prospectos"        onclick="openTab('prospectos')"><i class="fas fa-users"></i> 👤 PROSPECTOS</button>
+        <button class="tab-btn" id="btn-citas"             onclick="openTab('citas')"><i class="fas fa-calendar-check"></i> 📅 CITAS</button>
+        <button class="tab-btn" id="btn-papeleo"           onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> 📝 CONTRATOS</button>
+        <button class="tab-btn" id="btn-archivos"          onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> 📂 ARCHIVOS</button>
     </div>
 
     <!-- ══════════════════ TABLERO ══════════════════ -->
     <div id="tablero" class="tab-content active-tab">
         <div class="dashboard-grid" id="dashGrid"></div>
+        <div class="card" id="tareasCriticas" style="border-left:5px solid var(--orange);">
+            <h3 style="margin:0 0-8px; color:var(--orange);"><i class="fas fa-exclamation-triangle"></i> ⚠️ TAREAS CRÍTICAS</h3>
+            <!-- Se llena dinámicamente -->
+        </div>
         <div class="card">
-            <h3 style="margin:0 0 12px;"><i class="fas fa-home"></i> Inventario Rápido</h3>
+            <h3 style="margin:0 0 12px;"><i class="fas fa-home"></i> 🏠 Inventario Rápido</h3>
             <div class="inv-grid" id="invMini"></div>
         </div>
         <div class="card">
-            <h3 style="margin:0 0 12px;"><i class="fas fa-calendar-alt"></i> Próximas Citas</h3>
+            <h3 style="margin:0 0 12px;"><i class="fas fa-calendar-alt"></i> 📅 Próximas Citas</h3>
             <div id="citasProximas"></div>
         </div>
     </div>
@@ -217,8 +221,8 @@
     <!-- ══════════════════ INVENTARIO ══════════════════ -->
     <div id="inventario" class="tab-content">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-            <button class="btn btn-add" style="margin:0;" onclick="addItem('props')"><i class="fas fa-plus-circle"></i> AGREGAR</button>
-            <button class="btn" style="background:var(--info); color:white;" onclick="abrirRegistroRapido()"><i class="fas fa-bolt"></i> REGISTRO RÁPIDO</button>
+            <button class="btn btn-add" style="margin:0;" onclick="addItem('props')"><i class="fas fa-plus-circle"></i> ➕ AGREGAR</button>
+            <button class="btn" style="background:var(--info); color:white;" onclick="abrirRegistroRapido()"><i class="fas fa-bolt"></i> ⚡ REGISTRO RÁPIDO</button>
         </div>
         <div id="propList"></div>
     </div>
@@ -226,39 +230,39 @@
     <!-- ══════════════════ PROSPECTOS ══════════════════ -->
     <div id="prospectos" class="tab-content">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-            <button class="btn" style="background:var(--info); color:white; font-size:0.8em;" onclick="addItem('milis')"><i class="fas fa-user-shield"></i> NUEVO MILITAR</button>
-            <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="addItem('grals')"><i class="fas fa-user-tag"></i> NUEVO EFECTIVO</button>
+            <button class="btn" style="background:var(--info); color:white; font-size:0.8em;" onclick="addItem('milis')"><i class="fas fa-user-shield"></i> 👤 NUEVO MILITAR</button>
+            <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="addItem('grals')"><i class="fas fa-user-tag"></i> 👤 NUEVO EFECTIVO</button>
         </div>
         <div id="prospectList"></div>
     </div>
 
     <!-- ══════════════════ CITAS / SEGUIMIENTO ══════════════════ -->
     <div id="citas" class="tab-content">
-        <button class="btn btn-add" onclick="addCita()"><i class="fas fa-plus-circle"></i> NUEVA CITA / SEGUIMIENTO</button>
+        <button class="btn btn-add" onclick="addCita()"><i class="fas fa-plus-circle"></i> 📅 NUEVA CITA / SEGUIMIENTO</button>
         <div id="citasList"></div>
     </div>
 
     <!-- ══════════════════ PAPELEO ══════════════════ -->
     <div id="papeleo" class="tab-content">
         <div class="card">
-            <h2 style="margin:0;"><i class="fas fa-file-signature"></i> Oficina de Papeleo</h2>
+            <h2 style="margin:0;"><i class="fas fa-file-signature"></i> 📝 Oficina de Papeleo</h2>
             <div id="editorArea"><div id="editor" contenteditable="true">Escribe o escanea aquí...</div></div>
             <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:15px;">
-                <button class="btn" style="background:#d32f2f; color:white; font-size:0.65em;" onclick="exportPDF()">PDF</button>
-                <button class="btn" style="background:#2b579a; color:white; font-size:0.65em;" onclick="exportWord()">WORD</button>
-                <button class="btn" style="background:#ff9800; color:white; font-size:0.65em;" onclick="exportJPG_Simple()">IMG</button>
-                <button class="btn" style="background:#333; color:white; font-size:0.65em;" onclick="window.print()">PRINT</button>
+                <button class="btn" style="background:#d32f2f; color:white; font-size:0.65em;" onclick="exportPDF()">📄 PDF</button>
+                <button class="btn" style="background:#2b579a; color:white; font-size:0.65em;" onclick="exportWord()">📝 WORD</button>
+                <button class="btn" style="background:#ff9800; color:white; font-size:0.65em;" onclick="exportJPG_Simple()">🖼️ IMG</button>
+                <button class="btn" style="background:#333; color:white; font-size:0.65em;" onclick="window.print()">🖨️ PRINT</button>
             </div>
-            <button class="btn" style="background:var(--success); color:white; margin-top:15px;" onclick="saveContractAsFile()"><i class="fas fa-save"></i> GUARDAR EN ARCHIVOS</button>
+            <button class="btn" style="background:var(--success); color:white; margin-top:15px;" onclick="saveContractAsFile()"><i class="fas fa-save"></i> 📂 GUARDAR EN ARCHIVOS</button>
         </div>
     </div>
 
     <!-- ══════════════════ ARCHIVOS ══════════════════ -->
     <div id="archivos" class="tab-content">
         <div class="card">
-            <h2><i class="fas fa-archive"></i> Archivos</h2>
+            <h2><i class="fas fa-archive"></i> 📂 Archivos</h2>
             <button class="btn" style="background:var(--info); color:white; margin-bottom:15px;" onclick="document.getElementById('uploadArch').click()">
-                <i class="fas fa-upload"></i> SUBIR ARCHIVO
+                <i class="fas fa-upload"></i> 📤 SUBIR ARCHIVO
                 <input type="file" id="uploadArch" hidden multiple onchange="uploadArchivos(this.files)">
             </button>
             <div id="fileList"></div>
@@ -309,7 +313,7 @@
     </div>
 </div>
 
-<div class="fixed-footer"><button class="btn btn-save" onclick="saveMaster()"><i class="fas fa-save"></i> GUARDAR TODO</button></div>
+<div class="fixed-footer"><button class="btn btn-save" onclick="saveMaster()"><i class="fas fa-save"></i> ✅ GUARDAR TODO</button></div>
 
 <script>
     let voxiData = { props: [], milis: [], grals: [], files: [], citas: [] };
@@ -489,64 +493,64 @@
                              style="padding:7px 14px; border:none; border-radius:20px; font-weight:900; font-size:0.78em; cursor:pointer;
                              background:${e==='Disponible'?'#2e7d32':e==='Interesado'?'#f9a825':e==='Apartado'?'#e65100':'#b71c1c'};
                              color:${e==='Interesado'?'#333':'white'};
-                             opacity:${p.estadoVenta===e?'1':'0.35'};">${e}</button>`
+                             opacity:${p.estadoVenta===e?'1':'0.35'};">${e==='Disponible'?'🟢':e==='Interesado'?'🟡':e==='Apartado'?'🟠':e==='Vendido'?'🔴':''} ${e}</button>`
                         ).join('')}
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <div class="box"><label>Nombre Cliente</label><input type="text" value="${p.clienteNombre||''}" oninput="voxiData.props[${i}].clienteNombre=this.value" placeholder="—"></div>
-                        <div class="box"><label>Teléfono</label><input type="tel" value="${p.clienteTel||''}" oninput="voxiData.props[${i}].clienteTel=this.value" placeholder="—"></div>
-                        <div class="box"><label>Próximo Seguimiento (fecha)</label><input type="date" value="${p.sigFechaLabel||''}" oninput="voxiData.props[${i}].sigFechaLabel=this.value"></div>
-                        <div class="box"><label>Nota de seguimiento</label><input type="text" value="${p.sigFechaNota||''}" oninput="voxiData.props[${i}].sigFechaNota=this.value" placeholder="Ej: Llamar para confirmar"></div>
+                        <div class="box"><label>👤 Nombre Cliente</label><input type="text" value="${p.clienteNombre||''}" oninput="voxiData.props[${i}].clienteNombre=this.value" placeholder="—"></div>
+                        <div class="box"><label>📞 Teléfono</label><input type="tel" value="${p.clienteTel||''}" oninput="voxiData.props[${i}].clienteTel=this.value" placeholder="—"></div>
+                        <div class="box"><label>🔁 Próximo Seguimiento (fecha)</label><input type="date" value="${p.sigFechaLabel||''}" oninput="voxiData.props[${i}].sigFechaLabel=this.value"></div>
+                        <div class="box"><label>⏰ Nota de seguimiento</label><input type="text" value="${p.sigFechaNota||''}" oninput="voxiData.props[${i}].sigFechaNota=this.value" placeholder="Ej: Llamar para confirmar"></div>
                     </div>
                     <button class="btn" style="background:var(--accent); color:#333; margin-top:10px; font-size:0.85em;"
                         onclick="programarRecordatorio('${p.titulo||'Propiedad'}','${p.sigFechaLabel||''}','${p.sigFechaNota||''}')">
-                        <i class="fas fa-bell"></i> PROGRAMAR RECORDATORIO
+                        <i class="fas fa-bell"></i> ⏰ PROGRAMAR RECORDATORIO
                     </button>
                 </div>
 
                 <div class="box-container">
-                    <div class="box full-box"><label>Dueño</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value"></div>
-                    <div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option></select></div>
-                    <div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value"><option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>Preventa</option><option value="Construida" ${p.estatus==='Construida'?'selected':''}>Construida</option></select></div>
-                    <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;voxiData.props[${i}].incompleto=esIncompleto(voxiData.props[${i}])"></div>
-                    <div class="box"><label>Precio Lista</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;voxiData.props[${i}].incompleto=esIncompleto(voxiData.props[${i}])" style="color:var(--success);"></div>
-                    <div class="box"><label>Ganancia</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value" style="color:var(--primary);"></div>
+                    <div class="box full-box"><label>👨‍💼 Dueño</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value"></div>
+                    <div class="box"><label>🏡 Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏡 Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🗺️ Terreno</option></select></div>
+                    <div class="box"><label>📊 Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value"><option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>🚧 Preventa</option><option value="Construida" ${p.estatus==='Construida'?'selected':''}>✅ Construida</option></select></div>
+                    <div class="box full-box"><label>🏠 Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;voxiData.props[${i}].incompleto=esIncompleto(voxiData.props[${i}])"></div>
+                    <div class="box"><label>💰 Precio Lista</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;voxiData.props[${i}].incompleto=esIncompleto(voxiData.props[${i}])" style="color:var(--success);"></div>
+                    <div class="box"><label>📈 Ganancia</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value" style="color:var(--primary);"></div>
 
                     <!-- ═════════════ FINANCIERO ═════════════ -->
-                    <div class="section-label">💰 FINANCIERO / PLAN DE PAGO</div>
-                    <div class="box"><label>Precio Total Pactado</label><input type="text" value="${p.finTotal||''}" oninput="voxiData.props[${i}].finTotal=this.value;renderFinanciero(${i});" placeholder="$0"></div>
-                    <div class="box"><label>Enganche</label><input type="text" value="${p.finEnganche||''}" oninput="voxiData.props[${i}].finEnganche=this.value;renderFinanciero(${i});" placeholder="$0"></div>
-                    <div class="box"><label>Meses a Pagar</label><input type="number" value="${p.finMeses||''}" oninput="voxiData.props[${i}].finMeses=this.value;renderFinanciero(${i});" placeholder="0"></div>
-                    <div class="box" style="background:#e8f5e9;"><label>Pago Mensual (auto)</label><input type="text" id="finMensual${i}" value="${fin.mensual?fmtPeso(fin.mensual.toString()):''}" readonly style="color:var(--success); font-weight:950;"></div>
-                    <div class="box"><label>Total Abonado</label><input type="text" value="${p.finAbonado||''}" oninput="voxiData.props[${i}].finAbonado=this.value;renderFinanciero(${i});" placeholder="$0"></div>
-                    <div class="box" style="background:#fff3e0;"><label>Saldo Pendiente (auto)</label><input type="text" id="finSaldo${i}" value="${fin.saldo?fmtPeso(fin.saldo.toString()):''}" readonly style="color:var(--orange); font-weight:950;"></div>
-                    <div class="box full-box" style="background:#fff8e1; border:2px solid var(--yellow);"><label style="color:var(--primary);">Ganancia Total (auto)</label><input type="text" id="finGanancia${i}" value="${fin.ganancia?fmtPeso(fin.ganancia.toString()):''}" readonly style="color:var(--primary); font-weight:950; font-size:1.2em;"></div>
+                    <div class="section-label">📊 PLAN FINANCIERO</div>
+                    <div class="box"><label>💰 Precio Total Pactado</label><input type="text" value="${p.finTotal||''}" oninput="voxiData.props[${i}].finTotal=this.value;renderFinanciero(${i});" placeholder="$0"></div>
+                    <div class="box"><label>💵 Enganche</label><input type="text" value="${p.finEnganche||''}" oninput="voxiData.props[${i}].finEnganche=this.value;renderFinanciero(${i});" placeholder="$0"></div>
+                    <div class="box"><label>📅 Meses a Pagar</label><input type="number" value="${p.finMeses||''}" oninput="voxiData.props[${i}].finMeses=this.value;renderFinanciero(${i});" placeholder="0"></div>
+                    <div class="box" style="background:#e8f5e9;"><label>💵 Pago Mensual (auto)</label><input type="text" id="finMensual${i}" value="${fin.mensual?fmtPeso(fin.mensual.toString()):''}" readonly style="color:var(--success); font-weight:950;"></div>
+                    <div class="box"><label>💵 Total Abonado</label><input type="text" value="${p.finAbonado||''}" oninput="voxiData.props[${i}].finAbonado=this.value;renderFinanciero(${i});" placeholder="$0"></div>
+                    <div class="box" style="background:#fff3e0;"><label>📉 Saldo Pendiente (auto)</label><input type="text" id="finSaldo${i}" value="${fin.saldo?fmtPeso(fin.saldo.toString()):''}" readonly style="color:var(--orange); font-weight:950;"></div>
+                    <div class="box full-box" style="background:#fff8e1; border:2px solid var(--yellow);"><label style="color:var(--primary);">📊 Ganancia Total (auto)</label><input type="text" id="finGanancia${i}" value="${fin.ganancia?fmtPeso(fin.ganancia.toString()):''}" readonly style="color:var(--primary); font-weight:950; font-size:1.2em;"></div>
 
                     <div class="section-label">📍 UBICACIÓN</div>
-                    <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;voxiData.props[${i}].incompleto=esIncompleto(voxiData.props[${i}])"></div>
-                    <div class="box full-box"><label>Maps</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value"></div>
+                    <div class="box full-box"><label>📍 Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;voxiData.props[${i}].incompleto=esIncompleto(voxiData.props[${i}])"></div>
+                    <div class="box full-box"><label>🗺️ Maps</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value"></div>
 
-                    <div class="section-label">🗺️ MEDIDAS</div>
-                    <div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value"></div>
-                    <div class="box"><label>Sur</label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value"></div>
-                    <div class="box"><label>Este</label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value"></div>
-                    <div class="box"><label>Oeste</label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value"></div>
-                    <div class="box full-box" style="border:3px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary); font-weight:950;">ÁREA TOTAL</label><input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:950; font-size:1.4em;"></div>
+                    <div class="section-label">📐 MEDIDAS</div>
+                    <div class="box"><label>📐 Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value"></div>
+                    <div class="box"><label>📐 Sur</label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value"></div>
+                    <div class="box"><label>📐 Este</label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value"></div>
+                    <div class="box"><label>📐 Oeste</label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value"></div>
+                    <div class="box full-box" style="border:3px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary); font-weight:950;">📏 ÁREA TOTAL</label><input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:950; font-size:1.4em;"></div>
 
                     <!-- ═════════════ DOCUMENTOS PROPIEDAD ═════════════ -->
-                    <div class="section-label">📋 DOCUMENTOS PROPIEDAD</div>
-                    <div class="box"><label>Docto</label><select onchange="voxiData.props[${i}].docto=this.value;renderProps();"><option value="Escritura Pública" ${p.docto==='Escritura Pública'?'selected':''}>Escritura Pública</option><option value="Título" ${p.docto==='Título'?'selected':''}>Título</option></select></div>
-                    <div class="box"><label>Permisos</label><select onchange="voxiData.props[${i}].permisos=this.value"><option value="No" ${p.permisos==='No'?'selected':''}>No</option><option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option></select></div>
+                    <div class="section-label">📂 DOCUMENTOS PROPIEDAD</div>
+                    <div class="box"><label>📄 Docto</label><select onchange="voxiData.props[${i}].docto=this.value;renderProps();"><option value="Escritura Pública" ${p.docto==='Escritura Pública'?'selected':''}>📄 Escritura Pública</option><option value="Título" ${p.docto==='Título'?'selected':''}>📜 Título</option></select></div>
+                    <div class="box"><label>✅ Permisos</label><select onchange="voxiData.props[${i}].permisos=this.value"><option value="No" ${p.permisos==='No'?'selected':''}>No</option><option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option></select></div>
                     <div class="box full-box" style="background:#e8f5e9; border:2px solid #2e7d32;">
-                        <label style="color:#2e7d32; font-weight:900;">📄 ESCANEAR ${p.docto}</label>
-                        <button class="btn" style="background:#2e7d32; color:white;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR</button>
+                        <label style="color:#2e7d32; font-weight:900;">📸 ESCANEAR ${p.docto}</label>
+                        <button class="btn" style="background:#2e7d32; color:white;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> 📸 CAPTURAR</button>
                         <input type="file" id="docUp${i}" hidden onchange="if(this.files[0])processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b; renderProps();})">
-                        ${p.docImg ? '<span style="color:#2e7d32; font-size:0.8em; font-weight:900;"><i class="fas fa-check-circle"></i> Capturado</span>' : ''}
+                        ${p.docImg ? '<span style="color:#2e7d32; font-size:0.8em; font-weight:900;"><i class="fas fa-check-circle"></i> ✅ Capturado</span>' : ''}
                     </div>
 
                     <!-- ═════════════ DOCUMENTOS CLIENTE ═════════════ -->
-                    <div class="section-label">🪪 DOCUMENTOS CLIENTE</div>
-                    ${['INE','Contrato','Comprobante Pago','Escritura'].map((doc, di) => {
+                    <div class="section-label">📂 DOCUMENTOS CLIENTE</div>
+                    ${['🪪 INE','📝 Contrato','💵 Comprobante Pago','📄 Escritura'].map((doc, di) => {
                         const keys = ['docINE','docContrato','docPago','docEscritura'];
                         const k = keys[di];
                         return `<div class="box full-box" style="background:#f3f4f6; border:1px dashed #bbb;">
@@ -621,19 +625,19 @@
         voxiData.milis.forEach((m, i) => {
             const card = document.createElement('div'); card.className = 'card';
             card.innerHTML = `<button class="btn-delete" onclick="voxiData.milis.splice(${i},1);renderProspects();">X</button>
-                <div class="box full-box"><label>Militar</label><input type="text" value="${m.nombre}" oninput="voxiData.milis[${i}].nombre=this.value"></div>
-                <div class="section-label">DOCS</div>
-                ${m.m.map((r, ri) => `<div class="check-item"><span>${r.n}</span><select onchange="voxiData.milis[${i}].m[${ri}].s=this.value;"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>Listo</option></select></div>`).join('')}`;
+                <div class="box full-box"><label>👤 MILITAR</label><input type="text" value="${m.nombre}" oninput="voxiData.milis[${i}].nombre=this.value"></div>
+                <div class="section-label">📂 EXPEDIENTE</div>
+                ${m.m.map((r, ri) => `<div class="check-item"><span>${r.n}</span><select onchange="voxiData.milis[${i}].m[${ri}].s=this.value;"><option value="f" ${r.s==='f'?'selected':''}>❌ Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ Listo</option></select></div>`).join('')}`;
             div.appendChild(card);
         });
         voxiData.grals.forEach((g, i) => {
             const card = document.createElement('div'); card.className = 'card';
             card.innerHTML = `<button class="btn-delete" onclick="voxiData.grals.splice(${i},1);renderProspects();">X</button>
                 <div class="box-container">
-                    <div class="box full-box"><label>Nombre (Efectivo)</label><input type="text" value="${g.nombre}" oninput="voxiData.grals[${i}].nombre=this.value"></div>
-                    <div class="box"><label>Teléfono</label><input type="tel" value="${g.tel||''}" oninput="voxiData.grals[${i}].tel=this.value"></div>
-                    <div class="box"><label>Interés</label><input type="text" value="${g.interes||''}" oninput="voxiData.grals[${i}].interes=this.value"></div>
-                    <div class="box full-box"><label>Documentos</label><input type="text" value="${g.doctos||''}" oninput="voxiData.grals[${i}].doctos=this.value"></div>
+                    <div class="box full-box"><label>👤 CLIENTE (EFECTIVO)</label><input type="text" value="${g.nombre}" oninput="voxiData.grals[${i}].nombre=this.value"></div>
+                    <div class="box"><label>📞 TELÉFONO</label><input type="tel" value="${g.tel||''}" oninput="voxiData.grals[${i}].tel=this.value"></div>
+                    <div class="box"><label>🟡 INTERÉS</label><input type="text" value="${g.interes||''}" oninput="voxiData.grals[${i}].interes=this.value"></div>
+                    <div class="box full-box"><label>📂 DOCUMENTOS</label><input type="text" value="${g.doctos||''}" oninput="voxiData.grals[${i}].doctos=this.value"></div>
                 </div>`;
             div.appendChild(card);
         });
@@ -656,17 +660,17 @@
             card.innerHTML = `
                 <button class="btn-delete" onclick="voxiData.citas.splice(${i},1);renderCitas();">X</button>
                 <div class="box-container">
-                    <div class="box"><label>Fecha</label><input type="date" value="${c.fecha||''}" oninput="voxiData.citas[${i}].fecha=this.value;renderCitas()"></div>
-                    <div class="box"><label>Hora</label><input type="time" value="${c.hora||''}" oninput="voxiData.citas[${i}].hora=this.value;renderCitas()"></div>
-                    <div class="box full-box"><label>Nota / Cliente</label><input type="text" value="${c.nota||''}" oninput="voxiData.citas[${i}].nota=this.value" placeholder="Ej: Mostrar casa a Juan"></div>
-                    <div class="box full-box"><label>Propiedad</label>
+                    <div class="box"><label>📅 Fecha</label><input type="date" value="${c.fecha||''}" oninput="voxiData.citas[${i}].fecha=this.value;renderCitas()"></div>
+                    <div class="box"><label>⏰ Hora</label><input type="time" value="${c.hora||''}" oninput="voxiData.citas[${i}].hora=this.value;renderCitas()"></div>
+                    <div class="box full-box"><label>🔁 Nota / Cliente</label><input type="text" value="${c.nota||''}" oninput="voxiData.citas[${i}].nota=this.value" placeholder="Ej: Mostrar casa a Juan"></div>
+                    <div class="box full-box"><label>🏡 Propiedad</label>
                         <select onchange="voxiData.citas[${i}].propiedad=this.value">
                             <option value="">— Seleccionar —</option>
                             ${voxiData.props.map(p => `<option value="${p.titulo}" ${c.propiedad===p.titulo?'selected':''}>${p.titulo||p.ubicacion||'Sin título'}</option>`).join('')}
                         </select>
                     </div>
                     <div class="box" style="display:flex; align-items:center; gap:10px;">
-                        <label style="margin:0;">Confirmada</label>
+                        <label style="margin:0;">✅ Confirmada</label>
                         <input type="checkbox" ${c.confirmada?'checked':''} onchange="voxiData.citas[${i}].confirmada=this.checked;renderCitas();" style="width:20px;height:20px;">
                     </div>
                     <div class="box" style="background:${c.confirmada?'#e8f5e9':'#fff8e1'}; border:2px solid ${c.confirmada?'#2e7d32':'#f9a825'};">
@@ -675,7 +679,7 @@
                 </div>
                 <button class="btn" style="background:var(--accent); color:#333; margin-top:10px; font-size:0.85em;"
                     onclick="programarRecordatorio('${c.nota||'Cita'}','${c.fecha||''}','${c.hora||''}')">
-                    <i class="fas fa-bell"></i> RECORDATORIO
+                    <i class="fas fa-bell"></i> ⏰ RECORDATORIO
                 </button>
             `;
             div.appendChild(card);
@@ -701,10 +705,10 @@
         const proxCitas = (voxiData.citas || []).filter(c => c.fecha >= hoy).sort((a,b)=>a.fecha.localeCompare(b.fecha));
 
         document.getElementById('dashGrid').innerHTML = `
-            <div class="dash-card"><div class="num" style="color:var(--info);">${props.length}</div><div class="lbl">Total Propiedades</div></div>
-            <div class="dash-card"><div class="num" style="color:var(--primary);">${vendidas}</div><div class="lbl">Vendidas</div></div>
-            <div class="dash-card"><div class="num" style="color:var(--success);">${activos}</div><div class="lbl">Clientes Activos</div></div>
-            <div class="dash-card"><div class="num" style="color:var(--orange);">${proxCitas.length}</div><div class="lbl">Citas Próximas</div></div>
+            <div class="dash-card"><div class="num" style="color:var(--info);">${props.length}</div><div class="lbl">🏘️ Unidades Totales</div></div>
+            <div class="dash-card"><div class="num" style="color:var(--primary);">${vendidas}</div><div class="lbl">🔴 Vendidas</div></div>
+            <div class="dash-card"><div class="num" style="color:var(--success);">${activos}</div><div class="lbl">👤 Clientes Activos</div></div>
+            <div class="dash-card"><div class="num" style="color:var(--orange);">${proxCitas.length}</div><div class="lbl">📅 Citas Próximas</div></div>
         `;
 
         // Inventario mini
@@ -737,6 +741,23 @@
                     <div class="cita-nota">${c.nota||'Sin nota'} ${c.propiedad?'— '+c.propiedad:''}</div>
                 </div>
             `).join('');
+        }
+
+        // Tareas Críticas
+        const tc = document.getElementById('tareasCriticas');
+        const inc = props.filter(p => p.incompleto);
+        if(inc.length > 0) {
+            tc.style.display = 'block';
+            let html = `<h3 style="margin:0 0 10px; color:var(--orange);"><i class="fas fa-exclamation-triangle"></i> ⚠️ TAREAS CRÍTICAS (${inc.length})</h3>`;
+            inc.forEach(p => {
+                html += `<div class="tc-item" onclick="openTab('inventario')" style="background:#fff3e0; padding:8px; border-radius:5px; margin-bottom:5px; font-size:0.85em; border:1px solid #ffe0b2;">
+                    <strong>Falta info: ${p.titulo||'Sin Título'}</strong><br>
+                    <small>Revisa dirección o precio</small>
+                </div>`;
+            });
+            tc.innerHTML = html;
+        } else {
+            tc.style.display = 'none';
         }
     }
 
