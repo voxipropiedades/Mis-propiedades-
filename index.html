@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - Oficina Pro V14</title>
+    <title>Propiedades HR - Sistema de Control V15</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -25,12 +25,13 @@
             --text: #1c1e21;
             --success: #2e7d32;
             --danger: #d32f2f;
+            --info: #1976d2; /* Azul para copias */
             --card-bg: #ffffff;
             --wa-green: #25D366;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
-        body { background: var(--bg-gradient); color: var(--text); margin: 0; padding-bottom: 120px; min-height: 100vh; background-attachment: fixed; }
+        body { background: var(--bg-gradient); color: var(--text); margin: 0; padding-bottom: 130px; min-height: 100vh; background-attachment: fixed; }
         
         header {
             background: var(--header-gradient);
@@ -62,71 +63,52 @@
 
         h2 { border-left: 5px solid var(--secondary); padding-left: 12px; font-size: 1.3em; color: var(--primary); margin-top: 0; margin-bottom: 20px; }
 
-        .property-grid { display: flex; flex-direction: column; gap: 20px; }
-
         .card {
             background: var(--card-bg); border: 1px solid #e4e6eb; border-radius: 16px;
             padding: 20px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
 
-        .box-container {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;
-        }
-        .box {
-            background: #fdfdfd; border: 1px solid #eee; border-radius: 10px;
-            padding: 10px;
-        }
+        .box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .box { background: #fdfdfd; border: 1px solid #eee; border-radius: 10px; padding: 10px; }
         .box label { font-size: 0.7em; font-weight: 800; color: #9e9e9e; display: block; text-transform: uppercase; margin-bottom: 4px; }
         .box input, .box select, .box textarea {
             width: 100%; border: none; background: transparent; font-size: 1em;
             color: var(--text); padding: 2px 0; outline: none; resize: none; font-weight: 600;
         }
-
         .full-box { grid-column: span 2; }
 
-        /* Estilos específicos para Colindancias */
+        /* Colindancias */
         .colindancias-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 10px;
-            background: #fffafa;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ffebee;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px;
+            background: #fffafa; padding: 10px; border-radius: 8px; border: 1px solid #ffebee;
         }
         .col-item { display: flex; flex-direction: column; }
         .col-item label { font-size: 0.65em; font-weight: bold; color: #b71c1c; margin-bottom: 2px; }
-        .col-item input { border-bottom: 1px solid #ddd !important; padding: 2px 0; font-size: 0.9em; }
+
+        /* Semáforo Militar */
+        .militar-status-bar {
+            height: 10px; border-radius: 5px; margin: 15px 0; background: #eee; overflow: hidden; display: flex;
+        }
+        .militar-checklist { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
+        .check-item {
+            display: flex; align-items: center; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee;
+        }
+        .check-item span { flex: 1; font-size: 0.9em; font-weight: 600; }
+        .check-select { padding: 4px; border-radius: 5px; border: 1px solid #ccc; font-size: 0.8em; }
+
+        .status-badge {
+            padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 900; color: white; text-transform: uppercase;
+        }
 
         .btn {
             border: none; padding: 15px; border-radius: 12px; cursor: pointer;
             font-weight: bold; display: flex; align-items: center; gap: 10px;
             justify-content: center; width: 100%; transition: 0.2s;
         }
-        .btn-add { background: var(--primary); color: white; margin-bottom: 25px; font-size: 1.1em; }
-        .btn-save { background: var(--success); color: white; font-size: 1.2em; border: 2px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        
-        .btn-wa-direct { background: var(--wa-green); color: white; font-size: 0.9em; margin-top: 10px; }
-        .btn-flyer-direct { background: var(--accent); color: #333; margin-top: 10px; }
-        .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccd0d5; width: auto; background: none; font-size: 1.3em; }
-
-        .photo-main-preview {
-            width: 100%; height: 200px; background: #eee; border-radius: 12px; margin-bottom: 15px;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-            border: 2px dashed #ccc; cursor: pointer; position: relative;
-        }
-        .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
-        
-        #proposalModal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 2000; padding: 10px; overflow-y: auto;
-        }
-        .proposal-content {
-            background: white; max-width: 500px; margin: 20px auto; border-radius: 20px;
-            overflow: hidden; position: relative;
-        }
+        .btn-save { background: var(--success); color: white; font-size: 1.1em; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .btn-add { background: var(--primary); color: white; margin-bottom: 20px; }
+        .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccd0d5; width: auto; background: none; font-size: 1.2em; }
 
         .fixed-footer {
             position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; padding: 15px;
@@ -135,73 +117,66 @@
 
         .tab-content { display: none; }
         .active-tab { display: block; }
-        
-        .loading-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.8); z-index: 3000; flex-direction: column;
-            align-items: center; justify-content: center;
+
+        /* Expediente Digital */
+        .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 8px; border-radius: 5px; font-size: 0.8em; }
+
+        .photo-main-preview {
+            width: 100%; height: 200px; background: #eee; border-radius: 12px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            border: 2px dashed #ccc; cursor: pointer;
         }
-        
-        .action-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loading-overlay">
-    <i class="fas fa-spinner fa-spin" style="font-size: 3em; color: var(--primary);"></i>
-    <p style="margin-top: 15px; font-weight: bold;" id="loaderText">Procesando...</p>
-</div>
-
 <header>
     <img src="icon.png" class="header-logo" alt="Logo HR">
-    <span style="font-weight: 800; font-size: 1.4em;">PROPIEDADES HR</span>
+    <span style="font-weight: 800; font-size: 1.4em;">PROPIEDADES HR - V15</span>
 </header>
 
 <div class="container">
     <div class="tabs-nav">
         <button class="tab-btn active" id="btn-inventario" onclick="showTab('inventario')"><i class="fas fa-home"></i> Inventario</button>
-        <button class="tab-btn" id="btn-prospectos" onclick="showTab('prospectos')"><i class="fas fa-users"></i> Prospectos</button>
-        <button class="tab-btn" id="btn-contratos" onclick="showTab('contratos')"><i class="fas fa-file-contract"></i> Papeleo</button>
-        <button class="tab-btn" id="btn-estrategia" onclick="showTab('estrategia')"><i class="fas fa-lightbulb"></i> Estrategia</button>
+        <button class="tab-btn" id="btn-prospectos" onclick="showTab('prospectos')"><i class="fas fa-id-card"></i> Clientes/Militares</button>
+        <button class="tab-btn" id="btn-papeleo" onclick="showTab('papeleo')"><i class="fas fa-file-contract"></i> Papeleo</button>
     </div>
 
     <!-- INVENTARIO -->
     <div id="inventario" class="tab-content active-tab">
-        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus-circle"></i> AGREGAR PROPIEDAD / PARCELA</button>
-        <div id="propertyList" class="property-grid"></div>
+        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus"></i> NUEVA PROPIEDAD</button>
+        <div id="propertyList"></div>
     </div>
 
-    <!-- PROSPECTOS -->
+    <!-- PROSPECTOS / MILITARES -->
     <div id="prospectos" class="tab-content">
-        <button class="btn btn-add" style="background:var(--secondary);" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> AGREGAR CLIENTE</button>
+        <div style="background:#e3f2fd; padding:15px; border-radius:10px; margin-bottom:15px; font-size:0.85em; border-left:5px solid #1976d2;">
+            <i class="fas fa-info-circle"></i> <b>Lógica Militar:</b><br>
+            🔴 Rojo: Faltan requisitos.<br>
+            🔵 Azul: Todos entregados, pero hay copias.<br>
+            🟢 Verde: ¡Expediente completo en original!
+        </div>
+        <button class="btn btn-add" style="background:#1976d2;" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> AGREGAR MILITAR / CLIENTE</button>
         <div id="prospectList"></div>
     </div>
 
-    <!-- CONTRATOS -->
-    <div id="contratos" class="tab-content">
+    <!-- PAPELEO -->
+    <div id="papeleo" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-scroll"></i> Oficina de Papeleo</h2>
-            <div style="display:flex; gap:5px; margin-bottom:15px; overflow-x: auto;">
-                <button class="tab-btn" onclick="loadTemplate('promesa')">Promesa</button>
-                <button class="tab-btn" onclick="loadTemplate('compraventa')">Venta</button>
-                <button class="tab-btn" onclick="loadTemplate('permuta')">Permuta</button>
+            <h2><i class="fas fa-print"></i> Generador de Documentos</h2>
+            <div style="display:flex; gap:5px; overflow-x:auto; margin-bottom:15px;">
+                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('promesa')">Promesa</button>
+                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('compraventa')">Venta</button>
+                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('mutuo')">Mutuo Acuerdo</button>
             </div>
-            <div class="action-group">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
                 <button class="btn" style="background:#7b1fa2; color:white;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
                 <button class="btn" style="background:#d32f2f; color:white;" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> BAJAR PDF</button>
             </div>
-            <button class="btn btn-wa-direct" style="margin-top:10px;" onclick="shareContractWA()"><i class="fab fa-whatsapp"></i> ENVIAR TEXTO POR WHATSAPP</button>
+            <textarea id="contractText" rows="15" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:1em;"></textarea>
             <input type="file" id="ocrInput" hidden accept="image/*" onchange="performOCR(this)">
-            <textarea id="contractText" placeholder="Redacta el contrato aquí..." rows="18" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:1em; margin-top:15px;"></textarea>
-        </div>
-    </div>
-
-    <!-- ESTRATEGIA -->
-    <div id="estrategia" class="tab-content">
-        <div class="section-card">
-            <h2><i class="fas fa-bullhorn"></i> Plan de Cierre</h2>
-            <div id="strategyBox" style="background:#fff9db; padding:20px; border-radius:14px; border:2px dashed #fab005; font-size:1.1em; color:#856404; line-height:1.6;"></div>
-            <textarea id="userNotes" placeholder="Mis metas personales..." rows="10" style="width:100%; padding:18px; border:2px solid #f0f2f5; border-radius:14px; font-size:1.1em; margin-top:20px;"></textarea>
         </div>
     </div>
 </div>
@@ -210,40 +185,19 @@
     <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO EL TRABAJO</button>
 </div>
 
-<!-- Modal FLYER -->
-<div id="proposalModal">
-    <div style="display:flex; gap:5px; padding:10px; background:#eee;">
-        <button class="btn" style="background:white; color:#333; font-size:0.7em; padding:8px;" onclick="setFlyerStyle('professional')">PROFESIONAL</button>
-        <button class="btn" style="background:white; color:#333; font-size:0.7em; padding:8px;" onclick="setFlyerStyle('modern')">MODERNO</button>
-        <button class="btn" style="background:white; color:#333; font-size:0.7em; padding:8px;" onclick="setFlyerStyle('impact')">IMPACTO</button>
-    </div>
-    
-    <div id="flyerArea" class="proposal-content">
-        <div id="modalPhotoContainer" style="width:100%; height:250px; background:#eee; position:relative; overflow:hidden;">
-            <img id="modalMainImg" style="width:100%; height:100%; object-fit:cover;">
-            <div style="position:absolute; top:15px; left:15px; background:var(--primary); color:white; padding:5px 15px; border-radius:20px; font-weight:bold; font-size:0.8em;" id="modalBadge"></div>
-        </div>
-        <div style="padding:20px;">
-            <h2 id="modalTitle" style="margin:0; border:none; padding:0; color:var(--primary); font-size:1.4em;"></h2>
-            <div id="modalPrice" style="font-size:2.2em; color:var(--success); font-weight:900; margin:5px 0;"></div>
-            <div style="background:#f0f2f5; padding:15px; border-radius:12px; margin:10px 0; font-size:0.9em; color:#333;" id="modalInfoBox">
-                <p>📍 <span id="modalLoc"></span></p>
-                <p>📐 <span id="modalSize"></span></p>
-                <p>🏗️ <span id="modalStatus"></span></p>
-                <p id="modalDesc" style="font-style:italic; margin-top:10px;"></p>
-            </div>
-            <p style="text-align:center; font-size:0.8em; font-weight:bold; color:var(--primary);">🏠 PROPIEDADES HR</p>
-        </div>
-    </div>
-    
-    <div style="padding:10px; display:flex; flex-direction:column; gap:10px;">
-        <button class="btn" style="background:var(--wa-green); color:white;" id="btnWhatsAppFlyer"><i class="fab fa-whatsapp"></i> ENVIAR DATOS POR WHATSAPP</button>
-        <button class="btn" style="background:#fff; color:#333;" onclick="document.getElementById('proposalModal').style.display='none'">CERRAR VISTA</button>
-    </div>
-</div>
-
 <script>
-    let voxiData = { properties: [], prospects: [], legal: "", notes: "" };
+    let voxiData = { properties: [], prospects: [] };
+
+    const REQUISITOS_MILITAR = [
+        "INE / Identificación Oficial",
+        "CURP Actualizada",
+        "Comprobante de Domicilio",
+        "Hoja de Servicios / Credencial Militar",
+        "RFC (Constancia de Situación Fiscal)",
+        "Acta de Nacimiento",
+        "Solicitud de Crédito ISSFAM",
+        "Certificado de Libertad de Gravamen"
+    ];
 
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
@@ -256,57 +210,24 @@
         if(type === 'properties') {
             voxiData.properties.unshift({ 
                 id: Date.now(), tipo: 'Casa', estado: 'Preventa', titulo: '', ubicacion: '', 
-                precio_lista: '', precio_efectivo: '', ganancia: '', medidas: '', descripcion: '', 
-                mainPhoto: null,
-                norte: '', sur: '', este: '', oeste: '',
-                noreste: '', noroeste: '', sureste: '', suroeste: ''
+                precio_efectivo: '', medidas: '', propietario: '', mainPhoto: null,
+                norte:'', sur:'', este:'', oeste:''
             });
             renderProperties();
         } else {
-            voxiData.prospects.unshift({ nombre: '', interes: '', estado: '' });
+            const reqs = REQUISITOS_MILITAR.map(name => ({ name, status: 'faltante' }));
+            voxiData.prospects.unshift({ id: Date.now(), nombre: '', telefono: '', esMilitar: true, requisitos: reqs, archivos: [] });
             renderProspects();
         }
     }
 
-    function processImage(file, maxWidth, callback) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width, height = img.height;
-                if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
-                canvas.width = width; canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                callback(canvas.toDataURL('image/jpeg', 0.4));
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
     function update(type, index, key, val) { 
         voxiData[type][index][key] = val; 
-        if(key.match(/norte|sur|este|oeste|noreste|noroeste|sureste|suroeste/)) {
-            calculateTotal(index);
-        }
     }
 
-    function calculateTotal(index) {
-        const p = voxiData.properties[index];
-        // Cálculo simple: promedio de pares opuestos para rectángulos aproximados
-        const n = parseFloat(p.norte) || 0;
-        const s = parseFloat(p.sur) || 0;
-        const e = parseFloat(p.este) || 0;
-        const o = parseFloat(p.oeste) || 0;
-        
-        if(n && s && e && o) {
-            const area = ((n + s) / 2) * ((e + o) / 2);
-            document.getElementById(`calcArea${index}`).innerText = `Sugerido: ${area.toFixed(2)} m2`;
-        } else {
-            document.getElementById(`calcArea${index}`).innerText = '';
-        }
+    function updateReq(pIndex, rIndex, status) {
+        voxiData.prospects[pIndex].requisitos[rIndex].status = status;
+        renderProspects();
     }
 
     function renderProperties() {
@@ -316,133 +237,120 @@
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <button class="btn-delete" onclick="if(confirm('¿Borrar?')){voxiData.properties.splice(${i},1);renderProperties();}"><i class="fas fa-trash"></i></button>
+                <button class="btn-delete" onclick="voxiData.properties.splice(${i},1);renderProperties();"><i class="fas fa-trash"></i></button>
                 <div class="photo-main-preview" onclick="document.getElementById('fileMain${i}').click()">
                     ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera"></i> Foto Principal'}
-                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="if(this.files[0])processImage(this.files[0],600,(b64)=>{voxiData.properties[${i}].mainPhoto=b64;renderProperties();})">
+                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handleImage(${i}, this)">
                 </div>
                 <div class="box-container">
-                    <div class="box"><label>Tipo</label>
-                        <select onchange="update('properties', ${i}, 'tipo', this.value)">
-                            <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
-                            <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option>
-                            <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>Parcela</option>
-                        </select>
-                    </div>
-                    <div class="box"><label>Estatus</label>
-                        <select onchange="update('properties', ${i}, 'estado', this.value)">
-                            <option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option>
-                            <option value="Construida" ${p.estado==='Construida'?'selected':''}>Construida</option>
-                        </select>
-                    </div>
-                    <div class="box full-box"><label>Nombre del Proyecto / Título</label><input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
-                    <div class="box full-box"><label>Ubicación</label><input type="text" value="${p.ubicacion}" oninput="update('properties', ${i}, 'ubicacion', this.value)"></div>
-                    <div class="box"><label>Precio Lista</label><input type="text" value="${p.precio_lista}" oninput="update('properties', ${i}, 'precio_lista', this.value)"></div>
+                    <div class="box full-box"><label>Propietario / Dueño del Terreno</label><input type="text" placeholder="Nombre y Tel del Dueño" value="${p.propietario||''}" oninput="update('properties', ${i}, 'propietario', this.value)"></div>
+                    <div class="box"><label>Tipo</label><select onchange="update('properties', ${i}, 'tipo', this.value)"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option><option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>Parcela</option></select></div>
+                    <div class="box"><label>Estatus</label><select onchange="update('properties', ${i}, 'estado', this.value)"><option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option><option value="Construida" ${p.estado==='Construida'?'selected':''}>Construida</option></select></div>
+                    <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
                     <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio_efectivo}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:900;"></div>
-                    
-                    <div class="box full-box">
-                        <label>Medidas por Punto Cardinal (m)</label>
-                        <div class="colindancias-grid">
-                            <div class="col-item"><label>Norte</label><input type="number" placeholder="0" value="${p.norte||''}" oninput="update('properties', ${i}, 'norte', this.value)"></div>
-                            <div class="col-item"><label>Sur</label><input type="number" placeholder="0" value="${p.sur||''}" oninput="update('properties', ${i}, 'sur', this.value)"></div>
-                            <div class="col-item"><label>Este</label><input type="number" placeholder="0" value="${p.este||''}" oninput="update('properties', ${i}, 'este', this.value)"></div>
-                            <div class="col-item"><label>Oeste</label><input type="number" placeholder="0" value="${p.oeste||''}" oninput="update('properties', ${i}, 'oeste', this.value)"></div>
-                            <div class="col-item"><label>Noreste</label><input type="number" placeholder="0" value="${p.noreste||''}" oninput="update('properties', ${i}, 'noreste', this.value)"></div>
-                            <div class="col-item"><label>Noroeste</label><input type="number" placeholder="0" value="${p.noroeste||''}" oninput="update('properties', ${i}, 'noroeste', this.value)"></div>
-                            <div class="col-item"><label>Sureste</label><input type="number" placeholder="0" value="${p.sureste||''}" oninput="update('properties', ${i}, 'sureste', this.value)"></div>
-                            <div class="col-item"><label>Suroeste</label><input type="number" placeholder="0" value="${p.suroeste||''}" oninput="update('properties', ${i}, 'suroeste', this.value)"></div>
-                        </div>
-                    </div>
-
-                    <div class="box"><label>Metros Totales (m2)</label><input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)" style="font-weight:bold;"><span id="calcArea${i}" style="font-size:0.7em; color:var(--primary);"></span></div>
-                    <div class="box"><label>Tu Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="update('properties', ${i}, 'ganancia', this.value)" style="color:var(--primary); font-weight:800;"></div>
-                    <div class="box full-box"><label>Descripción para el cliente</label><textarea rows="3" oninput="update('properties', ${i}, 'descripcion', this.value)">${p.descripcion}</textarea></div>
+                    <div class="box"><label>Medidas (m2)</label><input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
                 </div>
-                <div class="action-group">
-                    <button class="btn btn-flyer-direct" onclick="openProposal(${i})"><i class="fas fa-bullhorn"></i> FLYER</button>
-                    <button class="btn btn-wa-direct" onclick="sharePropertyWA(${i})"><i class="fab fa-whatsapp"></i> ENVIAR</button>
+                <div class="colindancias-grid">
+                    <div class="col-item"><label>Norte</label><input type="text" value="${p.norte||''}" oninput="update('properties', ${i}, 'norte', this.value)"></div>
+                    <div class="col-item"><label>Sur</label><input type="text" value="${p.sur||''}" oninput="update('properties', ${i}, 'sur', this.value)"></div>
+                    <div class="col-item"><label>Este</label><input type="text" value="${p.este||''}" oninput="update('properties', ${i}, 'este', this.value)"></div>
+                    <div class="col-item"><label>Oeste</label><input type="text" value="${p.oeste||''}" oninput="update('properties', ${i}, 'oeste', this.value)"></div>
                 </div>
             `;
             list.appendChild(card);
-            calculateTotal(i);
         });
     }
 
-    function sharePropertyWA(index) {
-        const p = voxiData.properties[index];
-        const text = `🏠 *${p.titulo || 'Propiedad HR'}*\n💰 *PRECIO REMATE:* $${p.precio_efectivo || '---'}\n📍 *Ubicación:* ${p.ubicacion || '---'}\n📏 *Medidas:* ${p.medidas || '---'}\n📐 *Colindancias:* N:${p.norte||0}m, S:${p.sur||0}m, E:${p.este||0}m, O:${p.oeste||0}m\n📝 *Detalles:* ${p.descripcion || '---'}\n\n_Enviado desde Propiedades HR_`;
-        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
+    function renderProspects() {
+        const list = document.getElementById('prospectList');
+        list.innerHTML = '';
+        voxiData.prospects.forEach((p, i) => {
+            const anyMissing = p.requisitos.some(r => r.status === 'faltante');
+            const allOriginal = p.requisitos.every(r => r.status === 'original');
+            let statusColor = varToVal('--danger');
+            let statusText = "🔴 Faltan Documentos";
+            if (!anyMissing && allOriginal) { statusColor = varToVal('--success'); statusText = "🟢 Expediente Completo Original"; }
+            else if (!anyMissing) { statusColor = varToVal('--info'); statusText = "🔵 Completo (con Copias)"; }
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.borderLeft = `8px solid ${statusColor}`;
+            card.innerHTML = `
+                <button class="btn-delete" onclick="voxiData.prospects.splice(${i},1);renderProspects();"><i class="fas fa-trash"></i></button>
+                <div class="box-container">
+                    <div class="box full-box"><label>Nombre del Militar / Cliente</label><input type="text" value="${p.nombre}" oninput="update('prospects', ${i}, 'nombre', this.value)" style="font-size:1.2em; font-weight:bold;"></div>
+                    <div class="box"><label>Teléfono</label><input type="text" value="${p.telefono||''}" oninput="update('prospects', ${i}, 'telefono', this.value)"></div>
+                    <div class="box"><label>Estatus del Trámite</label><div style="font-weight:bold; font-size:0.8em; margin-top:5px;">${statusText}</div></div>
+                </div>
+
+                <div class="militar-checklist">
+                    <strong>Lista de Requisitos ISSFAM:</strong>
+                    ${p.requisitos.map((r, ri) => `
+                        <div class="check-item">
+                            <span>${ri+1}. ${r.name}</span>
+                            <select class="check-select" onchange="updateReq(${i}, ${ri}, this.value)">
+                                <option value="faltante" ${r.status==='faltante'?'selected':''}>Faltante</option>
+                                <option value="copia" ${r.status==='copia'?'selected':''}>Copia</option>
+                                <option value="original" ${r.status==='original'?'selected':''}>Original</option>
+                            </select>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="margin-top:15px; background:#f0f2f5; padding:15px; border-radius:10px;">
+                    <label style="font-weight:bold; font-size:0.8em;">Expediente Digital (Fotos/Escaneos):</label>
+                    <input type="file" multiple onchange="handleFiles(${i}, this)" style="font-size:0.8em; margin-top:5px;">
+                    <div class="file-list" id="files-${i}">
+                        ${p.archivos.map((f, fi) => `<div class="file-item"><span>${f.name}</span> <i class="fas fa-check-circle" style="color:var(--success)"></i></div>`).join('')}
+                    </div>
+                </div>
+            `;
+            list.appendChild(card);
+        });
     }
 
-    function openProposal(index) {
-        const p = voxiData.properties[index];
-        document.getElementById('modalTitle').innerText = p.titulo || 'Oportunidad HR';
-        document.getElementById('modalBadge').innerText = (p.tipo || 'Casa') + ' - ' + (p.estado || 'Especial');
-        document.getElementById('modalPrice').innerText = '$' + (p.precio_efectivo || '---');
-        document.getElementById('modalLoc').innerText = p.ubicacion || '---';
-        document.getElementById('modalSize').innerText = p.medidas || '---';
-        document.getElementById('modalStatus').innerText = p.estado;
-        document.getElementById('modalDesc').innerText = p.descripcion || '';
-        document.getElementById('modalMainImg').src = p.mainPhoto || '';
-        document.getElementById('btnWhatsAppFlyer').onclick = () => sharePropertyWA(index);
-        setFlyerStyle('professional');
-        document.getElementById('proposalModal').style.display = 'block';
-    }
+    function varToVal(varName) { return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
 
-    function setFlyerStyle(style) {
-        const area = document.getElementById('flyerArea');
-        const title = document.getElementById('modalTitle');
-        const info = document.getElementById('modalInfoBox');
-        if(style === 'modern') {
-            area.style.background = '#1a1a1a'; area.style.color = 'white';
-            title.style.color = 'var(--accent)'; info.style.background = '#333'; info.style.color = 'white';
-        } else if(style === 'impact') {
-            area.style.background = '#fff'; area.style.color = '#1c1e21';
-            title.style.color = 'var(--danger)'; info.style.background = '#fff0f0'; info.style.color = '#1c1e21';
-        } else {
-            area.style.background = '#fff'; area.style.color = '#1c1e21';
-            title.style.color = 'var(--primary)'; info.style.background = '#f0f2f5'; info.style.color = '#333';
+    function handleImage(index, input) {
+        if (input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    if(w > 500){ h *= 500/w; w = 500; }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0,0,w,h);
+                    voxiData.properties[index].mainPhoto = canvas.toDataURL('image/jpeg', 0.5);
+                    renderProperties();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
         }
     }
 
-    async function performOCR(input) {
-        if (!input.files[0]) return;
-        document.getElementById('loader').style.display = 'flex';
-        try {
-            const worker = await Tesseract.createWorker('spa');
-            const ret = await worker.recognize(input.files[0]);
-            document.getElementById('contractText').value += "\n\n--- ESCANEO ---\n" + ret.data.text;
-            await worker.terminate();
-        } finally { document.getElementById('loader').style.display = 'none'; }
-    }
-
-    function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text(doc.splitTextToSize(document.getElementById('contractText').value, 180), 10, 20);
-        doc.save('Contrato_HR.pdf');
-    }
-
-    function shareContractWA() {
-        const text = document.getElementById('contractText').value;
-        if(!text) return alert('Escribe algo primero');
-        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
+    function handleFiles(index, input) {
+        if (input.files) {
+            Array.from(input.files).forEach(f => {
+                if(voxiData.prospects[index].archivos.length < 10) {
+                    voxiData.prospects[index].archivos.push({ name: f.name });
+                }
+            });
+            renderProspects();
+        }
     }
 
     function saveData() {
-        voxiData.legal = document.getElementById('contractText').value;
-        voxiData.notes = document.getElementById('userNotes').value;
-        localStorage.setItem('hr_pro_v14', JSON.stringify(voxiData));
-        alert('✅ ¡TODO GUARDADO!');
+        localStorage.setItem('hr_pro_v15_data', JSON.stringify(voxiData));
+        alert('✅ ¡TODO GUARDADO EN TU CELULAR!');
     }
 
     function loadData() {
-        const saved = localStorage.getItem('hr_pro_v14');
+        const saved = localStorage.getItem('hr_pro_v15_data');
         if(saved) voxiData = JSON.parse(saved);
-        document.getElementById('contractText').value = voxiData.legal || '';
-        document.getElementById('userNotes').value = voxiData.notes || '';
-        document.getElementById('strategyBox').innerText = "💡 ESTRATEGIA: Cierre rápido antes de 2 semanas con descuento especial por liquidación inmediata.";
-        renderProperties();
+        renderProperties(); renderProspects();
     }
 
     window.onload = loadData;
