@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - Sistema de Control V15</title>
+    <title>Propiedades HR - Sistema Pro V16</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -13,6 +13,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- html2canvas para descargar como imagen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
@@ -25,7 +27,7 @@
             --text: #1c1e21;
             --success: #2e7d32;
             --danger: #d32f2f;
-            --info: #1976d2; /* Azul para copias */
+            --info: #1976d2;
             --card-bg: #ffffff;
             --wa-green: #25D366;
         }
@@ -78,28 +80,20 @@
         }
         .full-box { grid-column: span 2; }
 
-        /* Colindancias */
+        /* Colindancias Desplegables */
+        .details-colindancias { margin-top: 10px; background: #fffafa; border-radius: 10px; border: 1px solid #ffebee; }
+        .details-colindancias summary { padding: 10px; font-weight: bold; color: var(--primary); cursor: pointer; outline: none; }
         .colindancias-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px;
-            background: #fffafa; padding: 10px; border-radius: 8px; border: 1px solid #ffebee;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px;
         }
         .col-item { display: flex; flex-direction: column; }
         .col-item label { font-size: 0.65em; font-weight: bold; color: #b71c1c; margin-bottom: 2px; }
 
         /* Semáforo Militar */
-        .militar-status-bar {
-            height: 10px; border-radius: 5px; margin: 15px 0; background: #eee; overflow: hidden; display: flex;
-        }
-        .militar-checklist { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
         .check-item {
-            display: flex; align-items: center; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee;
+            display: flex; align-items: center; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-top: 5px;
         }
         .check-item span { flex: 1; font-size: 0.9em; font-weight: 600; }
-        .check-select { padding: 4px; border-radius: 5px; border: 1px solid #ccc; font-size: 0.8em; }
-
-        .status-badge {
-            padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 900; color: white; text-transform: uppercase;
-        }
 
         .btn {
             border: none; padding: 15px; border-radius: 12px; cursor: pointer;
@@ -118,64 +112,82 @@
         .tab-content { display: none; }
         .active-tab { display: block; }
 
-        /* Expediente Digital */
-        .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
-        .file-item { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 8px; border-radius: 5px; font-size: 0.8em; }
-
         .photo-main-preview {
             width: 100%; height: 200px; background: #eee; border-radius: 12px; margin-bottom: 15px;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
             border: 2px dashed #ccc; cursor: pointer;
         }
         .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Estilos de Botones de Papeleo */
+        .office-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .btn-office { font-size: 0.8em; padding: 10px; }
+        .btn-jpg { background: #ff9800; color: white; }
+        .btn-word { background: #2b579a; color: white; }
+        .btn-pdf { background: #d32f2f; color: white; }
+        .btn-flyer { background: var(--accent); color: #333; }
+        
+        #contractEditor {
+            background: white; border: 2px solid #eee; border-radius: 15px; padding: 15px;
+            width: 100%; min-height: 400px; margin-top: 15px; outline: none; line-height: 1.5; font-size: 1em;
+        }
     </style>
 </head>
 <body>
 
 <header>
     <img src="icon.png" class="header-logo" alt="Logo HR">
-    <span style="font-weight: 800; font-size: 1.4em;">PROPIEDADES HR - V15</span>
+    <span style="font-weight: 800; font-size: 1.4em;">PROPIEDADES HR - V16</span>
 </header>
 
 <div class="container">
     <div class="tabs-nav">
         <button class="tab-btn active" id="btn-inventario" onclick="showTab('inventario')"><i class="fas fa-home"></i> Inventario</button>
-        <button class="tab-btn" id="btn-prospectos" onclick="showTab('prospectos')"><i class="fas fa-id-card"></i> Clientes/Militares</button>
+        <button class="tab-btn" id="btn-prospectos" onclick="showTab('prospectos')"><i class="fas fa-id-card"></i> Militares</button>
         <button class="tab-btn" id="btn-papeleo" onclick="showTab('papeleo')"><i class="fas fa-file-contract"></i> Papeleo</button>
     </div>
 
     <!-- INVENTARIO -->
     <div id="inventario" class="tab-content active-tab">
-        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus"></i> NUEVA PROPIEDAD</button>
+        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus"></i> AGREGAR PROPIEDAD</button>
         <div id="propertyList"></div>
     </div>
 
     <!-- PROSPECTOS / MILITARES -->
     <div id="prospectos" class="tab-content">
         <div style="background:#e3f2fd; padding:15px; border-radius:10px; margin-bottom:15px; font-size:0.85em; border-left:5px solid #1976d2;">
-            <i class="fas fa-info-circle"></i> <b>Lógica Militar:</b><br>
-            🔴 Rojo: Faltan requisitos.<br>
-            🔵 Azul: Todos entregados, pero hay copias.<br>
-            🟢 Verde: ¡Expediente completo en original!
+            🔴 Rojo: Faltan | 🔵 Azul: Copias | 🟢 Verde: Originales
         </div>
-        <button class="btn btn-add" style="background:#1976d2;" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> AGREGAR MILITAR / CLIENTE</button>
+        <button class="btn btn-add" style="background:#1976d2;" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> NUEVO MILITAR</button>
         <div id="prospectList"></div>
     </div>
 
     <!-- PAPELEO -->
     <div id="papeleo" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-print"></i> Generador de Documentos</h2>
+            <h2><i class="fas fa-briefcase"></i> Oficina Digital</h2>
             <div style="display:flex; gap:5px; overflow-x:auto; margin-bottom:15px;">
-                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('promesa')">Promesa</button>
-                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('compraventa')">Venta</button>
-                <button class="tab-btn" style="padding:10px;" onclick="loadTemplate('mutuo')">Mutuo Acuerdo</button>
+                <button class="tab-btn" onclick="loadTemplate('promesa')">Promesa</button>
+                <button class="tab-btn" onclick="loadTemplate('compraventa')">Venta</button>
+                <button class="tab-btn" onclick="loadTemplate('mutuo')">Mutuo</button>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <button class="btn" style="background:#7b1fa2; color:white;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
-                <button class="btn" style="background:#d32f2f; color:white;" onclick="generatePDF()"><i class="fas fa-file-pdf"></i> BAJAR PDF</button>
+                <button class="btn" style="background:var(--wa-green); color:white;" onclick="shareContractWA()"><i class="fab fa-whatsapp"></i> ENVIAR TEXTO</button>
             </div>
-            <textarea id="contractText" rows="15" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:12px; font-size:1em;"></textarea>
+
+            <div id="captureArea">
+                <div id="contractEditor" contenteditable="true">Haz clic aquí para empezar a escribir...</div>
+            </div>
+
+            <div class="office-buttons">
+                <button class="btn btn-office btn-pdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> BAJAR PDF</button>
+                <button class="btn btn-office btn-word" onclick="exportWord()"><i class="fas fa-file-word"></i> EDITAR EN WORD</button>
+                <button class="btn btn-office btn-jpg" onclick="exportJPG()"><i class="fas fa-image"></i> GUARDAR JPG</button>
+                <button class="btn btn-office btn-flyer" onclick="alert('Usa la pestaña Inventario para generar Flyers de propiedades con fotos.')"><i class="fas fa-bullhorn"></i> FLYER</button>
+            </div>
+            
             <input type="file" id="ocrInput" hidden accept="image/*" onchange="performOCR(this)">
         </div>
     </div>
@@ -188,15 +200,9 @@
 <script>
     let voxiData = { properties: [], prospects: [] };
 
-    const REQUISITOS_MILITAR = [
-        "INE / Identificación Oficial",
-        "CURP Actualizada",
-        "Comprobante de Domicilio",
-        "Hoja de Servicios / Credencial Militar",
-        "RFC (Constancia de Situación Fiscal)",
-        "Acta de Nacimiento",
-        "Solicitud de Crédito ISSFAM",
-        "Certificado de Libertad de Gravamen"
+    // Estos serán actualizados por el usuario
+    let requisitosMilitares = [
+        "INE", "CURP", "Domicilio", "Hoja Servicios", "RFC", "Acta Nacimiento", "Solicitud ISSFAM", "Gravamen"
     ];
 
     function showTab(tabId) {
@@ -211,50 +217,67 @@
             voxiData.properties.unshift({ 
                 id: Date.now(), tipo: 'Casa', estado: 'Preventa', titulo: '', ubicacion: '', 
                 precio_efectivo: '', medidas: '', propietario: '', mainPhoto: null,
-                norte:'', sur:'', este:'', oeste:''
+                norte:'', sur:'', este:'', oeste:'', noreste:'', noroeste:'', sureste:'', suroeste:''
             });
             renderProperties();
         } else {
-            const reqs = REQUISITOS_MILITAR.map(name => ({ name, status: 'faltante' }));
-            voxiData.prospects.unshift({ id: Date.now(), nombre: '', telefono: '', esMilitar: true, requisitos: reqs, archivos: [] });
+            const reqs = requisitosMilitares.map(name => ({ name, status: 'faltante' }));
+            voxiData.prospects.unshift({ id: Date.now(), nombre: '', telefono: '', requisitos: reqs });
             renderProspects();
         }
     }
 
-    function update(type, index, key, val) { 
-        voxiData[type][index][key] = val; 
-    }
-
-    function updateReq(pIndex, rIndex, status) {
-        voxiData.prospects[pIndex].requisitos[rIndex].status = status;
-        renderProspects();
-    }
+    function updateProp(i, key, val) { voxiData.properties[i][key] = val; renderProperties(); }
 
     function renderProperties() {
         const list = document.getElementById('propertyList');
         list.innerHTML = '';
         voxiData.properties.forEach((p, i) => {
+            const labelMedidaTotal = `Medida Total de ${p.tipo}`;
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
                 <button class="btn-delete" onclick="voxiData.properties.splice(${i},1);renderProperties();"><i class="fas fa-trash"></i></button>
                 <div class="photo-main-preview" onclick="document.getElementById('fileMain${i}').click()">
                     ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera"></i> Foto Principal'}
-                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handleImage(${i}, this)">
+                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handlePropImage(${i}, this)">
                 </div>
                 <div class="box-container">
-                    <div class="box full-box"><label>Propietario / Dueño del Terreno</label><input type="text" placeholder="Nombre y Tel del Dueño" value="${p.propietario||''}" oninput="update('properties', ${i}, 'propietario', this.value)"></div>
-                    <div class="box"><label>Tipo</label><select onchange="update('properties', ${i}, 'tipo', this.value)"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option><option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>Parcela</option></select></div>
-                    <div class="box"><label>Estatus</label><select onchange="update('properties', ${i}, 'estado', this.value)"><option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option><option value="Construida" ${p.estado==='Construida'?'selected':''}>Construida</option></select></div>
-                    <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="update('properties', ${i}, 'titulo', this.value)"></div>
-                    <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio_efectivo}" oninput="update('properties', ${i}, 'precio_efectivo', this.value)" style="color:var(--success); font-weight:900;"></div>
-                    <div class="box"><label>Medidas (m2)</label><input type="text" value="${p.medidas}" oninput="update('properties', ${i}, 'medidas', this.value)"></div>
-                </div>
-                <div class="colindancias-grid">
-                    <div class="col-item"><label>Norte</label><input type="text" value="${p.norte||''}" oninput="update('properties', ${i}, 'norte', this.value)"></div>
-                    <div class="col-item"><label>Sur</label><input type="text" value="${p.sur||''}" oninput="update('properties', ${i}, 'sur', this.value)"></div>
-                    <div class="col-item"><label>Este</label><input type="text" value="${p.este||''}" oninput="update('properties', ${i}, 'este', this.value)"></div>
-                    <div class="col-item"><label>Oeste</label><input type="text" value="${p.oeste||''}" oninput="update('properties', ${i}, 'oeste', this.value)"></div>
+                    <div class="box full-box"><label>Propietario / Dueño</label><input type="text" value="${p.propietario||''}" oninput="voxiData.properties[${i}].propietario=this.value"></div>
+                    <div class="box"><label>Tipo</label>
+                        <select onchange="voxiData.properties[${i}].tipo=this.value;renderProperties();">
+                            <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
+                            <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option>
+                            <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>Parcela</option>
+                        </select>
+                    </div>
+                    <div class="box"><label>Estatus</label>
+                        <select onchange="voxiData.properties[${i}].estado=this.value">
+                            <option value="Preventa" ${p.estado==='Preventa'?'selected':''}>Preventa</option>
+                            <option value="Construida" ${p.estado==='Construida'?'selected':''}>Construida</option>
+                        </select>
+                    </div>
+                    <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="voxiData.properties[${i}].titulo=this.value"></div>
+                    <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio_efectivo}" oninput="voxiData.properties[${i}].precio_efectivo=this.value" style="color:var(--success); font-weight:900;"></div>
+                    
+                    <div class="box full-box">
+                        <label>${labelMedidaTotal}</label>
+                        <input type="text" placeholder="Ej: 150m2" value="${p.medidas}" oninput="voxiData.properties[${i}].medidas=this.value">
+                        
+                        <details class="details-colindancias">
+                            <summary>Ver Detalles de Colindancias</summary>
+                            <div class="colindancias-grid">
+                                <div class="col-item"><label>Norte</label><input type="text" value="${p.norte||''}" oninput="voxiData.properties[${i}].norte=this.value"></div>
+                                <div class="col-item"><label>Sur</label><input type="text" value="${p.sur||''}" oninput="voxiData.properties[${i}].sur=this.value"></div>
+                                <div class="col-item"><label>Este</label><input type="text" value="${p.este||''}" oninput="voxiData.properties[${i}].este=this.value"></div>
+                                <div class="col-item"><label>Oeste</label><input type="text" value="${p.oeste||''}" oninput="voxiData.properties[${i}].oeste=this.value"></div>
+                                <div class="col-item"><label>Noreste</label><input type="text" value="${p.noreste||''}" oninput="voxiData.properties[${i}].noreste=this.value"></div>
+                                <div class="col-item"><label>Noroeste</label><input type="text" value="${p.noroeste||''}" oninput="voxiData.properties[${i}].noroeste=this.value"></div>
+                                <div class="col-item"><label>Sureste</label><input type="text" value="${p.sureste||''}" oninput="voxiData.properties[${i}].sureste=this.value"></div>
+                                <div class="col-item"><label>Suroeste</label><input type="text" value="${p.suroeste||''}" oninput="voxiData.properties[${i}].suroeste=this.value"></div>
+                            </div>
+                        </details>
+                    </div>
                 </div>
             `;
             list.appendChild(card);
@@ -267,28 +290,21 @@
         voxiData.prospects.forEach((p, i) => {
             const anyMissing = p.requisitos.some(r => r.status === 'faltante');
             const allOriginal = p.requisitos.every(r => r.status === 'original');
-            let statusColor = varToVal('--danger');
-            let statusText = "🔴 Faltan Documentos";
-            if (!anyMissing && allOriginal) { statusColor = varToVal('--success'); statusText = "🟢 Expediente Completo Original"; }
-            else if (!anyMissing) { statusColor = varToVal('--info'); statusText = "🔵 Completo (con Copias)"; }
+            let color = '#d32f2f'; // Rojo
+            if (!anyMissing && allOriginal) color = '#2e7d32'; // Verde
+            else if (!anyMissing) color = '#1976d2'; // Azul
 
             const card = document.createElement('div');
             card.className = 'card';
-            card.style.borderLeft = `8px solid ${statusColor}`;
+            card.style.borderLeft = `8px solid ${color}`;
             card.innerHTML = `
                 <button class="btn-delete" onclick="voxiData.prospects.splice(${i},1);renderProspects();"><i class="fas fa-trash"></i></button>
-                <div class="box-container">
-                    <div class="box full-box"><label>Nombre del Militar / Cliente</label><input type="text" value="${p.nombre}" oninput="update('prospects', ${i}, 'nombre', this.value)" style="font-size:1.2em; font-weight:bold;"></div>
-                    <div class="box"><label>Teléfono</label><input type="text" value="${p.telefono||''}" oninput="update('prospects', ${i}, 'telefono', this.value)"></div>
-                    <div class="box"><label>Estatus del Trámite</label><div style="font-weight:bold; font-size:0.8em; margin-top:5px;">${statusText}</div></div>
-                </div>
-
-                <div class="militar-checklist">
-                    <strong>Lista de Requisitos ISSFAM:</strong>
+                <div class="box"><label>Militar</label><input type="text" value="${p.nombre}" oninput="voxiData.prospects[${i}].nombre=this.value" style="font-weight:bold;"></div>
+                <div style="margin-top:10px;">
                     ${p.requisitos.map((r, ri) => `
                         <div class="check-item">
-                            <span>${ri+1}. ${r.name}</span>
-                            <select class="check-select" onchange="updateReq(${i}, ${ri}, this.value)">
+                            <span>${r.name}</span>
+                            <select onchange="voxiData.prospects[${i}].requisitos[${ri}].status=this.value;renderProspects();">
                                 <option value="faltante" ${r.status==='faltante'?'selected':''}>Faltante</option>
                                 <option value="copia" ${r.status==='copia'?'selected':''}>Copia</option>
                                 <option value="original" ${r.status==='original'?'selected':''}>Original</option>
@@ -296,59 +312,73 @@
                         </div>
                     `).join('')}
                 </div>
-
-                <div style="margin-top:15px; background:#f0f2f5; padding:15px; border-radius:10px;">
-                    <label style="font-weight:bold; font-size:0.8em;">Expediente Digital (Fotos/Escaneos):</label>
-                    <input type="file" multiple onchange="handleFiles(${i}, this)" style="font-size:0.8em; margin-top:5px;">
-                    <div class="file-list" id="files-${i}">
-                        ${p.archivos.map((f, fi) => `<div class="file-item"><span>${f.name}</span> <i class="fas fa-check-circle" style="color:var(--success)"></i></div>`).join('')}
-                    </div>
-                </div>
             `;
             list.appendChild(card);
         });
     }
 
-    function varToVal(varName) { return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
+    // Funciones de Oficina Digital
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text(doc.splitTextToSize(document.getElementById('contractEditor').innerText, 180), 10, 20);
+        doc.save('Documento_HR.pdf');
+    }
 
-    function handleImage(index, input) {
+    function exportWord() {
+        const content = document.getElementById('contractEditor').innerHTML;
+        const blob = new Blob(['<html><body>' + content + '</body></html>'], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'Documento_HR.doc'; a.click();
+    }
+
+    function exportJPG() {
+        html2canvas(document.getElementById('captureArea')).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Documento_HR.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.click();
+        });
+    }
+
+    function shareContractWA() {
+        const text = document.getElementById('contractEditor').innerText;
+        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
+    }
+
+    async function performOCR(input) {
+        if (!input.files[0]) return;
+        document.getElementById('contractEditor').innerText = "Escaneando...";
+        const worker = await Tesseract.createWorker('spa');
+        const ret = await worker.recognize(input.files[0]);
+        document.getElementById('contractEditor').innerText = ret.data.text;
+        await worker.terminate();
+    }
+
+    function loadTemplate(t) {
+        const temps = {
+            promesa: "CONTRATO DE PROMESA DE COMPRAVENTA...",
+            compraventa: "CONTRATO DE COMPRAVENTA PRIVADO...",
+            mutuo: "CONTRATO DE MUTUO ACUERDO..."
+        };
+        document.getElementById('contractEditor').innerText = temps[t];
+    }
+
+    function handlePropImage(i, input) {
         if (input.files[0]) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let w = img.width, h = img.height;
-                    if(w > 500){ h *= 500/w; w = 500; }
-                    canvas.width = w; canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0,0,w,h);
-                    voxiData.properties[index].mainPhoto = canvas.toDataURL('image/jpeg', 0.5);
-                    renderProperties();
-                };
-                img.src = e.target.result;
-            };
+            reader.onload = (e) => { voxiData.properties[i].mainPhoto = e.target.result; renderProperties(); };
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    function handleFiles(index, input) {
-        if (input.files) {
-            Array.from(input.files).forEach(f => {
-                if(voxiData.prospects[index].archivos.length < 10) {
-                    voxiData.prospects[index].archivos.push({ name: f.name });
-                }
-            });
-            renderProspects();
-        }
-    }
-
     function saveData() {
-        localStorage.setItem('hr_pro_v15_data', JSON.stringify(voxiData));
-        alert('✅ ¡TODO GUARDADO EN TU CELULAR!');
+        localStorage.setItem('hr_pro_v16_data', JSON.stringify(voxiData));
+        alert('✅ ¡TRABAJO GUARDADO!');
     }
 
     function loadData() {
-        const saved = localStorage.getItem('hr_pro_v15_data');
+        const saved = localStorage.getItem('hr_pro_v16_data');
         if(saved) voxiData = JSON.parse(saved);
         renderProperties(); renderProspects();
     }
