@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - Sistema Pro V22</title>
+    <title>Propiedades HR - SISTEMA MASTER V23</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -20,199 +20,188 @@
             --primary: #b71c1c;
             --secondary: #ff5252;
             --accent: #ffde59;
-            --bg-gradient: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
-            --header-gradient: linear-gradient(90deg, #b71c1c 0%, #ef5350 100%);
+            --bg: #f0f2f5;
             --white: #ffffff;
             --text: #1c1e21;
             --success: #2e7d32;
-            --danger: #d32f2f;
-            --info: #1976d2;
-            --card-bg: #ffffff;
             --wa-green: #25D366;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
-        body { background: var(--bg-gradient); color: var(--text); margin: 0; padding-bottom: 140px; min-height: 100vh; background-attachment: fixed; }
+        body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px; }
         
         header {
-            background: var(--header-gradient);
+            background: linear-gradient(90deg, #b71c1c 0%, #ef5350 100%);
             color: white; padding: 15px; text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             position: sticky; top: 0; z-index: 1000;
         }
-        .header-logo { max-width: 50px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
+        .header-logo { max-width: 45px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
 
         .container { max-width: 800px; margin: auto; padding: 10px; }
 
-        .tabs-nav {
-            display: flex; overflow-x: auto; gap: 8px; margin: 15px 0; padding: 10px;
-            scrollbar-width: none; background: white; border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        /* NAVEGACION SUPERIOR (TABS QUE NO DEBEN DESAPARECER) */
+        .nav-tabs {
+            display: flex; gap: 5px; margin: 15px 0; background: white; padding: 10px;
+            border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow-x: auto; scrollbar-width: none;
         }
         .tab-btn {
-            background: #f0f2f5; border: none; padding: 12px 18px; border-radius: 8px;
-            white-space: nowrap; cursor: pointer; font-weight: 700; color: #606770;
-            display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center;
-            transition: 0.3s;
+            flex: 1; border: none; padding: 12px; border-radius: 10px;
+            background: #f0f2f5; color: #606770; font-weight: 800; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            min-width: 80px; transition: 0.3s; font-size: 0.75em;
         }
+        .tab-btn i { font-size: 1.4em; }
         .tab-btn.active { background: var(--primary); color: white; transform: scale(1.05); }
 
-        .section-card {
-            background: var(--white); border-radius: 12px; padding: 20px;
-            margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        h2 { border-left: 5px solid var(--secondary); padding-left: 12px; font-size: 1.3em; color: var(--primary); margin-top: 0; margin-bottom: 20px; }
-
+        /* TARJETAS Y CUADRITOS */
         .card {
-            background: var(--card-bg); border: 1px solid #e4e6eb; border-radius: 16px;
-            padding: 20px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
+            background: var(--white); border-radius: 18px; padding: 20px;
+            margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative; border: 1px solid #ddd;
         }
 
-        /* DISEÑO DE CUADRITOS ORIGINALES */
         .box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-        .box { background: #fdfdfd; border: 1px solid #eee; border-radius: 10px; padding: 10px; position: relative; }
-        .box label { font-size: 0.7em; font-weight: 800; color: #9e9e9e; display: block; text-transform: uppercase; margin-bottom: 4px; }
+        .box { background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px; }
+        .box label { font-size: 0.65em; font-weight: 900; color: #757575; display: block; text-transform: uppercase; margin-bottom: 3px; }
         .box input, .box select, .box textarea {
             width: 100%; border: none; background: transparent; font-size: 1em;
-            color: var(--text); padding: 2px 0; outline: none; resize: none; font-weight: 600;
+            color: var(--text); padding: 2px 0; outline: none; font-weight: 700;
         }
         .full-box { grid-column: span 2; }
 
-        .section-label { 
-            grid-column: span 2; font-size: 0.8em; font-weight: 900; color: var(--primary); 
-            margin-top: 15px; border-bottom: 2px solid #fff1f1; padding-bottom: 5px;
+        .section-title {
+            grid-column: span 2; font-size: 0.85em; font-weight: 900; color: var(--primary);
+            margin-top: 15px; border-bottom: 2px solid #ffebee; padding-bottom: 5px;
+            text-transform: uppercase;
         }
-
-        /* Checkbox de servicios en cuadritos */
-        .service-check { display: flex; align-items: center; gap: 8px; background: #fff; padding: 8px; border: 1px solid #eee; border-radius: 8px; }
-        .service-check span { font-size: 0.85em; font-weight: bold; }
 
         /* Checklist Militar */
         .check-item {
-            display: flex; align-items: center; gap: 10px; background: #f9f9f9; padding: 8px; border-radius: 8px; border: 1px solid #eee; margin-top: 4px;
+            display: flex; align-items: center; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-top: 5px;
         }
-        .check-item span { flex: 1; font-size: 0.85em; font-weight: 600; color: #333; }
-        .check-select { padding: 3px; border-radius: 5px; border: 1px solid #ccc; font-size: 0.75em; outline: none; }
+        .check-item span { flex: 1; font-size: 0.9em; font-weight: 600; }
 
         .btn {
             border: none; padding: 15px; border-radius: 12px; cursor: pointer;
-            font-weight: bold; display: flex; align-items: center; gap: 10px;
+            font-weight: 800; display: flex; align-items: center; gap: 10px;
             justify-content: center; width: 100%; transition: 0.2s;
         }
-        .btn-save { background: var(--success); color: white; font-size: 1.2em; border: 2px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .btn-add { background: var(--primary); color: white; margin-bottom: 20px; }
-        .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccd0d5; width: auto; background: none; font-size: 1.2em; z-index: 10; }
-        
-        .action-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .btn-wa { background: var(--wa-green); color: white; }
-        .btn-flyer { background: var(--accent); color: #333; }
+        .btn-add { background: var(--primary); color: white; margin-bottom: 20px; font-size: 1.1em; }
+        .btn-save { background: var(--success); color: white; font-size: 1.2em; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccc; background: none; border: none; font-size: 1.3em; cursor: pointer; }
 
         .fixed-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; padding: 15px;
-            display: flex; flex-direction: column; gap: 8px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000;
         }
 
         .tab-content { display: none; }
         .active-tab { display: block; }
 
-        .photo-main-preview {
-            width: 100%; height: 220px; background: #eee; border-radius: 12px; margin-bottom: 15px;
+        /* Fotos */
+        .main-photo-btn {
+            width: 100%; height: 200px; background: #eee; border-radius: 15px; margin-bottom: 15px;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
-            border: 2px dashed #ccc; cursor: pointer;
+            border: 2px dashed #bbb; cursor: pointer;
         }
-        .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .photo-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
-        .photo-thumb { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 8px; overflow: hidden; position: relative; }
-        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-thumb .remove { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; cursor: pointer; }
+        .main-photo-btn img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .gallery-item { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 10px; overflow: hidden; position: relative; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-item .del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; }
 
-        #contractEditor {
+        #editor {
             background: white; border: 2px solid #eee; border-radius: 15px; padding: 15px;
-            width: 100%; min-height: 400px; margin-top: 15px; outline: none; line-height: 1.5; font-size: 1em;
+            min-height: 350px; margin-top: 15px; outline: none; font-size: 1em; line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="icon.png" class="header-logo" alt="Logo HR">
-    <span style="font-weight: 800; font-size: 1.4em;">PROPIEDADES HR - V22</span>
+    <img src="icon.png" class="header-logo" alt="HR">
+    <span style="font-weight: 900; font-size: 1.3em; letter-spacing: 1px;">PROPIEDADES HR MASTER</span>
 </header>
 
 <div class="container">
-    <div class="tabs-nav">
-        <button class="tab-btn active" id="btn-inventario" onclick="showTab('inventario')"><i class="fas fa-home"></i> Mi Inventario</button>
-        <button class="tab-btn" id="btn-militares" onclick="showTab('militares')"><i class="fas fa-id-card"></i> Militares</button>
-        <button class="tab-btn" id="btn-oficina" onclick="showTab('oficina')"><i class="fas fa-file-contract"></i> Oficina</button>
+    <!-- NAVEGACIÓN PRINCIPAL (TABS) -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="btn-propiedades" onclick="openTab('propiedades')">
+            <i class="fas fa-home"></i> INVENTARIO
+        </button>
+        <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')">
+            <i class="fas fa-users"></i> PROSPECTOS
+        </button>
+        <button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')">
+            <i class="fas fa-file-invoice"></i> PAPELEO
+        </button>
     </div>
 
-    <!-- INVENTARIO -->
-    <div id="inventario" class="tab-content active-tab">
-        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus"></i> AGREGAR PROPIEDAD / PARCELA</button>
-        <div id="propertyList"></div>
+    <!-- TAB: PROPIEDADES -->
+    <div id="propiedades" class="tab-content active-tab">
+        <button class="btn btn-add" onclick="addNewProp()"><i class="fas fa-plus-circle"></i> AGREGAR PROPIEDAD / PARCELA</button>
+        <div id="propList"></div>
     </div>
 
-    <!-- MILITARES -->
-    <div id="militares" class="tab-content">
-        <div style="background:#e3f2fd; padding:15px; border-radius:10px; margin-bottom:15px; font-size:0.85em; border-left:5px solid #1976d2;">
-            🟢 Verde: Originales | 🔵 Azul: Copias | 🔴 Rojo: Faltantes
+    <!-- TAB: PROSPECTOS -->
+    <div id="prospectos" class="tab-content">
+        <div style="background:#e3f2fd; padding:15px; border-radius:12px; margin-bottom:15px; font-size:0.8em; color:#0d47a1; font-weight:700;">
+            <i class="fas fa-info-circle"></i> SEMÁFORO: 🟢 Originales | 🔵 Copias | 🔴 Faltantes
         </div>
-        <button class="btn btn-add" style="background:#1976d2;" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> NUEVO MILITAR</button>
-        <div id="prospectList"></div>
+        <button class="btn btn-add" style="background:#1976d2;" onclick="addNewMilitar()"><i class="fas fa-user-plus"></i> NUEVO EXPEDIENTE MILITAR</button>
+        <div id="militarList"></div>
     </div>
 
-    <!-- OFICINA -->
-    <div id="oficina" class="tab-content">
-        <div class="section-card">
-            <h2><i class="fas fa-briefcase"></i> Oficina Digital Pro</h2>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <button class="btn" style="background:#7b1fa2; color:white;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
-                <button class="btn" style="background:var(--wa-green); color:white;" onclick="shareContractWA()"><i class="fab fa-whatsapp"></i> ENVIAR TEXTO</button>
+    <!-- TAB: PAPELEO -->
+    <div id="papeleo" class="tab-content">
+        <div class="card">
+            <h2 style="margin:0; font-size:1.2em; color:var(--primary);"><i class="fas fa-briefcase"></i> Oficina de Contratos</h2>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
+                <button class="btn" style="background:#7b1fa2; color:white; font-size:0.85em;" onclick="document.getElementById('inputOCR').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
+                <button class="btn" style="background:var(--wa-green); color:white; font-size:0.85em;" onclick="shareWA()"><i class="fab fa-whatsapp"></i> ENVIAR TEXTO</button>
             </div>
-            <div id="captureArea">
-                <div id="contractEditor" contenteditable="true">Haz clic para redactar...</div>
+            <div id="editorArea">
+                <div id="editor" contenteditable="true">Haz clic para empezar a escribir el contrato...</div>
             </div>
             <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:15px;">
                 <button class="btn" style="background:#d32f2f; color:white; font-size:0.7em;" onclick="exportPDF()">PDF</button>
                 <button class="btn" style="background:#2b579a; color:white; font-size:0.7em;" onclick="exportWord()">WORD</button>
                 <button class="btn" style="background:#ff9800; color:white; font-size:0.7em;" onclick="exportJPG()">IMAGEN</button>
             </div>
-            <input type="file" id="ocrInput" hidden accept="image/*" onchange="performOCR(this)">
+            <input type="file" id="inputOCR" hidden accept="image/*" onchange="doOCR(this)">
         </div>
     </div>
 </div>
 
 <div class="fixed-footer">
-    <button class="btn btn-save" onclick="saveData()"><i class="fas fa-save"></i> GUARDAR TODO EL TRABAJO</button>
+    <button class="btn btn-save" onclick="saveMasterData()"><i class="fas fa-save"></i> GUARDAR TODO EL TRABAJO</button>
 </div>
 
 <script>
-    let voxiData = { properties: [], prospects: [] };
+    let db = { props: [], milis: [] };
 
-    const REQS_MILITAR = ["Credencial militar", "INE militar", "Acta nacimiento militar", "CURP militar", "Solicitud inicial", "Certificado haberes", "Certificado servicios", "Pre autorización CEI"];
-    const REQS_ESPOSA = ["Cédula afiliación esposa", "Acta matrimonio", "CURP esposa", "INE esposa", "Acta nacimiento esposa"];
+    const REQS_M = ["Credencial militar", "INE militar", "Acta nacimiento militar", "CURP militar", "Solicitud inicial sellada", "Certificado haberes", "Certificado servicios", "Pre autorización CEI"];
+    const REQS_E = ["Cédula afiliación esposa", "Acta matrimonio", "CURP esposa", "INE esposa", "Acta nacimiento esposa"];
 
-    function showTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+    function openTab(id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active-tab'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active-tab');
-        document.getElementById('btn-' + tabId).classList.add('active');
+        document.getElementById(id).classList.add('active-tab');
+        document.getElementById('btn-' + id).classList.add('active');
     }
 
-    function processImage(file, maxWidth, callback) {
+    function compressImg(file, maxWidth, callback) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                let width = img.width, height = img.height;
-                if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
-                canvas.width = width; canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
+                let w = img.width, h = img.height;
+                if(w > maxWidth){ h *= maxWidth/w; w = maxWidth; }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                 callback(canvas.toDataURL('image/jpeg', 0.5));
             };
             img.src = e.target.result;
@@ -220,55 +209,39 @@
         reader.readAsDataURL(file);
     }
 
-    function addItem(type) {
-        if(type === 'properties') {
-            voxiData.properties.unshift({ 
-                id: Date.now(), tipo: 'Casa', estatus: 'Preventa', titulo: '', ubicacion: '', 
-                precio: '', ganancia: '', norte: '', sur: '', este: '', oeste: '', area_total: '', 
-                recamaras: '', banos: '', cocina: '', cisterna: '', luz: false, agua: false, drenaje: false,
-                ventanas: '', puertas: '', propietario: '', mainPhoto: null, gallery: [], descripcion: ''
-            });
-            renderProperties();
-        } else {
-            voxiData.prospects.unshift({ 
-                id: Date.now(), nombre: '', tieneConyuge: false,
-                reqsM: REQS_MILITAR.map(name => ({ name, status: 'faltante' })),
-                reqsE: REQS_ESPOSA.map(name => ({ name, status: 'faltante' }))
-            });
-            renderProspects();
-        }
+    function addNewProp() {
+        db.props.unshift({
+            id: Date.now(), dueño: '', tipo: 'Casa', estatus: 'Preventa', titulo: '', precio: '', ganancia: '',
+            norte: '', sur: '', este: '', oeste: '', area: '',
+            recamaras: '', banos: '', cocina: '', cisterna: '', ventanas: '', puertas: '',
+            luz: false, agua: false, drenaje: false, mainImg: null, gallery: [], desc: ''
+        });
+        renderProps();
     }
 
-    function renderProperties() {
-        const list = document.getElementById('propertyList');
-        list.innerHTML = '';
-        voxiData.properties.forEach((p, i) => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            
-            let galleryHTML = '';
+    function renderProps() {
+        const div = document.getElementById('propList');
+        div.innerHTML = '';
+        db.props.forEach((p, i) => {
+            const esCasa = p.tipo.includes('Casa');
+            let galHTML = '';
             (p.gallery || []).forEach((img, gi) => {
-                galleryHTML += `<div class="photo-thumb"><img src="${img}"><button class="remove" onclick="voxiData.properties[${i}].gallery.splice(${gi},1);renderProperties();">X</button></div>`;
+                galHTML += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="db.props[${i}].gallery.splice(${gi},1);renderProps();">X</button></div>`;
             });
 
-            // Lógica para mostrar detalles de casa
-            const esCasa = p.tipo.includes('Casa');
-
+            const card = document.createElement('div');
+            card.className = 'card';
             card.innerHTML = `
-                <button class="btn-delete" onclick="if(confirm('¿Borrar?')){voxiData.properties.splice(${i},1);renderProperties();}"><i class="fas fa-trash"></i></button>
-                
-                <!-- FOTO PRINCIPAL -->
-                <div class="photo-main-preview" onclick="document.getElementById('fileMain${i}').click()">
-                    ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera"></i> Foto Principal'}
-                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="if(this.files[0])processImage(this.files[0],600,(b64)=>{voxiData.properties[${i}].mainPhoto=b64;renderProperties();})">
+                <button class="btn-delete" onclick="if(confirm('¿Borrar?')){db.props.splice(${i},1);renderProps();}"><i class="fas fa-trash"></i></button>
+                <div class="main-photo-btn" onclick="document.getElementById('imgM${i}').click()">
+                    ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x"></i>'}
+                    <input type="file" id="imgM${i}" hidden accept="image/*" onchange="if(this.files[0])compressImg(this.files[0],600,(b)=>{db.props[${i}].mainImg=b;renderProps();})">
                 </div>
                 
                 <div class="box-container">
-                    <!-- LOS CUADRITOS DE SIEMPRE (No tocarlos) -->
-                    <div class="box full-box"><label>Dueño del Terreno</label><input type="text" value="${p.propietario||''}" oninput="voxiData.properties[${i}].propietario=this.value"></div>
-                    
+                    <div class="box full-box"><label>Dueño del Terreno</label><input type="text" value="${p.dueño}" oninput="db.props[${i}].dueño=this.value"></div>
                     <div class="box"><label>Tipo</label>
-                        <select onchange="voxiData.properties[${i}].tipo=this.value; renderProperties();">
+                        <select onchange="db.props[${i}].tipo=this.value; renderProps();">
                             <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
                             <option value="Casa 1 nivel" ${p.tipo==='Casa 1 nivel'?'selected':''}>Casa 1 nivel</option>
                             <option value="Casa 2 niveles" ${p.tipo==='Casa 2 niveles'?'selected':''}>Casa 2 niveles</option>
@@ -277,144 +250,152 @@
                         </select>
                     </div>
                     <div class="box"><label>Estatus</label>
-                        <select onchange="voxiData.properties[${i}].estatus=this.value">
+                        <select onchange="db.props[${i}].estatus=this.value">
                             <option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>Preventa</option>
                             <option value="Construida" ${p.estatus==='Construida'?'selected':''}>Construida</option>
                         </select>
                     </div>
-                    <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="voxiData.properties[${i}].titulo=this.value"></div>
-                    <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio}" oninput="voxiData.properties[${i}].precio=this.value" style="color:var(--success); font-weight:900;"></div>
-                    <div class="box"><label>Tu Ganancia</label><input type="text" value="${p.ganancia||''}" oninput="voxiData.properties[${i}].ganancia=this.value" style="color:var(--primary); font-weight:800;"></div>
+                    <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="db.props[${i}].titulo=this.value"></div>
+                    <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio}" oninput="db.props[${i}].precio=this.value" style="color:var(--success);"></div>
+                    <div class="box"><label>Tu Ganancia</label><input type="text" value="${p.ganancia}" oninput="db.props[${i}].ganancia=this.value" style="color:var(--primary);"></div>
                     
-                    <!-- COLINDANCIAS (LAS 4 BÁSICAS) -->
-                    <div class="section-label">📍 COLINDANCIAS</div>
-                    <div class="box"><label>Norte <b>(entre NO y NE)</b></label><input type="text" value="${p.norte||''}" oninput="voxiData.properties[${i}].norte=this.value"></div>
-                    <div class="box"><label>Sur <b>(entre SO y SE)</b></label><input type="text" value="${p.sur||''}" oninput="voxiData.properties[${i}].sur=this.value"></div>
-                    <div class="box"><label>Este (Ote) <b>(entre NE y SE)</b></label><input type="text" value="${p.este||''}" oninput="voxiData.properties[${i}].este=this.value"></div>
-                    <div class="box"><label>Oeste (Pte) <b>(entre NO y SO)</b></label><input type="text" value="${p.oeste||''}" oninput="voxiData.properties[${i}].oeste=this.value"></div>
+                    <div class="section-label">📍 MEDIDAS Y COLINDANCIAS</div>
+                    <div class="box"><label>Norte (E/ NO y NE)</label><input type="text" value="${p.norte}" oninput="db.props[${i}].norte=this.value"></div>
+                    <div class="box"><label>Sur (E/ SO y SE)</label><input type="text" value="${p.sur}" oninput="db.props[${i}].sur=this.value"></div>
+                    <div class="box"><label>Este (Ote) (E/ NE y SE)</label><input type="text" value="${p.este}" oninput="db.props[${i}].este=this.value"></div>
+                    <div class="box"><label>Oeste (Pte) (E/ NO y SO)</label><input type="text" value="${p.oeste}" oninput="db.props[${i}].oeste=this.value"></div>
 
-                    <!-- AREA TOTAL ABAJO DE LAS COLINDANCIAS -->
-                    <div class="box full-box" style="border:2px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary);">Área Total de Superficie</label><input type="text" placeholder="Ej: 160.00 m2" value="${p.area_total||''}" oninput="voxiData.properties[${i}].area_total=this.value" style="font-weight:900; font-size:1.1em;"></div>
+                    <!-- AREA TOTAL ABAJO DE LAS COLINDANCIAS (Como pidió el usuario) -->
+                    <div class="box full-box" style="border:2.5px solid var(--primary); background:#fff5f5;">
+                        <label style="color:var(--primary);">ÁREA TOTAL DE SUPERFICIE</label>
+                        <input type="text" placeholder="Ej: 250.00 m2" value="${p.area}" oninput="db.props[${i}].area=this.value" style="font-weight:900; font-size:1.2em;">
+                    </div>
 
-                    <!-- DETALLES DE CONSTRUCCION (Solo si es casa) -->
                     ${esCasa ? `
-                        <div class="section-label">🏠 DETALLES DE LA CASA</div>
-                        <div class="box"><label>Recámaras</label><input type="text" placeholder="Ej: 3" value="${p.recamaras||''}" oninput="voxiData.properties[${i}].recamaras=this.value"></div>
-                        <div class="box"><label>Baños</label><input type="text" placeholder="Ej: 2" value="${p.banos||''}" oninput="voxiData.properties[${i}].banos=this.value"></div>
-                        <div class="box"><label>Cocina</label><input type="text" placeholder="Ej: Integral" value="${p.cocina||''}" oninput="voxiData.properties[${i}].cocina=this.value"></div>
-                        <div class="box"><label>Cisterna</label><input type="text" placeholder="Ej: 8,000 L" value="${p.cisterna||''}" oninput="voxiData.properties[${i}].cisterna=this.value"></div>
-                        
-                        <div class="box"><label>Ventanas</label><input type="text" placeholder="Ej: Aluminio blanco" value="${p.ventanas||''}" oninput="voxiData.properties[${i}].ventanas=this.value"></div>
+                        <div class="section-label">🏠 DETALLES DE CONSTRUCCIÓN</div>
+                        <div class="box"><label>Recámaras</label><input type="text" value="${p.recamaras||''}" oninput="db.props[${i}].recamaras=this.value"></div>
+                        <div class="box"><label>Baños</label><input type="text" value="${p.banos||''}" oninput="db.props[${i}].banos=this.value"></div>
+                        <div class="box"><label>Cocina</label><input type="text" value="${p.cocina||''}" oninput="db.props[${i}].cocina=this.value"></div>
+                        <div class="box"><label>Cisterna</label><input type="text" value="${p.cisterna||''}" oninput="db.props[${i}].cisterna=this.value"></div>
+                        <div class="box"><label>Ventanas</label><input type="text" value="${p.ventanas||''}" oninput="db.props[${i}].ventanas=this.value"></div>
                         <div class="box"><label>Puertas</label>
-                            <select onchange="voxiData.properties[${i}].puertas=this.value">
-                                <option value="">Selecciona...</option>
+                            <select onchange="db.props[${i}].puertas=this.value">
+                                <option value="">---</option>
                                 <option value="Madera" ${p.puertas==='Madera'?'selected':''}>Madera</option>
                                 <option value="Aluminio" ${p.puertas==='Aluminio'?'selected':''}>Aluminio</option>
-                                <option value="Metal" ${p.puertas==='Metal'?'selected':''}>Metal</option>
                             </select>
                         </div>
-
-                        <div class="full-box" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
-                            <div class="service-check"><input type="checkbox" ${p.luz?'checked':''} onchange="voxiData.properties[${i}].luz=this.checked"> <span>LUZ</span></div>
-                            <div class="service-check"><input type="checkbox" ${p.agua?'checked':''} onchange="voxiData.properties[${i}].agua=this.checked"> <span>AGUA</span></div>
-                            <div class="service-check"><input type="checkbox" ${p.drenaje?'checked':''} onchange="voxiData.properties[${i}].drenaje=this.checked"> <span>DRENAJE</span></div>
+                        <div class="full-box" style="display:flex; justify-content:space-around; background:#f9f9f9; padding:10px; border-radius:10px;">
+                            <label><input type="checkbox" ${p.luz?'checked':''} onchange="db.props[${i}].luz=this.checked"> LUZ</label>
+                            <label><input type="checkbox" ${p.agua?'checked':''} onchange="db.props[${i}].agua=this.checked"> AGUA</label>
+                            <label><input type="checkbox" ${p.drenaje?'checked':''} onchange="db.props[${i}].drenaje=this.checked"> DRENAJE</label>
                         </div>
                     ` : ''}
 
-                    <div class="section-label">📸 GALERÍA DE FOTOS (Agregar más)</div>
-                    <div class="photo-gallery">
-                        ${galleryHTML}
-                        <div class="photo-thumb" style="border:2px dashed #ccc; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('fileGal${i}').click()">
-                            <i class="fas fa-plus" style="color:#ccc;"></i>
-                            <input type="file" id="fileGal${i}" hidden accept="image/*" multiple onchange="if(this.files)Array.from(this.files).forEach(f=>processImage(f,400,(b64)=>{voxiData.properties[${i}].gallery.push(b64);renderProperties();}))">
+                    <div class="section-label">📸 GALERÍA DE FOTOS</div>
+                    <div class="gallery">
+                        ${galHTML}
+                        <div class="gallery-item" style="border:2px dashed #ccc; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('gal${i}').click()">
+                            <i class="fas fa-plus fa-lg" style="color:#ccc;"></i>
+                            <input type="file" id="gal${i}" hidden multiple accept="image/*" onchange="if(this.files)Array.from(this.files).forEach(f=>compressImg(f,400,(b)=>{db.props[${i}].gallery.push(b);renderProps();}))">
                         </div>
                     </div>
 
-                    <div class="box full-box"><label>Descripción para el cliente</label><textarea rows="3" oninput="voxiData.properties[${i}].descripcion=this.value">${p.descripcion||''}</textarea></div>
+                    <div class="box full-box"><label>Descripción para el cliente</label><textarea rows="3" oninput="db.props[${i}].desc=this.value">${p.desc}</textarea></div>
                 </div>
 
-                <div class="action-bar">
-                    <button class="btn btn-wa" onclick="sharePropertyWA(${i})"><i class="fab fa-whatsapp"></i> ENVIAR DATOS</button>
-                    <button class="btn btn-flyer" onclick="alert('Generando Flyer Profesional...')"><i class="fas fa-bullhorn"></i> VER FLYER</button>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
+                    <button class="btn" style="background:var(--wa-green); color:white;" onclick="sharePropWA(${i})"><i class="fab fa-whatsapp"></i> ENVIAR</button>
+                    <button class="btn" style="background:var(--accent); color:#333;" onclick="alert('Generando Flyer...')"><i class="fas fa-bullhorn"></i> FLYER</button>
                 </div>
             `;
-            list.appendChild(card);
+            div.appendChild(card);
         });
     }
 
-    function renderProspects() {
-        const list = document.getElementById('prospectList');
-        list.innerHTML = '';
-        voxiData.prospects.forEach((p, i) => {
-            const todos = p.tieneConyuge ? [...p.reqsM, ...p.reqsE] : p.reqsM;
-            const faltan = todos.some(r => r.status === 'faltante');
-            const originales = todos.every(r => r.status === 'original');
-            let color = '#d32f2f'; 
-            if (!faltan && originales) color = '#2e7d32'; 
-            else if (!faltan) color = '#1976d2';
+    function addNewMilitar() {
+        db.milis.unshift({
+            id: Date.now(), nombre: '', casado: false,
+            m: REQS_M.map(n => ({ n, s: 'f' })),
+            e: REQS_E.map(n => ({ n, s: 'f' }))
+        });
+        renderMilis();
+    }
+
+    function renderMilis() {
+        const div = document.getElementById('militarList');
+        div.innerHTML = '';
+        db.milis.forEach((m, i) => {
+            const all = m.casado ? [...m.m, ...m.e] : m.m;
+            const miss = all.some(r => r.s === 'f');
+            const orig = all.every(r => r.s === 'o');
+            let color = '#d32f2f';
+            if(!miss && orig) color = '#2e7d32';
+            else if(!miss) color = '#1976d2';
 
             const card = document.createElement('div');
             card.className = 'card';
             card.style.borderLeft = `10px solid ${color}`;
             card.innerHTML = `
-                <button class="btn-delete" onclick="voxiData.prospects.splice(${i},1); renderProspects();"><i class="fas fa-trash"></i></button>
-                <div class="box"><label>Nombre del Militar</label><input type="text" value="${p.nombre}" oninput="voxiData.prospects[${i}].nombre=this.value"></div>
-                <div style="margin:10px 0; font-weight:bold; font-size:0.9em;">¿Casado / Concubinato? <input type="checkbox" ${p.tieneConyuge?'checked':''} onchange="voxiData.prospects[${i}].tieneConyuge=this.checked; renderProspects();"></div>
-                <div style="font-size:0.7em; color:var(--primary); font-weight:900; margin-top:10px;">EXPEDIENTE MILITAR</div>
-                ${p.reqsM.map((r, ri) => `
+                <button class="btn-delete" onclick="db.milis.splice(${i},1);renderMilis();"><i class="fas fa-trash"></i></button>
+                <div class="box full-box"><label>Nombre del Militar</label><input type="text" value="${m.nombre}" oninput="db.milis[${i}].nombre=this.value"></div>
+                <div style="margin:10px 0; font-weight:bold;">¿Casado / Concubina? <input type="checkbox" ${m.casado?'checked':''} onchange="db.milis[${i}].casado=this.checked;renderMilis();"></div>
+                
+                <div class="section-label">EXPEDIENTE MILITAR</div>
+                ${m.m.map((r, ri) => `
                     <div class="check-item">
-                        <span>${r.name}</span>
-                        <select onchange="voxiData.prospects[${i}].reqsM[${ri}].status=this.value; renderProspects();">
-                            <option value="faltante" ${r.status==='faltante'?'selected':''}>Faltante</option>
-                            <option value="copia" ${r.status==='copia'?'selected':''}>Copia</option>
-                            <option value="original" ${r.status==='original'?'selected':''}>Original</option>
+                        <span>${r.n}</span>
+                        <select onchange="db.milis[${i}].m[${ri}].s=this.value;renderMilis();">
+                            <option value="f" ${r.s==='f'?'selected':''}>Faltante</option>
+                            <option value="c" ${r.s==='c'?'selected':''}>Copia</option>
+                            <option value="o" ${r.s==='o'?'selected':''}>Original</option>
                         </select>
                     </div>
                 `).join('')}
-                ${p.tieneConyuge ? `
-                    <div style="font-size:0.7em; color:var(--primary); font-weight:900; margin-top:15px;">EXPEDIENTE ESPOSA</div>
-                    ${p.reqsE.map((r, ri) => `
+
+                ${m.casado ? `
+                    <div class="section-label">EXPEDIENTE ESPOSA</div>
+                    ${m.e.map((r, ri) => `
                         <div class="check-item">
-                            <span>${r.name}</span>
-                            <select onchange="voxiData.prospects[${i}].reqsE[${ri}].status=this.value; renderProspects();">
-                                <option value="faltante" ${r.status==='faltante'?'selected':''}>Faltante</option>
-                                <option value="copia" ${r.status==='copia'?'selected':''}>Copia</option>
-                                <option value="original" ${r.status==='original'?'selected':''}>Original</option>
+                            <span>${r.n}</span>
+                            <select onchange="db.milis[${i}].e[${ri}].s=this.value;renderMilis();">
+                                <option value="f" ${r.s==='f'?'selected':''}>Faltante</option>
+                                <option value="c" ${r.s==='c'?'selected':''}>Copia</option>
+                                <option value="o" ${r.s==='o'?'selected':''}>Original</option>
                             </select>
                         </div>
                     `).join('')}
                 ` : ''}
             `;
-            list.appendChild(card);
+            div.appendChild(card);
         });
     }
 
-    function sharePropertyWA(index) {
-        const p = voxiData.properties[index];
-        const med = `Norte: ${p.norte}, Sur: ${p.sur}, Este: ${p.este}, Oeste: ${p.oeste}`;
-        const text = `🏠 *${p.titulo}*\n💰 *PRECIO:* $${p.precio}\n📐 *Superficie:* ${p.area_total}\n📍 *Colindancias:* ${med}\n📝 *Detalles:* ${p.descripcion || '---'}`;
+    function sharePropWA(i) {
+        const p = db.props[i];
+        const text = `🏠 *${p.titulo}*\n💰 *PRECIO:* $${p.precio}\n📐 *SUPERFICIE:* ${p.area}\n📍 *Colindancias:* N:${p.norte}, S:${p.sur}, E:${p.este}, O:${p.oeste}\n📝 *Detalles:* ${p.desc}`;
         window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
     }
 
-    function saveData() {
-        localStorage.setItem('hr_master_v22', JSON.stringify(voxiData));
-        alert('✅ ¡TRABAJO GUARDADO!');
+    function saveMasterData() {
+        localStorage.setItem('hr_v23_db', JSON.stringify(db));
+        alert('✅ ¡TRABAJO GUARDADO CORRECTAMENTE!');
     }
 
-    function loadData() {
-        const saved = localStorage.getItem('hr_master_v22');
-        if(saved) voxiData = JSON.parse(saved);
-        renderProperties(); renderProspects();
+    function loadMasterData() {
+        const s = localStorage.getItem('hr_v23_db');
+        if(s) db = JSON.parse(s);
+        renderProps(); renderMilis();
     }
 
     // Oficina
-    function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(d.splitTextToSize(document.getElementById('contractEditor').innerText,180),10,20); d.save('HR_Doc.pdf'); }
-    function exportWord() { let c=document.getElementById('contractEditor').innerHTML; let b=new Blob(['<html><body>'+c+'</body></html>'],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='HR_Doc.doc'; a.click(); }
-    function exportJPG() { html2canvas(document.getElementById('captureArea')).then(c => { let a=document.createElement('a'); a.download='HR_Doc.jpg'; a.href=c.toDataURL('image/jpeg',0.9); a.click(); }); }
-    function shareContractWA() { window.open("https://wa.me/?text="+encodeURIComponent(document.getElementById('contractEditor').innerText),'_blank'); }
-    async function performOCR(i) { if(!i.files[0])return; document.getElementById('contractEditor').innerText="Leyendo..."; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('contractEditor').innerText=r.data.text; await w.terminate(); }
+    function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(d.splitTextToSize(document.getElementById('editor').innerText,180),10,20); d.save('HR_Oficina.pdf'); }
+    function exportWord() { let c=document.getElementById('editor').innerHTML; let b=new Blob(['<html><body>'+c+'</body></html>'],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='HR_Oficina.doc'; a.click(); }
+    function exportJPG() { html2canvas(document.getElementById('editorArea')).then(c => { let a=document.createElement('a'); a.download='HR_Oficina.jpg'; a.href=c.toDataURL('image/jpeg',0.9); a.click(); }); }
+    function shareWA() { window.open("https://wa.me/?text="+encodeURIComponent(document.getElementById('editor').innerText),'_blank'); }
+    async function doOCR(i) { if(!i.files[0])return; document.getElementById('editor').innerText="Leyendo..."; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('editor').innerText=r.data.text; await w.terminate(); }
 
-    window.onload = loadData;
+    window.onload = loadMasterData;
 </script>
 </body>
 </html>
