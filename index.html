@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - SISTEMA MASTER V24</title>
+    <title>Propiedades HR - SISTEMA MASTER V25</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -78,7 +78,6 @@
             text-transform: uppercase;
         }
 
-        /* Checkbox de servicios */
         .service-row { grid-column: span 2; display: flex; flex-wrap: wrap; gap: 10px; background: #fff5f5; padding: 10px; border-radius: 10px; }
         .service-check { display: flex; align-items: center; gap: 5px; font-size: 0.8em; font-weight: 800; }
 
@@ -99,7 +98,6 @@
         .tab-content { display: none; }
         .active-tab { display: block; }
 
-        /* Fotos */
         .main-photo {
             width: 100%; height: 200px; background: #eee; border-radius: 15px; margin-bottom: 15px;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -116,8 +114,6 @@
             min-height: 350px; margin-top: 15px; outline: none; font-size: 1em; line-height: 1.5;
         }
 
-        /* Archivos guardados */
-        .file-list { margin-top: 15px; }
         .file-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 5px; }
     </style>
 </head>
@@ -125,7 +121,7 @@
 
 <header>
     <img src="icon.png" class="header-logo" alt="HR">
-    <span style="font-weight: 900; font-size: 1.3em;">PROPIEDADES HR MASTER V24</span>
+    <span style="font-weight: 900; font-size: 1.3em;">PROPIEDADES HR MASTER V25</span>
 </header>
 
 <div class="container">
@@ -176,7 +172,6 @@
     <div id="archivos" class="tab-content">
         <div class="section-card">
             <h2><i class="fas fa-archive"></i> Archivos Guardados</h2>
-            <p style="font-size:0.8em; color:#666;">Aquí puedes ver un registro de los archivos escaneados.</p>
             <div id="fileList" class="file-list"></div>
         </div>
     </div>
@@ -221,8 +216,8 @@
             voxiData.props.unshift({
                 id: Date.now(), dueño: '', tipo: 'Casa', estatus: 'Preventa', titulo: '', ubicacion: '', precio: '', ganancia: '',
                 norte: '', sur: '', este: '', oeste: '', area: '',
-                recamaras: '', banos: '', cocina: '', cisterna: '', ventanas: '', puertas: '',
-                bardeado: 'No', calle: 'Terracería', antiguedad: 'Nueva', docto: 'Escritura Pública',
+                sala: '', recamaras: '', banos: '', cocina: '', cisterna: '', ventanas: '', puertas: '',
+                bardeado: 'No', calle: 'Terracería', antiguedad: 'Nueva', docto: 'Escritura Pública', permisos: 'No',
                 luz: false, agua: false, drenaje: false, mainImg: null, gallery: [], desc: ''
             });
             renderProps();
@@ -274,6 +269,8 @@
                     </div>
 
                     <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value"></div>
+                    
+                    <!-- CUADRITO DE UBICACION -->
                     <div class="box full-box"><label>Ubicación / Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value"></div>
                     
                     <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value" style="color:var(--success);"></div>
@@ -285,7 +282,7 @@
                     <div class="box"><label>Este (Ote) <b>(E/ NE y SE)</b></label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value"></div>
                     <div class="box"><label>Oeste (Pte) <b>(E/ NO y SO)</b></label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value"></div>
 
-                    <!-- AREA TOTAL ABAJO (Como pidió) -->
+                    <!-- AREA TOTAL ABAJO -->
                     <div class="box full-box" style="border:2px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary);">ÁREA TOTAL DE SUPERFICIE</label><input type="text" placeholder="Ej: 200m2" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:900; font-size:1.1em;"></div>
 
                     <div class="section-label">📋 DOCUMENTACIÓN Y CALLE</div>
@@ -302,6 +299,12 @@
                             <option value="Pavimentada" ${p.calle==='Pavimentada'?'selected':''}>Pavimentada</option>
                         </select>
                     </div>
+                    <div class="box"><label>Permisos Presidencia</label>
+                        <select onchange="voxiData.props[${i}].permisos=this.value">
+                            <option value="No" ${p.permisos==='No'?'selected':''}>No</option>
+                            <option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option>
+                        </select>
+                    </div>
                     <div class="box"><label>¿Bardeado?</label>
                         <select onchange="voxiData.props[${i}].bardeado=this.value">
                             <option value="No" ${p.bardeado==='No'?'selected':''}>No</option>
@@ -309,7 +312,7 @@
                             <option value="Parcial" ${p.bardeado==='Parcial'?'selected':''}>Parcial</option>
                         </select>
                     </div>
-                    <div class="box"><label>Antigüedad</label>
+                    <div class="box full-box"><label>Antigüedad</label>
                         <select onchange="voxiData.props[${i}].antiguedad=this.value">
                             <option value="Nueva" ${p.antiguedad==='Nueva'?'selected':''}>Nueva</option>
                             <option value="Usada" ${p.antiguedad==='Usada'?'selected':''}>Usada (Años...)</option>
@@ -318,6 +321,7 @@
 
                     ${esCasa ? `
                         <div class="section-label">🏠 DETALLES DE LA CASA</div>
+                        <div class="box"><label>Sala</label><input type="text" placeholder="Ej: Amplia" value="${p.sala||''}" oninput="voxiData.props[${i}].sala=this.value"></div>
                         <div class="box"><label>Recámaras</label><input type="text" value="${p.recamaras||''}" oninput="voxiData.props[${i}].recamaras=this.value"></div>
                         <div class="box"><label>Baños</label><input type="text" value="${p.banos||''}" oninput="voxiData.props[${i}].banos=this.value"></div>
                         <div class="box"><label>Cocina</label><input type="text" value="${p.cocina||''}" oninput="voxiData.props[${i}].cocina=this.value"></div>
@@ -339,7 +343,6 @@
                             <input type="file" id="gal${i}" hidden multiple accept="image/*" onchange="if(this.files)Array.from(this.files).forEach(f=>processImg(f,400,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();}))">
                         </div>
                     </div>
-                    <div class="box full-box"><label>Descripción Extra</label><textarea rows="3" oninput="voxiData.props[${i}].desc=this.value">${p.desc}</textarea></div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
                     <button class="btn" style="background:var(--wa-green); color:white;" onclick="sharePropWA(${i})"><i class="fab fa-whatsapp"></i> ENVIAR</button>
@@ -354,7 +357,6 @@
         const div = document.getElementById('prospectList');
         div.innerHTML = '';
         
-        // Militares
         voxiData.milis.forEach((m, i) => {
             const all = m.casado ? [...m.m, ...m.e] : m.m;
             const miss = all.some(r => r.s === 'f');
@@ -394,7 +396,6 @@
             div.appendChild(card);
         });
 
-        // Efectivo (Grales)
         voxiData.grals.forEach((g, i) => {
             const card = document.createElement('div');
             card.className = 'card';
@@ -405,7 +406,6 @@
                 <div class="box-container">
                     <div class="box"><label>Teléfono</label><input type="text" value="${g.tel}" oninput="voxiData.grals[${i}].tel=this.value"></div>
                     <div class="box"><label>Interés</label><input type="text" value="${g.interes}" oninput="voxiData.grals[${i}].interes=this.value"></div>
-                    <div class="box full-box"><label>Notas / Documentos</label><textarea rows="2" oninput="voxiData.grals[${i}].doctos=this.value">${g.doctos}</textarea></div>
                 </div>
             `;
             div.appendChild(card);
@@ -419,12 +419,12 @@
     }
 
     function saveMaster() {
-        localStorage.setItem('hr_master_v24', JSON.stringify(voxiData));
-        alert('✅ ¡SISTEMA GUARDADO!');
+        localStorage.setItem('hr_master_v25', JSON.stringify(voxiData));
+        alert('✅ ¡SISTEMA ACTUALIZADO Y GUARDADO!');
     }
 
     function loadMaster() {
-        const s = localStorage.getItem('hr_master_v24');
+        const s = localStorage.getItem('hr_master_v25');
         if(s) voxiData = JSON.parse(s);
         renderProps(); renderProspects(); renderFiles();
     }
@@ -437,7 +437,6 @@
         });
     }
 
-    // Oficina
     function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(d.splitTextToSize(document.getElementById('editor').innerText,180),10,20); d.save('Doc_HR.pdf'); }
     function exportWord() { let c=document.getElementById('editor').innerHTML; let b=new Blob(['<html><body>'+c+'</body></html>'],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Doc_HR.doc'; a.click(); }
     function exportJPG() { html2canvas(document.getElementById('editorArea')).then(c => { let a=document.createElement('a'); a.download='Doc_HR.jpg'; a.href=c.toDataURL('image/jpeg',0.9); a.click(); }); }
