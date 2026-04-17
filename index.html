@@ -99,6 +99,28 @@
         .btn-save { background: var(--success); color: white; font-size: 1.2em; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccc; background: none; border: none; font-size: 1.3em; cursor: pointer; }
 
+        /* Estilos Generador Mensajes */
+        .smart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px; }
+        .smart-card { 
+            background: white; border-radius: 15px; padding: 20px; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #eee;
+            transition: transform 0.2s; cursor: pointer;
+        }
+        .smart-card:active { transform: scale(0.95); }
+        .smart-card i { font-size: 2.5em; margin-bottom: 10px; display: block; }
+        .smart-card span { font-weight: 800; font-size: 0.9em; color: #333; display: block; }
+        
+        .strategy-box {
+            background: #f8f9fa; border-left: 5px solid var(--primary);
+            padding: 15px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .strategy-tag { 
+            font-size: 0.7em; font-weight: 900; padding: 3px 8px; border-radius: 10px;
+            color: white; margin-bottom: 5px; display: inline-block; text-transform: uppercase;
+        }
+        
+        .copy-btn { background: #444; color: white; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-weight: bold; border:none; cursor:pointer; }
+
         .fixed-footer {
             position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000;
@@ -209,10 +231,50 @@
         <button class="tab-btn" id="btn-citas"             onclick="openTab('citas')"><i class="fas fa-calendar-check"></i> 📅 CITAS</button>
         <button class="tab-btn" id="btn-papeleo"           onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> 📝 CONTRATOS</button>
         <button class="tab-btn" id="btn-archivos"          onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> 📂 ARCHIVOS</button>
-        <button class="tab-btn" id="btn-config"            onclick="openTab('config')"><i class="fas fa-cog"></i> ⚙️ CONFIG</button>
+        <button class="tab-btn" id="btn-config"            onclick="openTab('config')"><i class="fas fa-cog"></i> ⚙️ NEGOCIO</button>
+        <button class="tab-btn" id="btn-smart"             onclick="openTab('smart')"><i class="fas fa-brain"></i> 🧠 MENSAJES</button>
     </div>
 
     <!-- ══════════════════ TABLERO ══════════════════ -->
+    <div id="smart" class="tab-content">
+        <div class="section-label" style="text-align:center; font-size:1.4em;">🧠 GENERADOR DE MENSAJES</div>
+        <p style="text-align:center; color:#666; font-size:0.85em; margin-bottom:20px;">Estrategias de venta para Acayuca, Hidalgo</p>
+        
+        <div class="smart-grid">
+            <div class="smart-card" onclick="openSmartType('CASA')">
+                <i class="fas fa-home" style="color:var(--primary);"></i>
+                <span>🏡 CASAS</span>
+            </div>
+            <div class="smart-card" onclick="openSmartType('PARCELA')">
+                <i class="fas fa-mountain" style="color:var(--success);"></i>
+                <span>🌄 PARCELAS</span>
+            </div>
+            <div class="smart-card" onclick="openSmartType('TERRENO')">
+                <i class="fas fa-map" style="color:var(--info);"></i>
+                <span>🏞️ TERRENOS</span>
+            </div>
+            <div class="smart-card" onclick="openSmartType('MILITAR')">
+                <i class="fas fa-medal" style="color:var(--dark);"></i>
+                <span>🪖 MILITAR</span>
+            </div>
+            <div class="smart-card" onclick="openSmartType('EFECTIVO')" style="grid-column: span 2;">
+                <i class="fas fa-money-bill-wave" style="color:var(--success);"></i>
+                <span>💵 CLIENTE EN EFECTIVO</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW OPTIMIZADO -->
+    <div id="smartPreviewModal" class="modal" style="display:none; align-items:flex-start; padding-top:20px; overflow-y:auto;">
+        <div class="modal-content" style="max-width:95%; width:450px; margin-bottom:50px;">
+            <div class="section-label" id="previewTitle">ESTRATEGIAS DE VENTA</div>
+            
+            <div id="strategyOptions"></div>
+
+            <button class="btn" style="background:#666; color:white; margin-top:15px;" onclick="document.getElementById('smartPreviewModal').style.display='none'">CERRAR</button>
+        </div>
+    </div>
+
     <div id="tablero" class="tab-content active-tab">
         <div class="dashboard-grid" id="dashGrid"></div>
         <div class="card" id="tareasCriticas" style="border-left:5px solid var(--orange);">
@@ -532,6 +594,119 @@
     // ═══════════════════════════════════════════
     //  RENDER PROPIEDADES
     // ═══════════════════════════════════════════
+    function renderSmart() {
+        // La sección es estática, no requiere renderizado dinámico de inicio
+    }
+
+    function openSmartType(type) {
+        const p = voxiData.props[currentPropIndex] || { titulo: 'Propiedad en Acayuca', ubicacion: 'Acayuca, Hidalgo', precio: '$---', area: '---' };
+        const modal = document.getElementById('smartPreviewModal');
+        const container = document.getElementById('strategyOptions');
+        const title = document.getElementById('previewTitle');
+        
+        title.innerText = `ESTRATEGIAS: ${type}`;
+        container.innerHTML = '';
+        
+        const strategies = [
+            { tag: 'Emocional', color: '#e91e63', icon: '❤️' },
+            { tag: 'Lógica', color: '#1976d2', icon: '📊' },
+            { tag: 'Urgencia', color: '#f57c00', icon: '🔥' }
+        ];
+
+        strategies.forEach(s => {
+            const msg = generateOptimizedMsg(type, s.tag, p);
+            const box = document.createElement('div');
+            box.className = 'strategy-box';
+            box.style.borderLeftColor = s.color;
+            box.innerHTML = `
+                <span class="strategy-tag" style="background:${s.color}">${s.icon} ${s.tag}</span>
+                <div style="font-size:0.9em; white-space:pre-wrap; margin-bottom:10px;">${msg.full}</div>
+                <div style="background:#eee; padding:8px; border-radius:5px; font-size:0.75em; color:#555; margin-bottom:10px;">
+                    <b>Versión corta:</b> ${msg.short}<br>
+                    <b>💡 Idea visual:</b> ${msg.visual}
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button class="copy-btn" style="margin:0; background:#555;" onclick="copyToClipboard('${msg.full.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')"><i class="fas fa-copy"></i> COPIAR</button>
+                    <button class="copy-btn" style="margin:0; background:var(--wa-green);" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('${msg.full.replace(/'/g, "\\'").replace(/\n/g, "\\n")}'), '_blank')"><i class="fab fa-whatsapp"></i> ENVIAR</button>
+                </div>
+            `;
+            container.appendChild(box);
+        });
+        
+        modal.style.display = 'flex';
+    }
+
+    function generateOptimizedMsg(type, strategy, p) {
+        let full = "", short = "", visual = "";
+        const zona = "Acayuca, Hidalgo";
+
+        if (type === 'MILITAR') {
+            if (strategy === 'Emocional') {
+                full = `🪖 *Hogar para los que sirven a México* 🇲🇽\n\nTu esfuerzo merece un lugar seguro para tu familia. En *${zona}*, te ayudo a estrenar casa con tu crédito ISSFAM o FOVISSSTE.\n\n🏠 *${p.titulo}*\n📍 Ubicación estratégica y segura.\n\n✅ Olvídate de trámites lentos. Yo te acompaño paso a paso para que tu única preocupación sea elegir el color de las paredes. \n\n¿Quieres ver cómo quedaría tu nuevo hogar?`;
+                short = "Usa tu crédito ISSFAM en Acayuca. Casa segura para tu familia. 🇲🇽";
+                visual = "Foto de familia militar sonriendo frente a una casa nueva con bandera pequeña.";
+            } else if (strategy === 'Lógica') {
+                full = `📊 *Decisión Inteligente para Militares* 🪖\n\nNo dejes que tu crédito se devalúe. Invierte en *${zona}* en una propiedad con plusvalía real.\n\n🏠 *${p.titulo}*\n💰 Precio competitivo: ${p.precio}\n📜 Documentación 100% en regla y lista para escriturar.\n\n✅ Transparencia total. Tú eliges la notaría. Garantía por escrito en construcción.\n\n¿Agendamos una cita técnica para revisar los planos?`;
+                short = "Inversión militar segura en Acayuca. Plusvalía y documentos en regla. 📈";
+                visual = "Gráfico de crecimiento de valor en la zona junto a la foto de la fachada.";
+            } else {
+                full = `🔥 *Oportunidad ISSFAM - Últimas Ubicaciones* 🪖\n\nCompañero, las mejores casas en *${zona}* se están acabando. \n\n🏠 *${p.titulo}*\n🔥 Aprovecha el precio actual de preventa antes del ajuste de mes.\n\n✅ Respuesta inmediata. Si cumples los requisitos, el proceso es más rápido de lo que crees.\n\n¡Mándame mensaje ahora y asegura tu ubicación hoy mismo!`;
+                short = "¡Últimas casas para militares en Acayuca! Aprovecha precio de preventa. 🔥";
+                visual = "Foto de la casa con un letrero de 'ÚLTIMAS DISPONIBLES' en rojo.";
+            }
+        } else if (type === 'CASA') {
+            if (strategy === 'Emocional') {
+                full = `🏡 *El primer capítulo de tu nueva vida* ✨\n\nImagina despertar cada mañana en tu propia casa en *${zona}*. Espacios diseñados para crear memorias inolvidables.\n\n🏠 *${p.titulo}*\n📍 Zona tranquila y familiar.\n\n✅ Construcción de alta calidad con acabados a tu gusto. Seguridad y bienestar para los que más amas.\n\n¿Te gustaría conocer los detalles de este proyecto?`;
+                short = "Tu nueva vida comienza en Acayuca. Casa familiar diseñada para ti. ✨";
+                visual = "Render de la sala iluminada con luz natural y una planta decorativa.";
+            } else if (strategy === 'Lógica') {
+                full = `📊 *Ahorro Real de $150,000 - Solo Preventa* 🏡\n\n¿Por qué pagar más después? En *${zona}*, comprar en preventa es la mejor inversión financiera.\n\n🏠 *${p.titulo}*\n💰 Precio Preventa: ${p.precio}\n💰 Valor de Mercado: (Ahorro garantizado).\n\n✅ Escritura pública inmediata. Tú eliges la notaría. Calidad certificada.\n\nSolicita la ficha técnica y compara el beneficio real.`;
+                short = "Ahorra comprando en preventa en Acayuca. Inversión con respaldo legal. 📊";
+                visual = "Comparativa de precios: Precio Preventa vs Precio Terminado.";
+            } else {
+                full = `🔥 *¡Última Casa en Preventa con este Descuento!* 🏡\n\nNo dejes pasar la oportunidad de ahorrar en *${zona}*. Solo queda UNA ubicación con este precio especial.\n\n🏠 *${p.titulo}*\n⏳ Entrega en 3 meses. Garantía total.\n\n✅ Trato directo y sin letras chiquitas.\n\n¿La quieres tú o dejas que alguien más se quede con el ahorro?`;
+                short = "¡Última oportunidad! Casa en preventa en Acayuca con precio especial. 🔥";
+                visual = "Foto de avance de obra con texto 'SOLO QUEDA UNA'.";
+            }
+        } else if (type === 'PARCELA' || type === 'TERRENO') {
+            if (strategy === 'Emocional') {
+                full = `🌄 *Tierra con Historia, Futuro para tu Familia* 🏞️\n\nRegresa a lo natural en *${zona}*. Un espacio amplio donde tus sueños tienen lugar para crecer.\n\n📍 *${p.titulo}*\n📐 ${p.area} m² de libertad.\n\n✅ Ideal para esa casa de campo o inversión patrimonial que siempre quisiste. Tierra propia, paz mental.\n\n¿Vamos a caminar el terreno este fin de semana?`;
+                short = "Tu pedazo de cielo en Acayuca. Espacio, paz y patrimonio. 🌄";
+                visual = "Foto del terreno al atardecer con vista despejada.";
+            } else if (strategy === 'Lógica') {
+                full = `📊 *Inversión en Tierra: El activo más seguro* 🏞️\n\nEn *${zona}*, la tierra no solo se mantiene, crece. Asegura tu capital con un terreno legalmente impecable.\n\n📍 *${p.titulo}*\n📐 ${p.area} m² con alta plusvalía.\n💰 Precio directo: ${p.precio}\n\n✅ Todo a mi nombre, listo para escriturar ante el notario que tú prefieras.\n\n¿Revisamos las medidas y colindancias?`;
+                short = "Invierte en tierra en Acayuca. Plusvalía garantizada y trato directo. 📊";
+                visual = "Mapa de ubicación resaltando la cercanía a vías principales.";
+            } else {
+                full = `🔥 *Oportunidad de Inversión Inmediata* 🏞️\n\nSe abrió esta ubicación en *${zona}* y no va a durar. Precio por debajo del mercado por tiempo limitado.\n\n📍 *${p.titulo}*\n💰 ${p.precio} - Trato abierto a negociación hoy.\n\n✅ Documentos en mano. Firma inmediata.\n\n¡Mándame mensaje y ven a verlo antes de que se venda!`;
+                short = "¡Oportunidad! Terreno en Acayuca por debajo del precio de mercado. 🔥";
+                visual = "Foto del acceso al terreno con texto 'OPORTUNIDAD ÚNICA'.";
+            }
+        } else if (type === 'EFECTIVO') {
+            if (strategy === 'Emocional') {
+                full = `💵 *Libertad y Seguridad en un solo paso* ✨\n\nTu esfuerzo merece transformarse en algo tangible. En *${zona}*, asegura el futuro de los tuyos con una compra de contado transparente.\n\n🏠 *${p.titulo}*\n✅ Sin deudas, sin intereses, solo la satisfacción de lo propio.\n\nTe entrego llaves y documentos con la alegría de saber que hiciste lo correcto. ¿Platicamos?`;
+                short = "Asegura tu futuro con una compra de contado en Acayuca. Sin vueltas. ✨";
+                visual = "Foto de las llaves de una casa sobre una mesa de madera rústica.";
+            } else if (strategy === 'Lógica') {
+                full = `📊 *El Poder del Efectivo: Negociación Directa* 💵\n\nTu liquidez es tu mejor herramienta. En *${zona}*, el pago de contado te abre puertas a precios que otros no alcanzan.\n\n🏠 *${p.titulo}*\n💰 Precio especial de contado: ${p.precio}\n✅ Trato directo conmigo. Tú eliges al notario para la firma inmediata.\n\nOptimiza tu inversión. ¿Cuándo revisamos los papeles?`;
+                short = "Aprovecha el poder de tu efectivo en Acayuca. Precio especial y firma rápida. 💵";
+                visual = "Imagen de 'Trato Directo' con sello de garantía legal.";
+            } else {
+                full = `🔥 *Liquidación Especial por Pago de Contado* 💵\n\nNecesito cerrar esta ubicación en *${zona}* y estoy ofreciendo un descuento agresivo a quien tenga el efectivo hoy.\n\n🏠 *${p.titulo}*\n🔥 Descuento de hasta $250,000 aplicado ya.\n\n✅ Firma inmediata. Sin esperas. Todo en regla.\n\n¿Estás listo para cerrar el trato del año?`;
+                short = "¡Liquidación! Descuento masivo en Acayuca por pago de contado. 🔥";
+                visual = "Texto grande 'SOLO CONTADO' con fondo de billetes desenfocados.";
+            }
+        }
+
+        return { full, short, visual };
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("✅ Mensaje copiado al portapapeles");
+        });
+    }
+
     function renderProps() {
         const div = document.getElementById('propList');
         div.innerHTML = '';
