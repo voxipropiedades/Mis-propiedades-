@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - Sistema Pro V17</title>
+    <title>Propiedades HR - Sistema Pro V18</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -32,7 +32,7 @@
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
-        body { background: var(--bg-gradient); color: var(--text); margin: 0; padding-bottom: 130px; min-height: 100vh; background-attachment: fixed; }
+        body { background: var(--bg-gradient); color: var(--text); margin: 0; padding-bottom: 140px; min-height: 100vh; background-attachment: fixed; }
         
         header {
             background: var(--header-gradient);
@@ -67,31 +67,27 @@
         .card {
             background: var(--card-bg); border: 1px solid #e4e6eb; border-radius: 16px;
             padding: 20px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
+        /* CUADRITOS DESCRIPTIVOS (Los que le gustan al usuario) */
         .box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
         .box { background: #fdfdfd; border: 1px solid #eee; border-radius: 10px; padding: 10px; }
         .box label { font-size: 0.7em; font-weight: 800; color: #9e9e9e; display: block; text-transform: uppercase; margin-bottom: 4px; }
         .box input, .box select, .box textarea {
-            width: 100%; border: none; background: transparent; font-size: 1em;
+            width: 100%; border: none; background: transparent; font-size: 1.05em;
             color: var(--text); padding: 2px 0; outline: none; resize: none; font-weight: 600;
         }
         .full-box { grid-column: span 2; }
 
-        /* Colindancias */
-        .details-colindancias { margin-top: 10px; background: #fffafa; border-radius: 10px; border: 1px solid #ffebee; }
-        .details-colindancias summary { padding: 10px; font-weight: bold; color: var(--primary); cursor: pointer; outline: none; }
-        .colindancias-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px;
+        /* Medidas Dinámicas (Solo 4 lados con nombres ajustables) */
+        .colindancias-row {
+            display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-top: 5px; align-items: center;
         }
-        .col-item { display: flex; flex-direction: column; }
-        .col-item label { font-size: 0.65em; font-weight: bold; color: #b71c1c; margin-bottom: 2px; }
+        .colindancias-row select { background: #fff1f1; border: 1px solid #ffcdd2; border-radius: 5px; padding: 5px; font-size: 0.85em; font-weight: bold; color: var(--primary); }
+        .colindancias-row input { border-bottom: 1px solid #eee !important; padding: 5px; font-size: 0.95em; }
 
-        /* Semáforo y Checklist Militar */
-        .req-section { margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
-        .req-section h3 { font-size: 0.9em; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-        
+        /* Semáforo Militar */
         .check-item {
             display: flex; align-items: center; gap: 10px; background: #f9f9f9; padding: 8px; border-radius: 8px; border: 1px solid #eee; margin-top: 4px;
         }
@@ -103,9 +99,14 @@
             font-weight: bold; display: flex; align-items: center; gap: 10px;
             justify-content: center; width: 100%; transition: 0.2s;
         }
-        .btn-save { background: var(--success); color: white; font-size: 1.1em; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .btn-save { background: var(--success); color: white; font-size: 1.2em; border: 2px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .btn-add { background: var(--primary); color: white; margin-bottom: 20px; }
         .btn-delete { position: absolute; top: 15px; right: 15px; color: #ccd0d5; width: auto; background: none; font-size: 1.2em; }
+        
+        /* Botones de acción en la tarjeta */
+        .action-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-wa { background: var(--wa-green); color: white; font-size: 0.9em; }
+        .btn-flyer { background: var(--accent); color: #333; font-size: 0.9em; }
 
         .fixed-footer {
             position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; padding: 15px;
@@ -116,85 +117,66 @@
         .active-tab { display: block; }
 
         .photo-main-preview {
-            width: 100%; height: 200px; background: #eee; border-radius: 12px; margin-bottom: 15px;
+            width: 100%; height: 220px; background: #eee; border-radius: 12px; margin-bottom: 15px;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
             border: 2px dashed #ccc; cursor: pointer;
         }
         .photo-main-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Papeleo Buttons */
-        .office-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .btn-office { font-size: 0.8em; padding: 10px; }
-        .btn-jpg { background: #ff9800; color: white; }
-        .btn-word { background: #2b579a; color: white; }
-        .btn-pdf { background: #d32f2f; color: white; }
-        
+        /* Papeleo */
         #contractEditor {
             background: white; border: 2px solid #eee; border-radius: 15px; padding: 15px;
             width: 100%; min-height: 400px; margin-top: 15px; outline: none; line-height: 1.5; font-size: 1em;
         }
-
-        .toggle-conyuge {
-            margin-top: 10px; padding: 10px; background: #fffde7; border-radius: 10px; border: 1px solid #fff59d;
-            display: flex; align-items: center; justify-content: space-between; font-weight: bold; font-size: 0.9em;
-        }
+        .office-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }
+        .btn-office { font-size: 0.75em; padding: 10px; }
     </style>
 </head>
 <body>
 
 <header>
     <img src="icon.png" class="header-logo" alt="Logo HR">
-    <span style="font-weight: 800; font-size: 1.4em;">PROPIEDADES HR - V17</span>
+    <span style="font-weight: 800; font-size: 1.4em;">PROPIEDADES HR - V18</span>
 </header>
 
 <div class="container">
     <div class="tabs-nav">
-        <button class="tab-btn active" id="btn-inventario" onclick="showTab('inventario')"><i class="fas fa-home"></i> Inventario</button>
-        <button class="tab-btn" id="btn-prospectos" onclick="showTab('prospectos')"><i class="fas fa-id-card"></i> Militares</button>
-        <button class="tab-btn" id="btn-papeleo" onclick="showTab('papeleo')"><i class="fas fa-file-contract"></i> Papeleo</button>
+        <button class="tab-btn active" id="btn-inventario" onclick="showTab('inventario')"><i class="fas fa-home"></i> Mi Inventario</button>
+        <button class="tab-btn" id="btn-militares" onclick="showTab('militares')"><i class="fas fa-id-card"></i> Militares</button>
+        <button class="tab-btn" id="btn-oficina" onclick="showTab('oficina')"><i class="fas fa-file-contract"></i> Oficina</button>
     </div>
 
     <!-- INVENTARIO -->
     <div id="inventario" class="tab-content active-tab">
-        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus"></i> AGREGAR PROPIEDAD</button>
+        <button class="btn btn-add" onclick="addItem('properties')"><i class="fas fa-plus"></i> AGREGAR PROPIEDAD / PARCELA</button>
         <div id="propertyList"></div>
     </div>
 
-    <!-- PROSPECTOS / MILITARES -->
-    <div id="prospectos" class="tab-content">
+    <!-- MILITARES -->
+    <div id="militares" class="tab-content">
         <div style="background:#e3f2fd; padding:15px; border-radius:10px; margin-bottom:15px; font-size:0.85em; border-left:5px solid #1976d2;">
-            <i class="fas fa-traffic-light"></i> <b>Semáforo de Expediente:</b><br>
-            🔴 Rojo: Faltan doctos | 🔵 Azul: Solo copias | 🟢 Verde: ¡Originales listos!
+            🔴 Faltan | 🔵 Copias | 🟢 Originales
         </div>
         <button class="btn btn-add" style="background:#1976d2;" onclick="addItem('prospects')"><i class="fas fa-user-plus"></i> NUEVO MILITAR</button>
         <div id="prospectList"></div>
     </div>
 
-    <!-- PAPELEO -->
-    <div id="papeleo" class="tab-content">
+    <!-- OFICINA -->
+    <div id="oficina" class="tab-content">
         <div class="section-card">
-            <h2><i class="fas fa-briefcase"></i> Oficina Digital Pro</h2>
-            <div style="display:flex; gap:5px; overflow-x:auto; margin-bottom:15px;">
-                <button class="tab-btn" onclick="loadTemplate('promesa')">Promesa</button>
-                <button class="tab-btn" onclick="loadTemplate('compraventa')">Venta</button>
-                <button class="tab-btn" onclick="loadTemplate('mutuo')">Mutuo</button>
-            </div>
-            
+            <h2><i class="fas fa-briefcase"></i> Herramientas de Papeleo</h2>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <button class="btn" style="background:#7b1fa2; color:white;" onclick="document.getElementById('ocrInput').click()"><i class="fas fa-camera"></i> LEER FOTO</button>
                 <button class="btn" style="background:var(--wa-green); color:white;" onclick="shareContractWA()"><i class="fab fa-whatsapp"></i> ENVIAR TEXTO</button>
             </div>
-
             <div id="captureArea">
-                <div id="contractEditor" contenteditable="true">Escribe o carga un formato aquí...</div>
+                <div id="contractEditor" contenteditable="true">Escribe o carga un contrato aquí...</div>
             </div>
-
             <div class="office-buttons">
-                <button class="btn btn-office btn-pdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
-                <button class="btn btn-office btn-word" onclick="exportWord()"><i class="fas fa-file-word"></i> WORD</button>
-                <button class="btn btn-office btn-jpg" onclick="exportJPG()"><i class="fas fa-image"></i> IMAGEN JPG</button>
+                <button class="btn btn-office" style="background:#d32f2f; color:white;" onclick="exportPDF()">PDF</button>
+                <button class="btn btn-office" style="background:#2b579a; color:white;" onclick="exportWord()">WORD</button>
+                <button class="btn btn-office" style="background:#ff9800; color:white;" onclick="exportJPG()">IMAGEN</button>
             </div>
-            
             <input type="file" id="ocrInput" hidden accept="image/*" onchange="performOCR(this)">
         </div>
     </div>
@@ -207,24 +189,8 @@
 <script>
     let voxiData = { properties: [], prospects: [] };
 
-    const REQS_MILITAR = [
-        "Credencial militar (ambos lados)",
-        "INE militar (ambos lados)",
-        "Acta de nacimiento militar",
-        "CURP militar",
-        "Solicitud inicial (sellada/2 copias)",
-        "Certificado de haberes y percepciones",
-        "Certificado de servicios",
-        "Pre autorización mnsj CEI"
-    ];
-
-    const REQS_ESPOSA = [
-        "Cédula de afiliación esposa",
-        "Acta de matrimonio",
-        "CURP esposa",
-        "INE esposa",
-        "Acta de nacimiento esposa"
-    ];
+    const REQS_MILITAR = ["Credencial militar", "INE militar", "Acta nacimiento militar", "CURP militar", "Solicitud inicial", "Certificado haberes", "Certificado servicios", "Pre autorización CEI"];
+    const REQS_ESPOSA = ["Cédula afiliación esposa", "Acta matrimonio", "CURP esposa", "INE esposa", "Acta nacimiento esposa"];
 
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
@@ -237,8 +203,13 @@
         if(type === 'properties') {
             voxiData.properties.unshift({ 
                 id: Date.now(), tipo: 'Casa', estado: 'Preventa', titulo: '', ubicacion: '', 
-                precio_efectivo: '', medidas: '', propietario: '', mainPhoto: null,
-                norte:'', sur:'', este:'', oeste:'', noreste:'', noroeste:'', sureste:'', suroeste:''
+                precio_efectivo: '', medidas: '', ganancia: '', propietario: '', mainPhoto: null,
+                sides: [
+                    { name: 'Norte', val: '' },
+                    { name: 'Sur', val: '' },
+                    { name: 'Este', val: '' },
+                    { name: 'Oeste', val: '' }
+                ]
             });
             renderProperties();
         } else {
@@ -255,19 +226,19 @@
         const list = document.getElementById('propertyList');
         list.innerHTML = '';
         voxiData.properties.forEach((p, i) => {
-            const labelMedidaTotal = `Medida Total de ${p.tipo}`;
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <button class="btn-delete" onclick="voxiData.properties.splice(${i},1);renderProperties();"><i class="fas fa-trash"></i></button>
+                <button class="btn-delete" onclick="if(confirm('¿Borrar?')){voxiData.properties.splice(${i},1);renderProperties();}"><i class="fas fa-trash"></i></button>
                 <div class="photo-main-preview" onclick="document.getElementById('fileMain${i}').click()">
                     ${p.mainPhoto ? `<img src="${p.mainPhoto}">` : '<i class="fas fa-camera"></i> Foto Principal'}
-                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handlePropImage(${i}, this)">
+                    <input type="file" id="fileMain${i}" hidden accept="image/*" onchange="handleImage(${i}, this)">
                 </div>
+                
                 <div class="box-container">
-                    <div class="box full-box"><label>Propietario / Dueño</label><input type="text" value="${p.propietario||''}" oninput="voxiData.properties[${i}].propietario=this.value"></div>
+                    <div class="box full-box"><label>Dueño del Terreno</label><input type="text" value="${p.propietario||''}" oninput="voxiData.properties[${i}].propietario=this.value"></div>
                     <div class="box"><label>Tipo</label>
-                        <select onchange="voxiData.properties[${i}].tipo=this.value;renderProperties();">
+                        <select onchange="voxiData.properties[${i}].tipo=this.value; renderProperties();">
                             <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
                             <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option>
                             <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>Parcela</option>
@@ -281,24 +252,36 @@
                     </div>
                     <div class="box full-box"><label>Título del Anuncio</label><input type="text" value="${p.titulo}" oninput="voxiData.properties[${i}].titulo=this.value"></div>
                     <div class="box"><label>Precio Remate</label><input type="text" value="${p.precio_efectivo}" oninput="voxiData.properties[${i}].precio_efectivo=this.value" style="color:var(--success); font-weight:900;"></div>
+                    <div class="box"><label>Tu Ganancia</label><input type="text" value="${p.ganancia||''}" oninput="voxiData.properties[${i}].ganancia=this.value" style="color:var(--primary); font-weight:800;"></div>
                     
                     <div class="box full-box">
-                        <label>${labelMedidaTotal}</label>
-                        <input type="text" placeholder="Ej: 150m2" value="${p.medidas}" oninput="voxiData.properties[${i}].medidas=this.value">
-                        <details class="details-colindancias">
-                            <summary>Ver Detalles de Colindancias</summary>
-                            <div class="colindancias-grid">
-                                <div class="col-item"><label>Norte</label><input type="text" value="${p.norte||''}" oninput="voxiData.properties[${i}].norte=this.value"></div>
-                                <div class="col-item"><label>Sur</label><input type="text" value="${p.sur||''}" oninput="voxiData.properties[${i}].sur=this.value"></div>
-                                <div class="col-item"><label>Este</label><input type="text" value="${p.este||''}" oninput="voxiData.properties[${i}].este=this.value"></div>
-                                <div class="col-item"><label>Oeste</label><input type="text" value="${p.oeste||''}" oninput="voxiData.properties[${i}].oeste=this.value"></div>
-                                <div class="col-item"><label>Noreste</label><input type="text" value="${p.noreste||''}" oninput="voxiData.properties[${i}].noreste=this.value"></div>
-                                <div class="col-item"><label>Noroeste</label><input type="text" value="${p.noroeste||''}" oninput="voxiData.properties[${i}].noroeste=this.value"></div>
-                                <div class="col-item"><label>Sureste</label><input type="text" value="${p.sureste||''}" oninput="voxiData.properties[${i}].sureste=this.value"></div>
-                                <div class="col-item"><label>Suroeste</label><input type="text" value="${p.suroeste||''}" oninput="voxiData.properties[${i}].suroeste=this.value"></div>
-                            </div>
-                        </details>
+                        <label>Medida Total de ${p.tipo}</label>
+                        <input type="text" placeholder="Ej: 200m2" value="${p.medidas}" oninput="voxiData.properties[${i}].medidas=this.value" style="font-weight:bold;">
+                        
+                        <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                            <label style="font-size:0.65em; color:var(--primary);">Detalle de los 4 Lados:</label>
+                            ${p.sides.map((side, si) => `
+                                <div class="colindancias-row">
+                                    <select onchange="voxiData.properties[${i}].sides[${si}].name=this.value">
+                                        <option value="Norte" ${side.name==='Norte'?'selected':''}>Norte</option>
+                                        <option value="Sur" ${side.name==='Sur'?'selected':''}>Sur</option>
+                                        <option value="Este" ${side.name==='Este'?'selected':''}>Este</option>
+                                        <option value="Oeste" ${side.name==='Oeste'?'selected':''}>Oeste</option>
+                                        <option value="Noreste" ${side.name==='Noreste'?'selected':''}>Noreste</option>
+                                        <option value="Noroeste" ${side.name==='Noroeste'?'selected':''}>Noroeste</option>
+                                        <option value="Sureste" ${side.name==='Sureste'?'selected':''}>Sureste</option>
+                                        <option value="Suroeste" ${side.name==='Suroeste'?'selected':''}>Suroeste</option>
+                                    </select>
+                                    <input type="text" placeholder="Metros y Colindancia" value="${side.val}" oninput="voxiData.properties[${i}].sides[${si}].val=this.value">
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-wa" onclick="sharePropertyWA(${i})"><i class="fab fa-whatsapp"></i> ENVIAR</button>
+                    <button class="btn btn-flyer" onclick="alert('Generando vista para el cliente...')"><i class="fas fa-bullhorn"></i> FLYER</button>
                 </div>
             `;
             list.appendChild(card);
@@ -309,107 +292,54 @@
         const list = document.getElementById('prospectList');
         list.innerHTML = '';
         voxiData.prospects.forEach((p, i) => {
-            // Lógica de semáforo combinada
             const todosReqs = p.tieneConyuge ? [...p.reqsM, ...p.reqsE] : p.reqsM;
             const faltan = todosReqs.some(r => r.status === 'faltante');
             const originales = todosReqs.every(r => r.status === 'original');
-            let semColor = '#d32f2f'; // Rojo
-            if (!faltan && originales) semColor = '#2e7d32'; // Verde
-            else if (!faltan) semColor = '#1976d2'; // Azul
+            let color = '#d32f2f'; 
+            if (!faltan && originales) color = '#2e7d32'; 
+            else if (!faltan) color = '#1976d2';
 
             const card = document.createElement('div');
             card.className = 'card';
-            card.style.borderLeft = `10px solid ${semColor}`;
+            card.style.borderLeft = `10px solid ${color}`;
             card.innerHTML = `
-                <button class="btn-delete" onclick="voxiData.prospects.splice(${i},1);renderProspects();"><i class="fas fa-trash"></i></button>
-                <div class="box"><label>Nombre del Militar</label><input type="text" value="${p.nombre}" oninput="voxiData.prospects[${i}].nombre=this.value" style="font-weight:bold; font-size:1.1em;"></div>
-                
-                <div class="toggle-conyuge">
-                    <span>¿Es Casado / Concubinato?</span>
-                    <input type="checkbox" ${p.tieneConyuge?'checked':''} onchange="voxiData.prospects[${i}].tieneConyuge=this.checked; renderProspects();">
+                <button class="btn-delete" onclick="voxiData.prospects.splice(${i},1); renderProspects();"><i class="fas fa-trash"></i></button>
+                <div class="box"><label>Nombre Militar</label><input type="text" value="${p.nombre}" oninput="voxiData.prospects[${i}].nombre=this.value"></div>
+                <div style="margin:10px 0; font-size:0.85em; font-weight:bold;">
+                    ¿Casado / Concubina? <input type="checkbox" ${p.tieneConyuge?'checked':''} onchange="voxiData.prospects[${i}].tieneConyuge=this.checked; renderProspects();">
                 </div>
-
-                <div class="req-section">
-                    <h3><i class="fas fa-user-shield"></i> Documentos del Militar</h3>
+                <div style="display:grid; grid-template-columns:1fr; gap:5px;">
+                    <label style="font-size:0.7em; color:var(--primary); font-weight:900;">DOCUMENTOS MILITAR</label>
                     ${p.reqsM.map((r, ri) => `
                         <div class="check-item">
                             <span>${r.name}</span>
-                            <select class="check-select" onchange="voxiData.prospects[${i}].reqsM[${ri}].status=this.value; renderProspects();">
+                            <select onchange="voxiData.prospects[${i}].reqsM[${ri}].status=this.value; renderProspects();">
                                 <option value="faltante" ${r.status==='faltante'?'selected':''}>Faltante</option>
                                 <option value="copia" ${r.status==='copia'?'selected':''}>Copia</option>
                                 <option value="original" ${r.status==='original'?'selected':''}>Original</option>
                             </select>
                         </div>
                     `).join('')}
+                    ${p.tieneConyuge ? `
+                        <label style="font-size:0.7em; color:var(--primary); font-weight:900; margin-top:10px;">DOCUMENTOS ESPOSA</label>
+                        ${p.reqsE.map((r, ri) => `
+                            <div class="check-item">
+                                <span>${r.name}</span>
+                                <select onchange="voxiData.prospects[${i}].reqsE[${ri}].status=this.value; renderProspects();">
+                                    <option value="faltante" ${r.status==='faltante'?'selected':''}>Faltante</option>
+                                    <option value="copia" ${r.status==='copia'?'selected':''}>Copia</option>
+                                    <option value="original" ${r.status==='original'?'selected':''}>Original</option>
+                                </select>
+                            </div>
+                        `).join('')}
+                    ` : ''}
                 </div>
-
-                ${p.tieneConyuge ? `
-                <div class="req-section">
-                    <h3><i class="fas fa-user-friends"></i> Documentos de la Esposa</h3>
-                    ${p.reqsE.map((r, ri) => `
-                        <div class="check-item">
-                            <span>${r.name}</span>
-                            <select class="check-select" onchange="voxiData.prospects[${i}].reqsE[${ri}].status=this.value; renderProspects();">
-                                <option value="faltante" ${r.status==='faltante'?'selected':''}>Faltante</option>
-                                <option value="copia" ${r.status==='copia'?'selected':''}>Copia</option>
-                                <option value="original" ${r.status==='original'?'selected':''}>Original</option>
-                            </select>
-                        </div>
-                    `).join('')}
-                </div>
-                ` : ''}
             `;
             list.appendChild(card);
         });
     }
 
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text(doc.splitTextToSize(document.getElementById('contractEditor').innerText, 180), 10, 20);
-        doc.save('Documento_HR.pdf');
-    }
-
-    function exportWord() {
-        const content = document.getElementById('contractEditor').innerHTML;
-        const blob = new Blob(['<html><body>' + content + '</body></html>'], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'Documento_HR.doc'; a.click();
-    }
-
-    function exportJPG() {
-        html2canvas(document.getElementById('captureArea')).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'Documento_HR.jpg';
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
-            link.click();
-        });
-    }
-
-    function shareContractWA() {
-        const text = document.getElementById('contractEditor').innerText;
-        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
-    }
-
-    async function performOCR(input) {
-        if (!input.files[0]) return;
-        document.getElementById('contractEditor').innerText = "Leyendo documento...";
-        const worker = await Tesseract.createWorker('spa');
-        const ret = await worker.recognize(input.files[0]);
-        document.getElementById('contractEditor').innerText = ret.data.text;
-        await worker.terminate();
-    }
-
-    function loadTemplate(t) {
-        const temps = {
-            promesa: "CONTRATO DE PROMESA DE COMPRAVENTA...",
-            compraventa: "CONTRATO DE COMPRAVENTA PRIVADO...",
-            mutuo: "CONTRATO DE MUTUO ACUERDO..."
-        };
-        document.getElementById('contractEditor').innerText = temps[t];
-    }
-
-    function handlePropImage(i, input) {
+    function handleImage(i, input) {
         if (input.files[0]) {
             const reader = new FileReader();
             reader.onload = (e) => { voxiData.properties[i].mainPhoto = e.target.result; renderProperties(); };
@@ -417,16 +347,30 @@
         }
     }
 
+    function sharePropertyWA(index) {
+        const p = voxiData.properties[index];
+        const med = p.sides.map(s => `${s.name}: ${s.val}`).join(', ');
+        const text = `🏠 *${p.titulo}*\n💰 *PRECIO:* $${p.precio_efectivo}\n📏 *Medida:* ${p.medidas}\n📐 *Colindancias:* ${med}\n📝 *Detalles:* ${p.descripcion || '---'}`;
+        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
+    }
+
     function saveData() {
-        localStorage.setItem('hr_pro_v17_data', JSON.stringify(voxiData));
-        alert('✅ ¡TODO GUARDADO EN TU CELULAR!');
+        localStorage.setItem('hr_master_final_v18', JSON.stringify(voxiData));
+        alert('✅ ¡TRABAJO GUARDADO!');
     }
 
     function loadData() {
-        const saved = localStorage.getItem('hr_pro_v17_data');
+        const saved = localStorage.getItem('hr_master_final_v18');
         if(saved) voxiData = JSON.parse(saved);
         renderProperties(); renderProspects();
     }
+
+    // Funciones Oficina
+    function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(d.splitTextToSize(document.getElementById('contractEditor').innerText,180),10,20); d.save('Doc_HR.pdf'); }
+    function exportWord() { let c=document.getElementById('contractEditor').innerHTML; let b=new Blob(['<html><body>'+c+'</body></html>'],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Doc_HR.doc'; a.click(); }
+    function exportJPG() { html2canvas(document.getElementById('captureArea')).then(c => { let a=document.createElement('a'); a.download='Doc_HR.jpg'; a.href=c.toDataURL('image/jpeg',0.9); a.click(); }); }
+    function shareContractWA() { window.open("https://wa.me/?text="+encodeURIComponent(document.getElementById('contractEditor').innerText),'_blank'); }
+    async function performOCR(i) { if(!i.files[0])return; document.getElementById('contractEditor').innerText="Escaneando..."; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('contractEditor').innerText=r.data.text; await w.terminate(); }
 
     window.onload = loadData;
 </script>
