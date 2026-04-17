@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - SISTEMA MASTER V31 FINALÍSIMA</title>
+    <title>Propiedades HR - SISTEMA MASTER V32 DEFINITIVA</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -114,7 +114,6 @@
 
         .file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        /* MODAL DE OPCIONES DE TEXTO */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center;
@@ -122,21 +121,18 @@
         }
         .modal-card {
             background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        .modal-card h3 { margin-top: 0; color: var(--primary); font-weight: 900; }
         .flyer-option {
             background: #f8f9fa; border: 2px solid #eee; border-radius: 15px;
-            padding: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.2s;
+            padding: 15px; margin-bottom: 12px; cursor: pointer;
         }
-        .flyer-option:hover { border-color: var(--primary); background: #fff9f9; }
-        .flyer-option h4 { margin: 0 0 5px 0; color: var(--success); font-weight: 800; }
-        .flyer-option p { margin: 0; font-size: 0.85em; color: #555; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* ESTILOS DE IMPRESIÓN */
+        .check-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
+        .check-item span { font-size: 0.8em; font-weight: 800; }
+
         @media print {
             body { background: white; padding: 0 !important; }
-            .nav-tabs, header, .fixed-footer, .btn, .btn-delete, .btn-print-options, .modal-overlay { display: none !important; }
+            .nav-tabs, header, .fixed-footer, .btn, .btn-delete, .modal-overlay, .btn-print-options { display: none !important; }
             .card { box-shadow: none !important; border: 1px solid #000 !important; page-break-inside: avoid !important; }
         }
 
@@ -149,7 +145,7 @@
 
 <header>
     <img src="icon.png" class="header-logo" alt="HR">
-    <span style="font-weight: 950; font-size: 1.4em;">HR MASTER V31 FINALÍSIMA</span>
+    <span style="font-weight: 950; font-size: 1.4em;">HR MASTER V32 DEFINITIVA</span>
 </header>
 
 <div class="container">
@@ -175,7 +171,7 @@
 
     <div id="papeleo" class="tab-content">
         <div class="card">
-            <h2 style="margin:0; font-size:1.1em; color:var(--primary);"><i class="fas fa-file-signature"></i> Oficina de Papeleo</h2>
+            <h2 style="margin:0;"><i class="fas fa-file-signature"></i> Oficina de Papeleo</h2>
             <div id="editorArea"><div id="editor" contenteditable="true">Escribe o escanea aquí...</div></div>
             <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:15px;">
                 <button class="btn" style="background:#d32f2f; color:white; font-size:0.65em;" onclick="exportPDF()">PDF</button>
@@ -192,33 +188,22 @@
     </div>
 </div>
 
-<!-- MODAL DE FLYER -->
 <div class="modal-overlay" id="flyerModal">
     <div class="modal-card">
-        <h3><i class="fas fa-bullhorn"></i> Elige el estilo del Flyer (Texto)</h3>
-        <div class="flyer-option" onclick="sendFlyer(1)">
-            <h4>🚀 Estilo Vendedor (Directo)</h4>
-            <p id="opt1-preview">¡OPORTUNIDAD ÚNICA! Casa en remate...</p>
-        </div>
-        <div class="flyer-option" onclick="sendFlyer(2)">
-            <h4>📋 Estilo Técnico (Detallado)</h4>
-            <p id="opt2-preview">Ficha técnica completa: Medidas, servicios, tinacos...</p>
-        </div>
-        <div class="flyer-option" onclick="sendFlyer(3)">
-            <h4>🏡 Estilo Emocional (Hogar)</h4>
-            <p id="opt3-preview">El hogar de tus sueños te espera. Amplia estancia...</p>
-        </div>
-        <button class="btn" style="background:#777; color:white;" onclick="document.getElementById('flyerModal').style.display='none'">CANCELAR</button>
+        <h3>🚀 Elige Estilo del Flyer</h3>
+        <div class="flyer-option" onclick="sendFlyer(1)"><h4>Vendedor</h4><p id="opt1-p"></p></div>
+        <div class="flyer-option" onclick="sendFlyer(2)"><h4>Técnico</h4><p id="opt2-p"></p></div>
+        <div class="flyer-option" onclick="sendFlyer(3)"><h4>Emocional</h4><p id="opt3-p"></p></div>
+        <button class="btn" style="background:#777; color:white;" onclick="document.getElementById('flyerModal').style.display='none'">CERRAR</button>
     </div>
 </div>
 
-<div class="fixed-footer">
-    <button class="btn btn-save" onclick="saveMaster()"><i class="fas fa-save"></i> GUARDAR TODO EL SISTEMA V31</button>
-</div>
+<div class="fixed-footer"><button class="btn btn-save" onclick="saveMaster()"><i class="fas fa-save"></i> GUARDAR TODO</button></div>
 
 <script>
     let voxiData = { props: [], milis: [], grals: [], files: [] };
     let currentPropIndex = null;
+    const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Pre-auth"];
 
     function openTab(id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active-tab'));
@@ -256,7 +241,7 @@
             });
             renderProps();
         } else if(type === 'milis') {
-            voxiData.milis.unshift({ id: Date.now(), nombre: '', casado: false, m: [], e: [] });
+            voxiData.milis.unshift({ id: Date.now(), nombre: '', casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
             renderProspects();
         } else if(type === 'grals') {
             voxiData.grals.unshift({ id: Date.now(), nombre: '', tel: '', interes: '', doctos: '' });
@@ -278,36 +263,23 @@
             card.className = 'card';
             card.id = 'fullPropCard' + i;
             card.innerHTML = `
-                <button class="btn-delete" onclick="if(confirm('¿Borrar?')){voxiData.props.splice(${i},1);renderProps();}"><i class="fas fa-trash"></i></button>
-                
+                <button class="btn-delete" onclick="voxiData.props.splice(${i},1);renderProps();"><i class="fas fa-trash"></i></button>
                 <div class="main-photo" onclick="document.getElementById('imgM${i}').click()">
                     ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x"></i>'}
-                    <input type="file" id="imgM${i}" hidden accept="image/*" onchange="if(this.files[0])processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;renderProps();})">
+                    <input type="file" id="imgM${i}" hidden onchange="if(this.files[0])processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;renderProps();})">
                 </div>
                 
                 <div class="box-container">
                     <div class="box full-box"><label>Dueño</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value"></div>
-                    <div class="box"><label>Tipo</label>
-                        <select onchange="voxiData.props[${i}].tipo=this.value; renderProps();">
-                            <option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option>
-                            <option value="Casa 1 nivel" ${p.tipo==='Casa 1 nivel'?'selected':''}>Casa 1 nivel</option>
-                            <option value="Casa 2 niveles" ${p.tipo==='Casa 2 niveles'?'selected':''}>Casa 2 niveles</option>
-                            <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option>
-                        </select>
-                    </div>
-                    <div class="box"><label>Estatus</label>
-                        <select onchange="voxiData.props[${i}].estatus=this.value">
-                            <option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>Preventa</option>
-                            <option value="Construida" ${p.estatus==='Construida'?'selected':''}>Construida</option>
-                        </select>
-                    </div>
+                    <div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option></select></div>
+                    <div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value"><option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>Preventa</option><option value="Construida" ${p.estatus==='Construida'?'selected':''}>Construida</option></select></div>
                     <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value"></div>
                     <div class="box"><label>Precio</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value" style="color:var(--success);"></div>
                     <div class="box"><label>Ganancia</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value" style="color:var(--primary);"></div>
                     
                     <div class="section-label">📍 UBICACIÓN</div>
                     <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value"></div>
-                    <div class="box full-box"><label>Enlace Maps</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value"></div>
+                    <div class="box full-box"><label>Maps</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value"></div>
 
                     <div class="section-label">🗺️ MEDIDAS</div>
                     <div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value"></div>
@@ -315,20 +287,12 @@
                     <div class="box"><label>Este</label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value"></div>
                     <div class="box"><label>Oeste</label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value"></div>
 
-                    <div class="box full-box" style="border:3px solid var(--primary); background:#fff9f9;">
-                        <label style="color:var(--primary); font-weight:950;">ÁREA TOTAL</label>
-                        <input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:950; font-size:1.4em;">
-                    </div>
+                    <div class="box full-box" style="border:3px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary); font-weight:950;">ÁREA TOTAL</label><input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:950; font-size:1.4em;"></div>
 
                     <div class="section-label">📋 DOCUMENTOS</div>
-                    <div class="box"><label>Docto</label><select onchange="voxiData.props[${i}].docto=this.value;renderProps();"><option value="Escritura Pública" ${p.docto==='Escritura Pública'?'selected':''}>Escritura Pública</option><option value="Título Propiedad" ${p.docto==='Título Propiedad'?'selected':''}>Título</option></select></div>
+                    <div class="box"><label>Docto</label><select onchange="voxiData.props[${i}].docto=this.value;renderProps();"><option value="Escritura Pública" ${p.docto==='Escritura Pública'?'selected':''}>Escritura Pública</option><option value="Título" ${p.docto==='Título'?'selected':''}>Título</option></select></div>
                     <div class="box"><label>Permisos</label><select onchange="voxiData.props[${i}].permisos=this.value"><option value="No" ${p.permisos==='No'?'selected':''}>No</option><option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option></select></div>
-
-                    <div class="box full-box" style="background:#e8f5e9; border:2px solid #2e7d32;">
-                        <label style="color:#2e7d32; font-weight:900;">📄 ESCANEAR ${p.docto}</label>
-                        <button class="btn" style="background:#2e7d32; color:white; padding:8px; width:auto;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR</button>
-                        <input type="file" id="docUp${i}" hidden accept="image/*" onchange="if(this.files[0])processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b; renderProps();})">
-                    </div>
+                    <div class="box full-box" style="background:#e8f5e9; border:2px solid #2e7d32;"><label style="color:#2e7d32; font-weight:900;">📄 ESCANEAR ${p.docto}</label><button class="btn" style="background:#2e7d32; color:white;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR</button><input type="file" id="docUp${i}" hidden onchange="if(this.files[0])processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b; renderProps();})"></div>
 
                     ${esCasa ? `
                         <div class="section-label">🏠 DETALLES CASA</div>
@@ -340,81 +304,96 @@
                         <div class="box"><label>Patio</label><input type="text" value="${p.patio||''}" oninput="voxiData.props[${i}].patio=this.value"></div>
                         <div class="box"><label>Cochera</label><input type="text" value="${p.estacionamiento||''}" oninput="voxiData.props[${i}].estacionamiento=this.value"></div>
                         <div class="box"><label>Cisterna</label><input type="text" value="${p.cisterna||''}" oninput="voxiData.props[${i}].cisterna=this.value"></div>
-                        <div class="box"><label>Tinacos</label><select onchange="voxiData.props[${i}].tinacos=this.value"><option value="Ninguno" ${p.tinacos==='Ninguno'?'selected':''}>Ninguno</option><option value="1 Tinaco" ${p.tinacos==='1 Tinaco'?'selected':''}>1</option><option value="2 Tinacos" ${p.tinacos==='2 Tinacos'?'selected':''}>2</option></select></div>
-                        <div class="box"><label>Calentador</label><select onchange="voxiData.props[${i}].calentador=this.value"><option value="Ninguno" ${p.calentador==='Ninguno'?'selected':''}>No</option><option value="Solar" ${p.calentador==='Solar'?'selected':''}>Solar</option><option value="Boiler" ${p.calentador==='Boiler'?'selected':''}>Boiler</option><option value="Ambos" ${p.calentador==='Ambos'?'selected':''}>Ambos</option></select></div>
+                        <div class="box"><label>Tinacos</label><select onchange="voxiData.props[${i}].tinacos=this.value"><option value="Ninguno" ${p.tinacos==='Ninguno'?'selected':''}>Ninguno</option><option value="1" ${p.tinacos==='1'?'selected':''}>1</option><option value="2" ${p.tinacos==='2'?'selected':''}>2</option></select></div>
+                        <div class="box"><label>Calentador</label><select onchange="voxiData.props[${i}].calentador=this.value"><option value="Ninguno" ${p.calentador==='Ninguno'?'selected':''}>No</option><option value="Solar" ${p.calentador==='Solar'?'selected':''}>Solar</option><option value="Boiler" ${p.calentador==='Boiler'?'selected':''}>Boiler</option></select></div>
                         <div class="box"><label>Zaguán</label><select onchange="voxiData.props[${i}].zaguan=this.value"><option value="No" ${p.zaguan==='No'?'selected':''}>No</option><option value="Sí" ${p.zaguan==='Sí'?'selected':''}>Sí</option></select></div>
-                        <div class="box"><label>Ventanas</label><input type="text" value="${p.ventanas||''}" oninput="voxiData.props[${i}].ventanas=this.value"></div>
-                        <div class="box full-box"><label>Puertas</label><input type="text" value="${p.puertas||''}" oninput="voxiData.props[${i}].puertas=this.value"></div>
                     ` : ''}
 
                     <div class="section-label">📸 FOTOS</div>
-                    <div class="gallery">
-                        ${galH}
-                        <div class="gallery-item" style="border:2px dashed #ccc; display:flex; align-items:center; justify-content:center;" onclick="document.getElementById('gal${i}').click()">
-                            <i class="fas fa-plus"></i><input type="file" id="gal${i}" hidden multiple onchange="if(this.files)Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();}))">
-                        </div>
-                    </div>
+                    <div class="gallery">${galH}<div class="gallery-item" onclick="document.getElementById('gal${i}').click()"><i class="fas fa-plus"></i><input type="file" id="gal${i}" hidden multiple onchange="if(this.files)Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();}))"></div></div>
+                    
+                    <!-- DESCRIPCION RESTAURADA -->
+                    <div class="box full-box" style="margin-top:15px; border:2px solid #ddd;"><label>Descripción / Detalles Extras</label><textarea rows="3" oninput="voxiData.props[${i}].desc=this.value">${p.desc}</textarea></div>
                 </div>
 
-                <div style="margin-top:20px; background:#f0f7ff; padding:15px; border-radius:15px; border:2px solid #cce5ff;">
-                    <button class="btn" style="background:var(--info); color:white; font-size:1.1em;" onclick="openFlyerOptions(${i})"><i class="fas fa-paper-plane"></i> ENVIAR FLYER (3 OPCIONES)</button>
+                <div style="margin-top:20px; border:2px solid #cce5ff; padding:10px; border-radius:15px;">
+                    <button class="btn" style="background:var(--info); color:white;" onclick="openFlyerOptions(${i})"><i class="fas fa-paper-plane"></i> ENVIAR FLYER (3 OPCIONES)</button>
                 </div>
-
                 <div class="btn-print-options">
-                    <button class="btn" style="background:var(--success); color:white; font-size:0.85em;" onclick="exportFullJPG(${i})"><i class="fas fa-image"></i> GUARDAR JPG</button>
-                    <button class="btn" style="background:#333; color:white; font-size:0.85em;" onclick="printListingV31(${i})"><i class="fas fa-print"></i> IMPRIMIR TODO</button>
+                    <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="exportFullJPG(${i})">GUARDAR JPG</button>
+                    <button class="btn" style="background:#333; color:white; font-size:0.8em;" onclick="printListingV32(${i})">IMPRIMIR TODO</button>
                 </div>
             `;
             div.appendChild(card);
         });
     }
 
+    function renderProspects() {
+        const div = document.getElementById('prospectList'); div.innerHTML = '';
+        voxiData.milis.forEach((m, i) => {
+            const card = document.createElement('div'); card.className = 'card';
+            card.innerHTML = `<button class="btn-delete" onclick="voxiData.milis.splice(${i},1);renderProspects();">X</button><div class="box full-box"><label>Militar</label><input type="text" value="${m.nombre}" oninput="voxiData.milis[${i}].nombre=this.value"></div><div class="section-label">DOCS</div>${m.m.map((r, ri) => `<div class="check-item"><span>${r.n}</span><select onchange="voxiData.milis[${i}].m[${ri}].s=this.value;"><option value="f" ${r.s==='f'?'selected':''}>F</option><option value="o" ${r.s==='o'?'selected':''}>O</option></select></div>`).join('')}`;
+            div.appendChild(card);
+        });
+        voxiData.grals.forEach((g, i) => {
+            const card = document.createElement('div'); card.className = 'card';
+            card.innerHTML = `<button class="btn-delete" onclick="voxiData.grals.splice(${i},1);renderProspects();">X</button><div class="box full-box"><label>Efectivo</label><input type="text" value="${g.nombre}" oninput="voxiData.grals[${i}].nombre=this.value"></div>`;
+            div.appendChild(card);
+        });
+    }
+
+    function renderFiles() {
+        const div = document.getElementById('fileList'); div.innerHTML = '';
+        voxiData.files.forEach((f, i) => {
+            div.innerHTML += `<div class="file-item"><span>${f.name}</span><button onclick="voxiData.files.splice(${i},1);renderFiles();">X</button></div>`;
+        });
+    }
+
     function openFlyerOptions(i) {
-        currentPropIndex = i;
-        const p = voxiData.props[i];
-        document.getElementById('opt1-preview').innerText = `🔥 ¡OPORTUNIDAD! ${p.titulo} por solo $${p.precio}. Ubicada en ${p.ubicacion}. ¡No la dejes pasar!`;
-        document.getElementById('opt2-preview').innerText = `📋 FICHA TÉCNICA: ${p.titulo}. Superficie: ${p.area}. Recámaras: ${p.recamaras}. Medidas: N:${p.norte}, S:${p.sur}...`;
-        document.getElementById('opt3-preview').innerText = `🏡 TU NUEVO HOGAR: Imagina vivir en esta hermosa ${p.tipo} en ${p.ubicacion}. Con ${p.sala} sala y ${p.cocina} cocina.`;
+        currentPropIndex = i; const p = voxiData.props[i];
+        document.getElementById('opt1-p').innerText = `🔥 ¡OPORTUNIDAD! ${p.titulo} - $${p.precio}`;
+        document.getElementById('opt2-p').innerText = `📋 FICHA: ${p.titulo} - ${p.area} m2`;
+        document.getElementById('opt3-p').innerText = `🏡 HOGAR: ${p.tipo} en ${p.ubicacion}`;
         document.getElementById('flyerModal').style.display = 'flex';
     }
 
     function sendFlyer(style) {
-        const p = voxiData.props[currentPropIndex];
-        let text = "";
-        if(style === 1) {
-            text = `🔥 *¡OPORTUNIDAD DE REMATE!* 🔥\n\n🏠 *${p.titulo}*\n💰 *PRECIO:* $${p.precio}\n📍 *UBICACIÓN:* ${p.ubicacion}\n📐 *SUPERFICIE:* ${p.area}\n\n✨ ¡Ideal para inversión o tu nueva casa! Contáctame para una cita.`;
-        } else if(style === 2) {
-            text = `📋 *FICHA TÉCNICA - PROPIEDADES HR*\n\n🏠 *INMUEBLE:* ${p.titulo}\n💰 *COSTO:* $${p.precio}\n📐 *ÁREA TOTAL:* ${p.area}\n📍 *DIRECCIÓN:* ${p.ubicacion}\n\n*ESPECIFICACIONES:*\n🛏️ Recámaras: ${p.recamaras}\n🚿 Baños: ${p.banos}\n🍳 Cocina: ${p.cocina}\n🚗 Cochera: ${p.estacionamiento}\n💧 Cisterna: ${p.cisterna}\n🗺️ Medidas: N:${p.norte}, S:${p.sur}, E:${p.este}, O:${p.oeste}\n\n✅ Docto: ${p.docto}`;
-        } else {
-            text = `🏡 *EL HOGAR QUE BUSCABAS* 🏡\n\nVive con tu familia en esta hermosa ${p.tipo} ubicada en *${p.ubicacion}*.\n\nDisfruta de:\n✅ Sala ${p.sala}\n✅ Cocina ${p.cocina}\n✅ ${p.recamaras} amplias recámaras\n✅ Patio de servicio ${p.patio}\n\n💰 Todo esto por solo *$${p.precio}*.\n¡Haz tu sueño realidad hoy mismo!`;
-        }
-        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
+        const p = voxiData.props[currentPropIndex]; let t = "";
+        if(style===1) t = `🔥 *OPORTUNIDAD* 🔥\n*${p.titulo}*\n$${p.precio}\n${p.ubicacion}\n${p.desc}`;
+        else if(style===2) t = `📋 *FICHA TÉCNICA*\n*${p.titulo}*\n$${p.precio}\n${p.area}\n${p.recamaras} Recámaras\n${p.banos} Baños\n${p.cisterna} Cisterna`;
+        else t = `🏡 *TU NUEVO HOGAR*\n${p.titulo}\nEn ${p.ubicacion}\nSala ${p.sala}, Cocina ${p.cocina}\n¡Contáctame!`;
+        window.open("https://wa.me/?text=" + encodeURIComponent(t), '_blank');
         document.getElementById('flyerModal').style.display = 'none';
     }
 
-    function printListingV31(i) {
-        const cardContent = document.getElementById('fullPropCard' + i).cloneNode(true);
-        cardContent.querySelector('.btn-print-options').style.display = 'none';
-        cardContent.querySelector('.btn-delete').style.display = 'none';
-        cardContent.querySelector('.btn').parentElement.style.display = 'none';
-        document.body.innerHTML = `<div style="padding:40px;">${cardContent.innerHTML}</div>`;
-        window.print();
-        location.reload();
+    function printListingV32(i) {
+        const c = document.getElementById('fullPropCard' + i).cloneNode(true);
+        c.querySelector('.btn-print-options').style.display = 'none';
+        c.querySelector('.btn-delete').style.display = 'none';
+        c.querySelector('.btn').parentElement.style.display = 'none';
+        document.body.innerHTML = `<div style="padding:40px;">${c.innerHTML}</div>`;
+        window.print(); location.reload();
     }
 
     function exportFullJPG(i) {
-        html2canvas(document.getElementById('fullPropCard' + i), { scale: 2 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'Ficha_HR.jpg';
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
-            link.click();
+        html2canvas(document.getElementById('fullPropCard' + i)).then(canvas => {
+            const link = document.createElement('a'); link.download = 'Ficha.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.9); link.click();
         });
     }
 
-    function renderProspects() { /* ... similar ... */ }
-    function renderFiles() { /* ... similar ... */ }
-    function saveMaster() { localStorage.setItem('hr_v31_final', JSON.stringify(voxiData)); alert('✅ SISTEMA V31 GUARDADO'); }
-    function loadMaster() { const s = localStorage.getItem('hr_v31_final'); if(s) voxiData = JSON.parse(s); renderProps(); }
+    function saveContractAsFile() {
+        const txt = document.getElementById('editor').innerText;
+        voxiData.files.push({ name: 'Contrato_' + Date.now(), content: txt });
+        renderFiles(); alert('Guardado.');
+    }
+
+    function saveMaster() { localStorage.setItem('hr_v32_db', JSON.stringify(voxiData)); alert('✅ SISTEMA V32 GUARDADO'); }
+    function loadMaster() { const s = localStorage.getItem('hr_v32_db'); if(s) { voxiData = JSON.parse(s); renderProps(); renderProspects(); renderFiles(); } }
+    async function doOCR(i) { if(!i.files[0])return; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('editor').innerText=r.data.text; await w.terminate(); }
+    function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(document.getElementById('editor').innerText,10,20); d.save('HR.pdf'); }
+    function exportWord() { let b=new Blob([document.getElementById('editor').innerText],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='HR.doc'; a.click(); }
+    function exportJPG_Simple() { html2canvas(document.getElementById('editorArea')).then(c => { let a=document.createElement('a'); a.download='HR.jpg'; a.href=c.toDataURL('image/jpeg',0.9); a.click(); }); }
 
     window.onload = loadMaster;
 </script>
