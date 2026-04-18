@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hr-app-v38';
+const CACHE_NAME = 'hr-app-v39';
 const ASSETS = [
   './',
   './index.html',
