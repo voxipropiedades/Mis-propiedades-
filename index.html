@@ -55,6 +55,9 @@
             margin-bottom: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.09);
             position: relative; border: 1px solid #e0e0e0;
         }
+        /* Estilos diferenciados por tipo de cliente */
+        .card-mili { border-left: 8px solid var(--info); background: #f0f7ff; }
+        .card-gral { border-left: 8px solid var(--success); background: #f1f8e9; }
         .box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .box { background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px; }
         .box label { font-size: 0.62em; font-weight: 900; color: #757575; display: block; text-transform: uppercase; margin-bottom: 3px; }
@@ -215,17 +218,17 @@
                 <i class="fas fa-hard-hat"></i>
                 <div>
                     <div style="font-weight:950; font-size:1.1em;">Constructor Independiente HR</div>
-                    <div style="font-size:0.75em; color:#777;">Tu asesor de ventas personal</div>
+                    <div style="font-size:0.75em; color:#777;">Tu asesor personal de ventas</div>
                 </div>
             </div>
-            <div id="assistant-quote" class="assist-quote">"Cargando tu plan del día..."</div>
+            <div id="assistant-quote" class="assist-quote">"Preparando tu plan de hoy..."</div>
 
-            <div class="section-label" style="grid-column:unset;">📊 PANEL EN TIEMPO REAL</div>
+            <div class="section-label" style="grid-column:unset;">📊 RESUMEN ACTUAL</div>
             <div class="stat-grid" style="margin-top:12px;">
-                <div class="stat-box"><h5>❄️ Fríos</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
+                <div class="stat-box"><h5>❄️ Seguimiento</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
                 <div class="stat-box"><h5>🤝 Por Cerrar</h5><p id="stat-closing" style="color:var(--success);">0</p></div>
                 <div class="stat-box"><h5>🏠 Disponibles</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
-                <div class="stat-box"><h5>💰 Pagos Pend.</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
+                <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
             </div>
         </div>
 
@@ -542,36 +545,44 @@
         ];
 
         allProspects.forEach((p) => {
-            const card = document.createElement('div'); card.className = 'card';
             const isMili = p.type === 'milis';
+            const card = document.createElement('div'); 
+            card.className = 'card ' + (isMili ? 'card-mili' : 'card-gral');
             const statusColors = { 'Frío':'#bbdefb','Tibio':'#fff9c4','Por cerrar':'#c8e6c9','Pendiente Pago':'#ffe0b2','Vendido':'#e8f5e9' };
             const sc = statusColors[p.status] || '#f5f5f5';
 
             card.innerHTML = `
                 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1);renderProspects();autoSave();}"><i class="fas fa-trash"></i></button>
-                <div style="background:${sc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px;">${p.status||'Sin estado'}</div>
+                <div style="background:${sc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1);">${p.status||'Sin estado'}</div>
+                
                 <div class="box-container">
-                    <div class="box full-box"><label>${isMili ? '🪖 Militar' : '💵 Efectivo'}</label><input type="text" value="${p.nombre}" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()"></div>
-                    <div class="box"><label>📱 Teléfono</label><input type="text" value="${p.tel||''}" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
-                    <div class="box"><label>Estado</label>
+                    <div class="box full-box">
+                        <label>${isMili ? '🪖 Cliente Militar (Crédito)' : '💵 Cliente Efectivo (Contado)'}</label>
+                        <input type="text" value="${p.nombre}" placeholder="Nombre completo" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
+                    </div>
+                    <div class="box"><label>📱 Teléfono</label><input type="text" value="${p.tel||''}" placeholder="WhatsApp" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
+                    <div class="box"><label>Etapa</label>
                         <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()">
-                            <option value="Frío" ${p.status==='Frío'?'selected':''}>❄️ Frío</option>
-                            <option value="Tibio" ${p.status==='Tibio'?'selected':''}>🔥 Tibio</option>
-                            <option value="Por cerrar" ${p.status==='Por cerrar'?'selected':''}>🤝 Por cerrar</option>
-                            <option value="Pendiente Pago" ${p.status==='Pendiente Pago'?'selected':''}>💰 Pendiente Pago</option>
-                            <option value="Vendido" ${p.status==='Vendido'?'selected':''}>✅ Vendido</option>
+                            <option value="Frío" ${p.status==='Frío'?'selected':''}>Seguimiento inicial</option>
+                            <option value="Tibio" ${p.status==='Tibio'?'selected':''}>Interesado</option>
+                            <option value="Por cerrar" ${p.status==='Por cerrar'?'selected':''}>Listo para trato</option>
+                            <option value="Pendiente Pago" ${p.status==='Pendiente Pago'?'selected':''}>Esperando pago</option>
+                            <option value="Vendido" ${p.status==='Vendido'?'selected':''}>Venta cerrada</option>
                         </select>
                     </div>
-                    <div class="box full-box"><label>📅 Último Contacto</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
+                    <div class="box full-box"><label>📅 Última plática</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
+                    
                     ${isMili ? `
-                        <div class="section-label">DOCUMENTOS</div>
-                        ${p.m.map((r, ri) => `<div class="check-item"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
+                        <div class="section-label">📋 DOCUMENTACIÓN PARA CRÉDITO</div>
+                        <p style="grid-column:span 2; font-size:0.7em; color:#555; margin-top:-10px;">Indica qué documentos ya tienes en mano para tramitar ISSFAM/FOVISSSTE:</p>
+                        ${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
                     ` : `
-                        <div class="box full-box"><label>Interés / Notas</label><input type="text" value="${p.interes||''}" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()"></div>
+                        <div class="section-label">💵 DETALLES DEL TRATO DIRECTO</div>
+                        <div class="box full-box" style="background:#fff;"><label>¿Qué busca? / Notas del trato</label><textarea rows="2" style="font-weight:700;" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()">${p.interes||''}</textarea></div>
                     `}
                 </div>
-                <button class="btn" style="background:var(--wa-green); color:white; margin-top:14px; font-size:0.8em;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
-                    <i class="fab fa-whatsapp"></i> MENSAJE INTELIGENTE
+                <button class="btn" style="background:var(--wa-green); color:white; margin-top:14px; font-size:0.85em; border-radius:14px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
+                    <i class="fab fa-whatsapp"></i> ENVIAR MENSAJE PERSONALIZADO
                 </button>
             `;
             div.appendChild(card);
@@ -605,12 +616,12 @@
         const area = p.area || '';
         const desc = p.desc || '';
         const maps = p.maps ? `\n📍 Ubicación: ${p.maps}` : '';
-        if(style === 1) return `🔥 *¡OPORTUNIDAD DE INVERSIÓN!* 🔥\n\n📌 *${nombre}*\n💰 Precio: *${precio}*\n📍 ${ubi}\n\n${desc ? desc+'\n' : ''}¿Te interesa? Contáctame y te doy todos los detalles.${maps}`;
-        if(style === 2) return `📋 *FICHA TÉCNICA*\n\n🏠 *${nombre}*\n📐 Área: ${area} m²\n🛏 Recámaras: ${p.recamaras || '—'}\n🚿 Baños: ${p.banos || '—'}\n🚗 Cochera: ${p.estacionamiento || '—'}\n💧 Cisterna: ${p.cisterna || '—'}\n💰 Precio: *${precio}*\n📍 ${ubi}${maps}\n\n¿Quieres visitarla? ¡Con gusto te la muestro!`;
-        if(style === 3) return `🏡 *Imagina llegar a tu hogar...*\n\nSala propia, cocina amplia, cuartos para tu familia.\n\n*${nombre}* en ${ubi}.\n\nEsto puede ser tuyo. Precio: *${precio}*.\n\nDime y lo hacemos posible. 💙${maps}`;
-        if(style === 4) return `🪖 *¡Atención Militares y Familia Militar!* 🪖\n\nAprovecha tu *crédito Fovissste / Issfam* para adquirir:\n\n🏠 *${nombre}*\n📍 ${ubi}\n📐 ${area} m²\n\nTe oriento en todo el proceso, desde los documentos hasta la firma. Sin complicaciones.\n\n¿Quieres más info? Escríbeme. 💪${maps}`;
-        if(style === 5) return `💵 *OFERTA PAGO EN EFECTIVO* 💵\n\n🔑 *${nombre}*\n📍 ${ubi}\n\nPrecio de lista: ${precio}\n✅ *Con pago de contado: precio especial*\n\nEscríbeme y te doy el precio directo. Sin intermediarios, trato de persona a persona. 🤝${maps}`;
-        if(style === 6) return `🏗️ *¡PREVENTA DISPONIBLE!*\n\n📌 *${nombre}*\n📍 ${ubi}\n📐 ${area} m²\n\n🔑 Aún puedes elegir el diseño y acabados.\n🏡 Entrega en aprox. 3 meses.\n💰 Precio: *${precio}*\n\n¿Quieres apartar la tuya antes de que se termine? ¡Contáctame ahora!${maps}`;
+        if(style === 1) return `Hola, te comparto esta excelente oportunidad de inversión.\n\n📌 *${nombre}*\n💰 Precio: *${precio}*\n📍 ${ubi}\n\n${desc ? desc+'\n' : ''}Es una propiedad con mucho potencial. ¿Gustas que te dé más información?${maps}`;
+        if(style === 2) return `Qué tal, aquí tienes los detalles técnicos de la propiedad:\n\n🏠 *${nombre}*\n📐 Área: ${area} m²\n🛏 Recámaras: ${p.recamaras || '—'}\n🚿 Baños: ${p.banos || '—'}\n🚗 Cochera: ${p.estacionamiento || '—'}\n💰 Precio: *${precio}*\n📍 ${ubi}${maps}\n\nCualquier duda técnica que tengas, estoy a tus órdenes.`;
+        if(style === 3) return `Imagina llegar a tu nueva casa y disfrutar de este espacio con tu familia.\n\n*${nombre}* en ${ubi}.\n\nEs un lugar ideal para crear nuevos recuerdos. El precio es de *${precio}*.\n\n¿Cuándo podrías venir a conocerla? Me gustaría mucho mostrártela. 🏠${maps}`;
+        if(style === 4) return `Hola, te escribo porque tengo opciones ideales para aprovechar tu crédito militar (ISSFAM / FOVISSSTE).\n\nPodemos platicar sobre esta propiedad:\n🏠 *${nombre}*\n📍 ${ubi}\n\nO si prefieres, podemos ver la opción de construir tu casa desde cero a tu gusto. Yo te guío en todo el trámite de documentos para que no tengas complicaciones. 💪${maps}`;
+        if(style === 5) return `Hola, si estás buscando una compra rápida y sin vueltas, esta propiedad es para ti.\n\n🔑 *${nombre}*\n📍 ${ubi}\n\nAl ser trato directo y pago de contado, podemos platicar un descuento especial para que cierres el trato hoy mismo. 🤝${maps}`;
+        if(style === 6) return `¡Qué tal! Te comparto que tenemos este proyecto en preventa.\n\n📌 *${nombre}*\n📍 ${ubi}\n\nLo mejor de comprar en preventa es que aún puedes elegir algunos detalles y el diseño. La entrega es en unos 3 meses aproximadamente.\n\n¿Te gustaría ver los planos o el avance?${maps}`;
         return '';
     }
 
@@ -704,11 +715,11 @@
         document.getElementById('stat-payments').innerText = pendingPay;
 
         const quotes = [
-            "Hoy enfócate primero en los clientes que están listos para cerrar. Ellos ya te dijeron que sí.",
-            "Un mensaje a tiempo vale más que diez llamadas sin respuesta. ¿A quién le escribes hoy?",
-            "No necesitas más clientes. Necesitas cerrar los que ya tienes.",
-            "Las ventas no se cierran esperando. Haz el primer movimiento.",
-            "Tu trabajo de hoy es encontrar al que estaba esperando tu llamada."
+            "Hoy enfócate primero en los clientes que están listos para cerrar. Ellos ya confían en ti.",
+            "Un mensaje personal vale más que diez automáticos. ¿A quién vas a saludar hoy?",
+            "No necesitas más prospectos, necesitas concretar los que ya tienes en proceso.",
+            "Las ventas se cierran cuando hay seguimiento. ¿Cómo van tus trámites militares?",
+            "Recuerda que para el cliente efectivo, la rapidez y el ahorro son clave."
         ];
         document.getElementById('assistant-quote').innerText = quotes[now.getDay() % quotes.length];
 
@@ -716,11 +727,11 @@
         const agendaDiv = document.getElementById('assistant-agenda');
         agendaDiv.innerHTML = '';
         let agendaItems = [];
-        if(closing > 0) agendaItems.push({ text: `Contactar a ${closing} cliente(s) que están POR CERRAR`, priority: true });
-        if(pendingPay > 0) agendaItems.push({ text: `Seguimiento de ${pendingPay} pago(s) pendiente(s)`, priority: true });
-        if(unsold > 0) agendaItems.push({ text: `Promover ${unsold} propiedad(es) disponible(s) en redes sociales`, priority: false });
-        if(cold > 0) agendaItems.push({ text: `Reactivar ${cold} prospecto(s) fríos con un mensaje corto`, priority: false });
-        agendaItems.push({ text: 'Actualizar precios y datos de propiedades', priority: false });
+        if(closing > 0) agendaItems.push({ text: `Seguimiento a ${closing} cliente(s) listos para trato`, priority: true });
+        if(pendingPay > 0) agendaItems.push({ text: `Revisar ${pendingPay} pago(s) pendiente(s)`, priority: true });
+        if(unsold > 0) agendaItems.push({ text: `Publicar ${unsold} propiedad(es) en tus estados de WhatsApp`, priority: false });
+        if(cold > 0) agendaItems.push({ text: `Mandar saludo a los ${cold} clientes que tienen días sin platicar`, priority: false });
+        agendaItems.push({ text: 'Actualizar precios de tus terrenos y casas', priority: false });
         agendaItems.push({ text: 'Tomar o actualizar fotos de propiedades disponibles', priority: false });
 
         agendaItems.forEach((item, idx) => {
@@ -746,21 +757,21 @@
                 sugDiv.innerHTML += `<div class="task-item">
                     <span style="font-size:1.4em;">🤝</span>
                     <div class="task-info">
-                        <b>${p.nombre}</b> está LISTO para cerrar.
-                        <div style="color:#555; margin-top:3px;">Mándale la propuesta final hoy. No dejes que se enfríe.</div>
+                        <b>${p.nombre}</b> está muy cerca de cerrar.
+                        <div style="color:#555; margin-top:3px;">Platica con él hoy para concretar los detalles finales.</div>
                     </div>
                     <button class="wa-mini" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','Por cerrar','${isMili?'mili':'gral'}')">
-                        <i class="fab fa-whatsapp"></i> CERRAR
+                        <i class="fab fa-whatsapp"></i> CONCRETAR
                     </button>
                 </div>`;
             } else if(diffDays > 5 && p.status !== 'Vendido') {
                 hasSuggestions = true;
                 const isMili = voxiData.milis.includes(p);
                 sugDiv.innerHTML += `<div class="task-item">
-                    <span style="font-size:1.4em;">⏰</span>
+                    <span style="font-size:1.4em;">✉️</span>
                     <div class="task-info">
-                        <b>${p.nombre}</b> lleva ${diffDays} días sin respuesta.
-                        <div style="color:#555; margin-top:3px;">Un saludo breve puede reactivarlo.</div>
+                        <b>${p.nombre}</b> no ha tenido noticias tuyas en ${diffDays} días.
+                        <div style="color:#555; margin-top:3px;">Escríbele para ver si tiene alguna duda nueva.</div>
                     </div>
                     <button class="wa-mini" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
                         <i class="fab fa-whatsapp"></i> SALUDAR
@@ -794,15 +805,15 @@
         const hotClients = allProspects.filter(p => p.status === 'Por cerrar');
         if(hotClients.length > 0) {
             alertDiv.innerHTML += `<div class="alert-hot">
-                <h4><i class="fas fa-fire"></i> CLIENTES CALIENTES 🔥</h4>
-                ${hotClients.map(p => `<div style="font-size:0.82em; padding:4px 0; font-weight:700;">✅ ${p.nombre} — <span style="color:#777;">¡Listo para cerrar!</span></div>`).join('')}
+                <h4><i class="fas fa-check-circle"></i> LISTOS PARA TRATO</h4>
+                ${hotClients.map(p => `<div style="font-size:0.82em; padding:4px 0; font-weight:700;">✅ ${p.nombre} — <span style="color:#777;">Dar seguimiento final</span></div>`).join('')}
             </div>`;
         }
 
         if(pendingPay > 0) {
             const pp = allProspects.filter(p => p.status === 'Pendiente Pago');
             alertDiv.innerHTML += `<div class="alert-warn">
-                <h4><i class="fas fa-exclamation-triangle"></i> PAGOS PENDIENTES ⚠️</h4>
+                <h4><i class="fas fa-clock"></i> PAGOS PENDIENTES</h4>
                 ${pp.map(p => `<div style="font-size:0.82em; padding:4px 0; font-weight:700;">💰 ${p.nombre}</div>`).join('')}
             </div>`;
         }
@@ -810,8 +821,8 @@
         const coldClients = allProspects.filter(p => p.status === 'Frío');
         if(coldClients.length > 0) {
             alertDiv.innerHTML += `<div class="alert-cold">
-                <h4><i class="fas fa-snowflake"></i> PROSPECTOS FRÍOS ❄️</h4>
-                ${coldClients.slice(0,5).map(p => `<div style="font-size:0.82em; padding:4px 0; font-weight:700;">❄️ ${p.nombre}</div>`).join('')}
+                <h4><i class="fas fa-user-clock"></i> SEGUIMIENTO INICIAL</h4>
+                ${coldClients.slice(0,5).map(p => `<div style="font-size:0.82em; padding:4px 0; font-weight:700;">👤 ${p.nombre}</div>`).join('')}
             </div>`;
         }
 
@@ -833,12 +844,12 @@
     }
 
     function saveMaster(showMsg) {
-        localStorage.setItem('hr_v35_db', JSON.stringify(voxiData));
+        localStorage.setItem('hr_v36_db', JSON.stringify(voxiData));
         if(showMsg) alert('✅ TODO GUARDADO CORRECTAMENTE');
     }
 
     function loadMaster() {
-        const s = localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
+        const s = localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
         if(s) { voxiData = JSON.parse(s); renderProps(); renderProspects(); renderFiles(); renderAssistant(); }
     }
 
