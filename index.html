@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Propiedades HR - SISTEMA MASTER V33 ASISTENTE</title>
+    <title>Propiedades HR - SISTEMA MASTER V34 ESTABLE</title>
     <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
@@ -153,16 +153,21 @@
         .task-item i { color: var(--success); }
         .alert-card { background: #fff5f5; border: 2px solid #ffcccc; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
         .alert-card h4 { margin: 0 0 10px; color: #c62828; display: flex; align-items: center; gap: 10px; font-size: 0.9em; }
+
+        /* Novedad V34: Status de Guardado */
+        #auto-save-status { font-size: 0.7em; color: var(--success); font-weight: 800; display: none; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <header>
     <img src="icon.png" class="header-logo" alt="HR">
-    <span style="font-weight: 950; font-size: 1.4em;">HR MASTER V33 + ASISTENTE</span>
+    <span style="font-weight: 950; font-size: 1.4em;">HR MASTER V34 ESTABLE</span>
 </header>
 
 <div class="container">
+    <div id="auto-save-status">💾 Autoguardado...</div>
+    
     <div class="nav-tabs">
         <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-robot"></i> ASISTENTE</button>
         <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
@@ -232,7 +237,15 @@
     </div>
 
     <div id="archivos" class="tab-content">
-        <div class="card"><h2><i class="fas fa-archive"></i> Archivos</h2><div id="fileList"></div></div>
+        <div class="card">
+            <h2><i class="fas fa-archive"></i> Archivos y Respaldo</h2>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                <button class="btn" style="background:var(--info); color:white; font-size:0.75em;" onclick="exportData()"><i class="fas fa-download"></i> EXPORTAR RESPALDO</button>
+                <button class="btn" style="background:#673ab7; color:white; font-size:0.75em;" onclick="document.getElementById('importInput').click()"><i class="fas fa-upload"></i> IMPORTAR RESPALDO</button>
+                <input type="file" id="importInput" hidden accept=".json" onchange="importData(this)">
+            </div>
+            <div id="fileList"></div>
+        </div>
     </div>
 </div>
 
@@ -246,7 +259,7 @@
     </div>
 </div>
 
-<div class="fixed-footer"><button class="btn btn-save" onclick="saveMaster()"><i class="fas fa-save"></i> GUARDAR TODO</button></div>
+<div class="fixed-footer"><button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button></div>
 
 <script>
     let voxiData = { props: [], milis: [], grals: [], files: [] };
@@ -296,6 +309,7 @@
             voxiData.grals.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Tibio', lastContact: new Date().toISOString().split('T')[0], interes: '', doctos: '' });
             renderProspects();
         }
+        autoSave();
     }
 
     function renderProps() {
@@ -305,64 +319,63 @@
             const esCasa = p.tipo.includes('Casa');
             let galH = '';
             (p.gallery || []).forEach((img, gi) => {
-                galH += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="voxiData.props[${i}].gallery.splice(${gi},1);renderProps();">X</button></div>`;
+                galH += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="if(confirm('¿Quitar foto?')){voxiData.props[${i}].gallery.splice(${gi},1);renderProps();autoSave();}">X</button></div>`;
             });
 
             const card = document.createElement('div');
             card.className = 'card';
             card.id = 'fullPropCard' + i;
             card.innerHTML = `
-                <button class="btn-delete" onclick="voxiData.props.splice(${i},1);renderProps();"><i class="fas fa-trash"></i></button>
+                <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1);renderProps();autoSave();}"><i class="fas fa-trash"></i></button>
                 <div class="main-photo" onclick="document.getElementById('imgM${i}').click()">
                     ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x"></i>'}
-                    <input type="file" id="imgM${i}" hidden onchange="if(this.files[0])processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;renderProps();})">
+                    <input type="file" id="imgM${i}" hidden onchange="if(this.files[0])processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;renderProps();autoSave();})">
                 </div>
                 
                 <div class="box-container">
-                    <div class="box full-box"><label>Dueño</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value"></div>
-                    <div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option></select></div>
-                    <div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value"><option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>Preventa</option><option value="Construida" ${p.estatus==='Construida'?'selected':''}>Construida</option></select></div>
-                    <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value"></div>
-                    <div class="box"><label>Precio</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value" style="color:var(--success);"></div>
-                    <div class="box"><label>Ganancia</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value" style="color:var(--primary);"></div>
+                    <div class="box full-box"><label>Dueño</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value;autoSave()"></div>
+                    <div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();autoSave()"><option value="Casa" ${p.tipo==='Casa'?'selected':''}>Casa</option><option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>Terreno</option></select></div>
+                    <div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value;autoSave()"><option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>Preventa</option><option value="Construida" ${p.estatus==='Construida'?'selected':''}>Construida</option><option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>Vendido</option></select></div>
+                    <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
+                    <div class="box"><label>Precio</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;autoSave()" style="color:var(--success);"></div>
+                    <div class="box"><label>Ganancia</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value;autoSave()" style="color:var(--primary);"></div>
                     
                     <div class="section-label">📍 UBICACIÓN</div>
-                    <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value"></div>
-                    <div class="box full-box"><label>Maps</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value"></div>
+                    <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
+                    <div class="box full-box"><label>Maps</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value;autoSave()"></div>
 
                     <div class="section-label">🗺️ MEDIDAS</div>
-                    <div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value"></div>
-                    <div class="box"><label>Sur</label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value"></div>
-                    <div class="box"><label>Este</label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value"></div>
-                    <div class="box"><label>Oeste</label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value"></div>
+                    <div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value;autoSave()"></div>
+                    <div class="box"><label>Sur</label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value;autoSave()"></div>
+                    <div class="box"><label>Este</label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value;autoSave()"></div>
+                    <div class="box"><label>Oeste</label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value;autoSave()"></div>
 
-                    <div class="box full-box" style="border:3px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary); font-weight:950;">ÁREA TOTAL</label><input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value" style="font-weight:950; font-size:1.4em;"></div>
+                    <div class="box full-box" style="border:3px solid var(--primary); background:#fff9f9;"><label style="color:var(--primary); font-weight:950;">ÁREA TOTAL</label><input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value;autoSave()" style="font-weight:950; font-size:1.4em;"></div>
 
                     <div class="section-label">📋 DOCUMENTOS</div>
-                    <div class="box"><label>Docto</label><select onchange="voxiData.props[${i}].docto=this.value;renderProps();"><option value="Escritura Pública" ${p.docto==='Escritura Pública'?'selected':''}>Escritura Pública</option><option value="Título" ${p.docto==='Título'?'selected':''}>Título</option></select></div>
-                    <div class="box"><label>Permisos</label><select onchange="voxiData.props[${i}].permisos=this.value"><option value="No" ${p.permisos==='No'?'selected':''}>No</option><option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option></select></div>
-                    <div class="box full-box" style="background:#e8f5e9; border:2px solid #2e7d32;"><label style="color:#2e7d32; font-weight:900;">📄 ESCANEAR ${p.docto}</label><button class="btn" style="background:#2e7d32; color:white;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR</button><input type="file" id="docUp${i}" hidden onchange="if(this.files[0])processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b; renderProps();})"></div>
+                    <div class="box"><label>Docto</label><select onchange="voxiData.props[${i}].docto=this.value;renderProps();autoSave()"><option value="Escritura Pública" ${p.docto==='Escritura Pública'?'selected':''}>Escritura Pública</option><option value="Título" ${p.docto==='Título'?'selected':''}>Título</option></select></div>
+                    <div class="box"><label>Permisos</label><select onchange="voxiData.props[${i}].permisos=this.value;autoSave()"><option value="No" ${p.permisos==='No'?'selected':''}>No</option><option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option></select></div>
+                    <div class="box full-box" style="background:#e8f5e9; border:2px solid #2e7d32;"><label style="color:#2e7d32; font-weight:900;">📄 ESCANEAR ${p.docto}</label><button class="btn" style="background:#2e7d32; color:white;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR</button><input type="file" id="docUp${i}" hidden onchange="if(this.files[0])processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b; renderProps();autoSave();})"></div>
 
                     ${esCasa ? `
                         <div class="section-label">🏠 DETALLES CASA</div>
-                        <div class="box"><label>Sala</label><input type="text" value="${p.sala||''}" oninput="voxiData.props[${i}].sala=this.value"></div>
-                        <div class="box"><label>Cocina</label><input type="text" value="${p.cocina||''}" oninput="voxiData.props[${i}].cocina=this.value"></div>
-                        <div class="box"><label>¿Integral?</label><select onchange="voxiData.props[${i}].cocina_integral=this.value"><option value="No" ${p.cocina_integral==='No'?'selected':''}>No</option><option value="Sí" ${p.cocina_integral==='Sí'?'selected':''}>Sí</option></select></div>
-                        <div class="box"><label>Recámaras</label><input type="text" value="${p.recamaras||''}" oninput="voxiData.props[${i}].recamaras=this.value"></div>
-                        <div class="box"><label>Baños</label><input type="text" value="${p.banos||''}" oninput="voxiData.props[${i}].banos=this.value"></div>
-                        <div class="box"><label>Patio</label><input type="text" value="${p.patio||''}" oninput="voxiData.props[${i}].patio=this.value"></div>
-                        <div class="box"><label>Cochera</label><input type="text" value="${p.estacionamiento||''}" oninput="voxiData.props[${i}].estacionamiento=this.value"></div>
-                        <div class="box"><label>Cisterna</label><input type="text" value="${p.cisterna||''}" oninput="voxiData.props[${i}].cisterna=this.value"></div>
-                        <div class="box"><label>Tinacos</label><select onchange="voxiData.props[${i}].tinacos=this.value"><option value="Ninguno" ${p.tinacos==='Ninguno'?'selected':''}>Ninguno</option><option value="1" ${p.tinacos==='1'?'selected':''}>1</option><option value="2" ${p.tinacos==='2'?'selected':''}>2</option></select></div>
-                        <div class="box"><label>Calentador</label><select onchange="voxiData.props[${i}].calentador=this.value"><option value="Ninguno" ${p.calentador==='Ninguno'?'selected':''}>No</option><option value="Solar" ${p.calentador==='Solar'?'selected':''}>Solar</option><option value="Boiler" ${p.calentador==='Boiler'?'selected':''}>Boiler</option></select></div>
-                        <div class="box"><label>Zaguán</label><select onchange="voxiData.props[${i}].zaguan=this.value"><option value="No" ${p.zaguan==='No'?'selected':''}>No</option><option value="Sí" ${p.zaguan==='Sí'?'selected':''}>Sí</option></select></div>
+                        <div class="box"><label>Sala</label><input type="text" value="${p.sala||''}" oninput="voxiData.props[${i}].sala=this.value;autoSave()"></div>
+                        <div class="box"><label>Cocina</label><input type="text" value="${p.cocina||''}" oninput="voxiData.props[${i}].cocina=this.value;autoSave()"></div>
+                        <div class="box"><label>¿Integral?</label><select onchange="voxiData.props[${i}].cocina_integral=this.value;autoSave()"><option value="No" ${p.cocina_integral==='No'?'selected':''}>No</option><option value="Sí" ${p.cocina_integral==='Sí'?'selected':''}>Sí</option></select></div>
+                        <div class="box"><label>Recámaras</label><input type="text" value="${p.recamaras||''}" oninput="voxiData.props[${i}].recamaras=this.value;autoSave()"></div>
+                        <div class="box"><label>Baños</label><input type="text" value="${p.banos||''}" oninput="voxiData.props[${i}].banos=this.value;autoSave()"></div>
+                        <div class="box"><label>Patio</label><input type="text" value="${p.patio||''}" oninput="voxiData.props[${i}].patio=this.value;autoSave()"></div>
+                        <div class="box"><label>Cochera</label><input type="text" value="${p.estacionamiento||''}" oninput="voxiData.props[${i}].estacionamiento=this.value;autoSave()"></div>
+                        <div class="box"><label>Cisterna</label><input type="text" value="${p.cisterna||''}" oninput="voxiData.props[${i}].cisterna=this.value;autoSave()"></div>
+                        <div class="box"><label>Tinacos</label><select onchange="voxiData.props[${i}].tinacos=this.value;autoSave()"><option value="Ninguno" ${p.tinacos==='Ninguno'?'selected':''}>Ninguno</option><option value="1" ${p.tinacos==='1'?'selected':''}>1</option><option value="2" ${p.tinacos==='2'?'selected':''}>2</option></select></div>
+                        <div class="box"><label>Calentador</label><select onchange="voxiData.props[${i}].calentador=this.value;autoSave()"><option value="Ninguno" ${p.calentador==='Ninguno'?'selected':''}>No</option><option value="Solar" ${p.calentador==='Solar'?'selected':''}>Solar</option><option value="Boiler" ${p.calentador==='Boiler'?'selected':''}>Boiler</option></select></div>
+                        <div class="box"><label>Zaguán</label><select onchange="voxiData.props[${i}].zaguan=this.value;autoSave()"><option value="No" ${p.zaguan==='No'?'selected':''}>No</option><option value="Sí" ${p.zaguan==='Sí'?'selected':''}>Sí</option></select></div>
                     ` : ''}
 
                     <div class="section-label">📸 FOTOS</div>
-                    <div class="gallery">${galH}<div class="gallery-item" onclick="document.getElementById('gal${i}').click()"><i class="fas fa-plus"></i><input type="file" id="gal${i}" hidden multiple onchange="if(this.files)Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();}))"></div></div>
+                    <div class="gallery">${galH}<div class="gallery-item" onclick="document.getElementById('gal${i}').click()"><i class="fas fa-plus"></i><input type="file" id="gal${i}" hidden multiple onchange="if(this.files)Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();autoSave();}))"></div></div>
                     
-                    <!-- DESCRIPCION RESTAURADA -->
-                    <div class="box full-box" style="margin-top:15px; border:2px solid #ddd;"><label>Descripción / Detalles Extras</label><textarea rows="3" oninput="voxiData.props[${i}].desc=this.value">${p.desc}</textarea></div>
+                    <div class="box full-box" style="margin-top:15px; border:2px solid #ddd;"><label>Descripción / Detalles Extras</label><textarea rows="3" oninput="voxiData.props[${i}].desc=this.value;autoSave()">${p.desc}</textarea></div>
                 </div>
 
                 <div style="margin-top:20px; border:2px solid #cce5ff; padding:10px; border-radius:15px;">
@@ -389,12 +402,12 @@
             const isMili = p.type === 'milis';
             
             card.innerHTML = `
-                <button class="btn-delete" onclick="voxiData.${p.type}.splice(${p.originalIndex},1);renderProspects();">X</button>
+                <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1);renderProspects();autoSave();}"><i class="fas fa-trash"></i></button>
                 <div class="box-container">
-                    <div class="box full-box"><label>${isMili ? 'Militar' : 'Efectivo'}</label><input type="text" value="${p.nombre}" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value"></div>
-                    <div class="box"><label>Teléfono</label><input type="text" value="${p.tel||''}" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value"></div>
+                    <div class="box full-box"><label>${isMili ? 'Militar' : 'Efectivo'}</label><input type="text" value="${p.nombre}" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()"></div>
+                    <div class="box"><label>Teléfono</label><input type="text" value="${p.tel||''}" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
                     <div class="box"><label>Estado</label>
-                        <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();">
+                        <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()">
                             <option value="Frío" ${p.status==='Frío'?'selected':''}>❄️ Frío</option>
                             <option value="Tibio" ${p.status==='Tibio'?'selected':''}>🔥 Tibio</option>
                             <option value="Por cerrar" ${p.status==='Por cerrar'?'selected':''}>🤝 Por cerrar</option>
@@ -402,13 +415,13 @@
                             <option value="Vendido" ${p.status==='Vendido'?'selected':''}>✅ Vendido</option>
                         </select>
                     </div>
-                    <div class="box full-box"><label>Último Contacto</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value"></div>
+                    <div class="box full-box"><label>Último Contacto</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
                     
                     ${isMili ? `
                         <div class="section-label">DOCS</div>
-                        ${p.m.map((r, ri) => `<div class="check-item"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;"><option value="f" ${r.s==='f'?'selected':''}>F</option><option value="o" ${r.s==='o'?'selected':''}>O</option></select></div>`).join('')}
+                        ${p.m.map((r, ri) => `<div class="check-item"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>F</option><option value="o" ${r.s==='o'?'selected':''}>O</option></select></div>`).join('')}
                     ` : `
-                        <div class="box full-box"><label>Interés / Notas</label><input type="text" value="${p.interes||''}" oninput="voxiData.grals[${p.originalIndex}].interes=this.value"></div>
+                        <div class="box full-box"><label>Interés / Notas</label><input type="text" value="${p.interes||''}" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()"></div>
                     `}
                 </div>
             `;
@@ -419,7 +432,7 @@
     function renderFiles() {
         const div = document.getElementById('fileList'); div.innerHTML = '';
         voxiData.files.forEach((f, i) => {
-            div.innerHTML += `<div class="file-item"><span>${f.name}</span><button onclick="voxiData.files.splice(${i},1);renderFiles();">X</button></div>`;
+            div.innerHTML += `<div class="file-item"><span>${f.name}</span><button onclick="if(confirm('¿Borrar archivo?')){voxiData.files.splice(${i},1);renderFiles();autoSave();}">X</button></div>`;
         });
     }
 
@@ -459,95 +472,81 @@
     function saveContractAsFile() {
         const txt = document.getElementById('editor').innerText;
         voxiData.files.push({ name: 'Contrato_' + Date.now(), content: txt });
-        renderFiles(); alert('Guardado.');
+        renderFiles(); autoSave(); alert('Guardado en Archivos.');
     }
 
     function renderAssistant() {
         const now = new Date();
         const allProspects = [...voxiData.milis, ...voxiData.grals];
-        
-        // Calcular Estadísticas
         const cold = allProspects.filter(p => p.status === 'Frío').length;
         const closing = allProspects.filter(p => p.status === 'Por cerrar').length;
         const unsold = voxiData.props.filter(p => p.estatus !== 'Vendido').length;
         const pendingPay = allProspects.filter(p => p.status === 'Pendiente Pago').length;
-
         document.getElementById('stat-cold').innerText = cold;
         document.getElementById('stat-closing').innerText = closing;
         document.getElementById('stat-props').innerText = unsold;
         document.getElementById('stat-payments').innerText = pendingPay;
 
-        // Frase Humana
-        const quotes = [
-            "El éxito no es el final, el fracaso no es fatal: es el coraje de continuar lo que cuenta.",
-            "Hoy es un gran día para llamar a ese cliente que tienes pendiente.",
-            "Recuerda: una propiedad bien presentada se vende sola.",
-            "Tu esposa va a estar muy orgullosa de ese cierre que harás hoy.",
-            "Enfócate en los clientes 'Por cerrar', ahí está la meta."
-        ];
+        const quotes = ["¡Hoy es un gran día para cerrar ventas!", "Enfócate en tus clientes por cerrar.", "Una buena foto vende más que mil palabras.", "Revisa tus prospectos fríos, dales calor.", "Tu esposa estará feliz con ese cierre hoy."];
         document.getElementById('assistant-quote').innerText = '"' + quotes[Math.floor(Math.random() * quotes.length)] + '"';
 
-        // Sugerencias Inteligentes
-        const sugDiv = document.getElementById('assistant-suggestions');
-        sugDiv.innerHTML = '';
-        
+        const sugDiv = document.getElementById('assistant-suggestions'); sugDiv.innerHTML = '';
         allProspects.forEach(p => {
             const last = new Date(p.lastContact);
             const diffDays = Math.ceil(Math.abs(now - last) / (1000 * 60 * 60 * 24));
-            
             if(diffDays > 3 && p.status !== 'Vendido') {
-                sugDiv.innerHTML += `
-                    <div class="task-item">
-                        <i class="fas fa-comment-dots"></i>
-                        <span><b>${p.nombre}</b> lleva ${diffDays} días sin mensaje. ¡Salúdalo!</span>
-                        <button class="btn" style="width:auto; padding:5px 10px; font-size:0.7em; background:var(--wa-green); color:white;" onclick="window.open('https://wa.me/${p.tel}?text=Hola ${p.nombre}, ¿cómo estás? Te escribo para saludar y ver qué te pareció la propiedad.')">WHATSAPP</button>
-                    </div>`;
+                sugDiv.innerHTML += `<div class="task-item"><i class="fas fa-comment-dots"></i> <span><b>${p.nombre}</b>: ${diffDays} días sin mensaje. <button class="btn" style="width:auto; padding:5px; font-size:0.6em; background:var(--wa-green); color:white;" onclick="window.open('https://wa.me/${p.tel}?text=Hola ${p.nombre}, ¿cómo vas?')">SALUDAR</button></span></div>`;
             }
         });
 
-        if(unsold > 0) {
-            const randomProp = voxiData.props.filter(p => p.estatus !== 'Vendido')[0];
-            sugDiv.innerHTML += `
-                <div class="task-item">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>La propiedad <b>${randomProp.titulo}</b> tiene potencial. ¿La promovemos hoy?</span>
-                    <button class="btn" style="width:auto; padding:5px 10px; font-size:0.7em; background:var(--info); color:white;" onclick="openTab('inventario')">VER</button>
-                </div>`;
-        }
-
-        // Agenda del Día
-        const agendaDiv = document.getElementById('assistant-agenda');
-        agendaDiv.innerHTML = '';
-        const closingClients = allProspects.filter(p => p.status === 'Por cerrar');
-        closingClients.forEach(p => {
-            agendaDiv.innerHTML += `<div class="task-item"><i class="fas fa-handshake"></i> <span>Prioridad: Cerrar trato con <b>${p.nombre}</b>.</span></div>`;
-        });
-        agendaDiv.innerHTML += `<div class="task-item"><i class="fas fa-check-circle"></i> <span>Revisar inventario y actualizar precios.</span></div>`;
-
-        // Alertas Inteligentes
-        const alertDiv = document.getElementById('assistant-alerts');
-        alertDiv.innerHTML = '';
-        if(pendingPay > 0) {
-            alertDiv.innerHTML += `
-                <div class="alert-card">
-                    <h4><i class="fas fa-exclamation-triangle"></i> PAGO PENDIENTE</h4>
-                    <p style="margin:0; font-size:0.85em;">Tienes ${pendingPay} cliente(s) con pagos pendientes. ¡No los pierdas de vista!</p>
-                </div>`;
-        }
-        if(closing > 0) {
-            alertDiv.innerHTML += `
-                <div class="alert-card" style="border-color:#c8e6c9; background:#f1f8e9;">
-                    <h4 style="color:#2e7d32;"><i class="fas fa-star"></i> CERCA DEL CIERRE</h4>
-                    <p style="margin:0; font-size:0.85em; color:#333;">${closing} cliente(s) están por cerrar. Es momento de enviar la propuesta final.</p>
-                </div>`;
-        }
+        const alertDiv = document.getElementById('assistant-alerts'); alertDiv.innerHTML = '';
+        if(pendingPay > 0) alertDiv.innerHTML += `<div class="alert-card"><h4>⚠️ PAGOS PENDIENTES</h4><p>${pendingPay} clientes deben pagos.</p></div>`;
     }
 
-    function saveMaster() { localStorage.setItem('hr_v33_db', JSON.stringify(voxiData)); alert('✅ SISTEMA V33 + ASISTENTE GUARDADO'); }
+    /* FUNCIONES DE SEGURIDAD V34 */
+    let saveTimeout;
+    function autoSave() {
+        const status = document.getElementById('auto-save-status');
+        status.style.display = 'block';
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            saveMaster(false);
+            setTimeout(() => { status.style.display = 'none'; }, 1000);
+        }, 1500);
+    }
+
+    function saveMaster(showMsg) {
+        localStorage.setItem('hr_v34_db', JSON.stringify(voxiData));
+        if(showMsg) alert('✅ TODO GUARDADO CORRECTAMENTE');
+    }
+
     function loadMaster() { 
-        const s = localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db'); 
+        const s = localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db'); 
         if(s) { voxiData = JSON.parse(s); renderProps(); renderProspects(); renderFiles(); renderAssistant(); } 
     }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify(voxiData)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'RESPALDO_HR_' + new Date().toISOString().split('T')[0] + '.json';
+        a.click();
+    }
+
+    function importData(input) {
+        if(!input.files[0]) return;
+        if(!confirm('¿Estás seguro? Esto reemplazará toda tu información actual.')) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                voxiData = JSON.parse(e.target.result);
+                saveMaster(false);
+                location.reload();
+            } catch(err) { alert('Error al cargar archivo.'); }
+        };
+        reader.readAsText(input.files[0]);
+    }
+
     async function doOCR(i) { if(!i.files[0])return; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('editor').innerText=r.data.text; await w.terminate(); }
     function exportPDF() { const {jsPDF}=window.jspdf; let d=new jsPDF(); d.text(document.getElementById('editor').innerText,10,20); d.save('HR.pdf'); }
     function exportWord() { let b=new Blob([document.getElementById('editor').innerText],{type:'application/msword'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='HR.doc'; a.click(); }
