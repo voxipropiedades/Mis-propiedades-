@@ -10,6 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Firebase SDKs Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --primary: #b71c1c;
@@ -193,14 +196,22 @@
 </head>
 <body>
 
-<header>
-    <img src="icon.png" class="header-logo" alt="HR">
-    <span style="font-weight:950; font-size:1.3em;">Constructor Independiente HR</span>
-    <span class="header-sub">Sistema de Ventas Inteligente</span>
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="icon.png" class="header-logo" alt="HR">
+        <div>
+            <span style="font-weight:950; font-size:1.1em; display: block;">Constructor Independiente HR</span>
+            <span class="header-sub" style="font-size: 0.7em;">Sistema de Ventas Inteligente</span>
+        </div>
+    </div>
+    <button onclick="manualSync()" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Sincronizar Nube">
+        <i class="fas fa-cloud-download-alt"></i>
+    </button>
 </header>
 
 <div class="container">
     <div id="auto-save-status">💾 Guardando...</div>
+    <div id="cloud-status" style="font-size: 0.72em; color: #1565c0; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e3f2fd; border-radius:8px; display:none; width:fit-content;">☁️ Sincronizando Nube...</div>
 
     <div class="nav-tabs">
         <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
@@ -361,6 +372,20 @@
 </div>
 
 <script>
+    // --- FIREBASE CONFIG ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
+      authDomain: "voxiapp-6672e.firebaseapp.com",
+      projectId: "voxiapp-6672e",
+      storageBucket: "voxiapp-6672e.firebasestorage.app",
+      messagingSenderId: "332968241548",
+      appId: "1:332968241548:web:7f35ebe2cd2443fb0732",
+      measurementId: "G-77F6483313"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const SYNC_ID = "voxi_main_db"; // ID único para este usuario
+
     let voxiData = { props: [], milis: [], grals: [], files: [] };
     let currentPropIndex = null;
     let currentWANumber = '';
@@ -845,12 +870,75 @@
 
     function saveMaster(showMsg) {
         localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        
+        // --- CLOUD SYNC ---
+        const cStatus = document.getElementById('cloud-status');
+        if(cStatus) cStatus.style.display = 'block';
+        
+        db.collection("data").doc(SYNC_ID).set(voxiData)
+            .then(() => { 
+                console.log("Cloud Save Success");
+                if(cStatus) {
+                    cStatus.innerHTML = '☁️ Nube Actualizada';
+                    setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+                }
+            })
+            .catch(err => {
+                console.error("Cloud Save Error", err);
+                if(cStatus) {
+                    cStatus.innerHTML = '⚠️ Error en Nube';
+                    cStatus.style.color = 'red';
+                }
+            });
+
         if(showMsg) alert('✅ TODO GUARDADO CORRECTAMENTE');
     }
 
-    function loadMaster() {
+    async function loadMaster() {
+        // Primero cargamos local para velocidad
         const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
-        if(s) { voxiData = JSON.parse(s); renderProps(); renderProspects(); renderFiles(); renderAssistant(); }
+        if(s) { 
+            voxiData = JSON.parse(s); 
+            renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
+        }
+
+        // --- CLOUD LOAD SILENT ---
+        db.collection("data").doc(SYNC_ID).get().then(doc => {
+            if(doc.exists) {
+                const cloudData = doc.data();
+                if(!s) {
+                    // Si no había nada local, usamos lo de la nube directo
+                    voxiData = cloudData;
+                    renderProps(); renderProspects(); renderFiles(); renderAssistant();
+                    localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+                } else {
+                    console.log("Datos locales presentes, ignorando carga automática de nube.");
+                }
+            }
+        });
+    }
+
+    function manualSync() {
+        if(!confirm('¿Quieres descargar los datos de la Nube? Esto reemplazará lo que tienes en este dispositivo.')) return;
+        
+        const cStatus = document.getElementById('cloud-status');
+        if(cStatus) {
+            cStatus.style.display = 'block';
+            cStatus.innerHTML = '☁️ Descargando...';
+        }
+
+        db.collection("data").doc(SYNC_ID).get().then(doc => {
+            if(doc.exists) {
+                voxiData = doc.data();
+                localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+                alert('✅ Sincronización Exitosa. La página se recargará.');
+                location.reload();
+            } else {
+                alert('❌ No se encontró respaldo en la nube para este ID.');
+            }
+        }).catch(err => {
+            alert('❌ Error al conectar con la nube: ' + err.message);
+        });
     }
 
     // ─── EXPORTAR / IMPORTAR RESPALDO ─────────────────────────
