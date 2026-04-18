@@ -203,31 +203,31 @@
     <div id="auto-save-status">💾 Guardando...</div>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-robot"></i> ASISTENTE</button>
+        <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
         <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
         <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')"><i class="fas fa-users"></i> PROSPECTOS</button>
         <button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> CONTRATOS</button>
         <button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> ARCHIVOS</button>
     </div>
 
-    <!-- ============ TAB: ASISTENTE DE VENTAS ============ -->
+    <!-- ============ TAB: TABLERO ============ -->
     <div id="asistente" class="tab-content active-tab">
 
         <div class="assist-card">
             <div class="assist-header">
-                <i class="fas fa-hard-hat"></i>
+                <i class="fas fa-th-large"></i>
                 <div>
-                    <div style="font-weight:950; font-size:1.1em;">Constructor Independiente HR</div>
-                    <div style="font-size:0.75em; color:#777;">Tu asesor personal de ventas</div>
+                    <div style="font-weight:950; font-size:1.1em;">Tablero de Control</div>
+                    <div style="font-size:0.75em; color:#777;">Constructor Independiente HR</div>
                 </div>
             </div>
             <div id="assistant-quote" class="assist-quote">"Preparando tu plan de hoy..."</div>
 
-            <div class="section-label" style="grid-column:unset;">📊 RESUMEN ACTUAL</div>
+            <div class="section-label" style="grid-column:unset;">📊 MÉTRICAS Y RESUMEN</div>
             <div class="stat-grid" style="margin-top:12px;">
-                <div class="stat-box"><h5>❄️ Seguimiento</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
+                <div class="stat-box"><h5>🏠 Propiedades</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
                 <div class="stat-box"><h5>🤝 Por Cerrar</h5><p id="stat-closing" style="color:var(--success);">0</p></div>
-                <div class="stat-box"><h5>🏠 Disponibles</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
+                <div class="stat-box"><h5>❄️ Seguimiento</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
                 <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
             </div>
         </div>
@@ -700,18 +700,18 @@
         renderFiles(); autoSave(); alert('Guardado en Archivos.');
     }
 
-    // ─── ASISTENTE DE VENTAS INTELIGENTE ─────────────────────
+    // ─── ASISTENTE DE VENTAS INTELIGENTE (TABLERO) ─────────────
     function renderAssistant() {
         const now = new Date();
         const allProspects = [...voxiData.milis, ...voxiData.grals];
         const cold = allProspects.filter(p => p.status === 'Frío').length;
         const closing = allProspects.filter(p => p.status === 'Por cerrar').length;
-        const unsold = voxiData.props.filter(p => p.estatus !== 'Vendido').length;
+        const totalProps = voxiData.props.length;
         const pendingPay = allProspects.filter(p => p.status === 'Pendiente Pago').length;
 
         document.getElementById('stat-cold').innerText = cold;
         document.getElementById('stat-closing').innerText = closing;
-        document.getElementById('stat-props').innerText = unsold;
+        document.getElementById('stat-props').innerText = totalProps;
         document.getElementById('stat-payments').innerText = pendingPay;
 
         const quotes = [
@@ -844,12 +844,12 @@
     }
 
     function saveMaster(showMsg) {
-        localStorage.setItem('hr_v37_db', JSON.stringify(voxiData));
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
         if(showMsg) alert('✅ TODO GUARDADO CORRECTAMENTE');
     }
 
     function loadMaster() {
-        const s = localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
+        const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
         if(s) { voxiData = JSON.parse(s); renderProps(); renderProspects(); renderFiles(); renderAssistant(); }
     }
 
