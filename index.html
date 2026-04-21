@@ -561,7 +561,7 @@
                 <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1);renderProps();autoSave();}"><i class="fas fa-trash"></i></button>
                 <div class="main-photo" onclick="document.getElementById('imgM${i}').click()">
                     ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i><div style="font-size:0.7em; color:#888; margin-top:5px;">CAPTURAR FOTO</div>'}
-                    <input type="file" id="imgM${i}" hidden accept="image/*" onchange="if(this.files[0]){processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;saveLocation(${i},true);renderProps();autoSave();})}">
+                    <input type="file" id="imgM${i}" hidden multiple accept="image/*" onchange="if(this.files){saveLocation(${i},true); Array.from(this.files).forEach((f,idx)=>{ processImg(f,800,(b)=>{ if(idx===0) voxiData.props[${i}].mainImg=b; else voxiData.props[${i}].gallery.push(b); renderProps(); autoSave(); })}); }">
                 </div>
 
                 <div class="box-container">
@@ -645,7 +645,7 @@
                     <div class="gallery" style="grid-column:span 2;">${galH}
                         <div class="gallery-item" onclick="document.getElementById('gal${i}').click()">
                             <i class="fas fa-plus" style="color:#aaa;"></i>
-                            <input type="file" id="gal${i}" hidden multiple accept="image/*" onchange="if(this.files){saveLocation(${i},true);Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();autoSave();}))}">
+                            <input type="file" id="gal${i}" hidden multiple accept="image/*" onchange="if(this.files){saveLocation(${i},true); Array.from(this.files).forEach(f=>processImg(f,800,(b)=>{ if(!voxiData.props[${i}].mainImg) voxiData.props[${i}].mainImg=b; else voxiData.props[${i}].gallery.push(b); renderProps(); autoSave(); })); }">
                         </div>
                     </div>
 
