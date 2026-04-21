@@ -187,6 +187,21 @@
 
         #auto-save-status { font-size: 0.72em; color: var(--success); font-weight: 900; display: none; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; display:none; width:fit-content; }
 
+        /* Filtros y Organización */
+        .filter-bar { display:flex; gap:6px; overflow-x:auto; padding:10px 0; margin-bottom:12px; scrollbar-width: none; }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-btn { 
+            background:white; border:1px solid #ddd; padding:8px 14px; border-radius:20px; font-size:0.75em; 
+            cursor:pointer; white-space:nowrap; transition:0.3s; color:#666; font-weight:700;
+        }
+        .filter-btn.active { background:var(--primary); border-color:var(--primary); color:white; }
+
+        .sync-banner { 
+            background:#fff9c4; color:#827717; padding:10px; text-align:center; 
+            font-size:0.75em; border-radius:12px; margin-bottom:15px; border:1px solid #fbc02d;
+            font-weight:900; display:flex; align-items:center; justify-content:center; gap:8px;
+        }
+
         @media print {
             body { background: white; padding: 0 !important; }
             .nav-tabs, header, .fixed-footer, .btn, .btn-delete, .modal-overlay, .btn-print-options, #auto-save-status { display: none !important; }
@@ -223,6 +238,9 @@
 
     <!-- ============ TAB: TABLERO ============ -->
     <div id="asistente" class="tab-content active-tab">
+        <div id="cloud-sync-status" class="sync-banner">
+            <i class="fas fa-cloud-upload-alt"></i> CONECTADO A NUBE (FIRESTORE) - GUARDADO AUTOMÁTICO
+        </div>
 
         <div class="assist-card">
             <div class="assist-header">
@@ -265,7 +283,18 @@
 
     <!-- ============ TAB: INVENTARIO ============ -->
     <div id="inventario" class="tab-content">
-        <button class="btn btn-add" onclick="addItem('props')"><i class="fas fa-plus-circle"></i> AGREGAR PROPIEDAD / PARCELA</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <button class="btn" style="width:auto; padding:10px 20px;" onclick="addItem('props')"><i class="fas fa-plus-circle"></i> AGREGAR PROPIEDAD</button>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="setPropFilter('Todos', this)">Todos</button>
+            <button class="filter-btn" onclick="setPropFilter('Casa', this)">Casas</button>
+            <button class="filter-btn" onclick="setPropFilter('Terreno', this)">Terrenos</button>
+            <button class="filter-btn" onclick="setPropFilter('Parcela', this)">Parcelas</button>
+            <button class="filter-btn" onclick="setPropFilter('Bodega', this)">Bodegas</button>
+        </div>
+
         <div id="propList"></div>
     </div>
 
@@ -275,6 +304,13 @@
             <button class="btn" style="background:var(--info); color:white; font-size:0.8em;" onclick="addItem('milis')"><i class="fas fa-user-shield"></i> NUEVO MILITAR</button>
             <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="addItem('grals')"><i class="fas fa-user-tag"></i> NUEVO EFECTIVO</button>
         </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="setProspectFilter('Todos', this)">Todos</button>
+            <button class="filter-btn" onclick="setProspectFilter('milis', this)">Militar</button>
+            <button class="filter-btn" onclick="setProspectFilter('grals', this)">Efectivo</button>
+        </div>
+
         <div id="prospectList"></div>
     </div>
 
@@ -434,6 +470,23 @@
     }
 
     // ─── AGREGAR ELEMENTOS ────────────────────────────────────
+    let currentPropFilter = 'Todos';
+    let currentProspectFilter = 'Todos';
+
+    function setPropFilter(f, btn) {
+        currentPropFilter = f;
+        document.querySelectorAll('#inventario .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderProps();
+    }
+
+    function setProspectFilter(f, btn) {
+        currentProspectFilter = f;
+        document.querySelectorAll('#prospectos .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderProspects();
+    }
+
     function addItem(type) {
         if(type === 'props') {
             voxiData.props.unshift({
@@ -444,6 +497,11 @@
                 bardeado: 'No', calle: 'Terracería', antiguedad: 'Nueva', docto: 'Escritura Pública', permisos: 'No',
                 luz: false, agua: false, drenaje: false, mainImg: null, gallery: [], desc: '', docImg: null
             });
+            currentPropFilter = 'Todos';
+            document.querySelectorAll('#inventario .filter-btn').forEach(b => {
+                if(b.innerText === 'Todos') b.classList.add('active');
+                else b.classList.remove('active');
+            });
             renderProps();
         } else if(type === 'milis') {
             voxiData.milis.unshift({ 
@@ -452,6 +510,11 @@
                 casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [],
                 pagos: [], montoTotal: 0, fechaApartado: ''
             });
+            currentProspectFilter = 'Todos';
+            document.querySelectorAll('#prospectos .filter-btn').forEach(b => {
+                if(b.innerText === 'Todos') b.classList.add('active');
+                else b.classList.remove('active');
+            });
             renderProspects();
         } else if(type === 'grals') {
             voxiData.grals.unshift({ 
@@ -459,6 +522,11 @@
                 lastContact: new Date().toISOString().split('T')[0], 
                 interes: '', doctos: '',
                 pagos: [], montoTotal: 0, fechaApartado: ''
+            });
+            currentProspectFilter = 'Todos';
+            document.querySelectorAll('#prospectos .filter-btn').forEach(b => {
+                if(b.innerText === 'Todos') b.classList.add('active');
+                else b.classList.remove('active');
             });
             renderProspects();
         }
@@ -469,7 +537,10 @@
     function renderProps() {
         const div = document.getElementById('propList');
         div.innerHTML = '';
+        
         voxiData.props.forEach((p, i) => {
+            if(currentPropFilter !== 'Todos' && p.tipo !== currentPropFilter) return;
+
             const esCasa = p.tipo.includes('Casa');
             let galH = '';
             (p.gallery || []).forEach((img, gi) => {
@@ -492,6 +563,7 @@
                         <option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏠 Casa</option>
                         <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🏞️ Terreno</option>
                         <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>🌄 Parcela</option>
+                        <option value="Bodega" ${p.tipo==='Bodega'?'selected':''}>🏗️ Bodega</option>
                     </select></div>
                     <div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value;autoSave()">
                         <option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>🏗️ Preventa</option>
@@ -581,6 +653,9 @@
                     <button class="btn" style="background:var(--success); color:white; font-size:0.78em;" onclick="exportFullJPG(${i})"><i class="fas fa-image"></i> GUARDAR JPG</button>
                     <button class="btn" style="background:#333; color:white; font-size:0.78em;" onclick="printListingV32(${i})"><i class="fas fa-print"></i> IMPRIMIR</button>
                 </div>
+                <button class="btn" style="margin-top:15px; background:var(--primary); color:white; font-weight:950; font-size:0.9em; box-shadow:0 4px 10px rgba(255,107,0,0.3);" onclick="renderProps(); window.scrollTo({top:0, behavior:'smooth'});">
+                    <i class="fas fa-check-circle"></i> GUARDAR Y FINALIZAR REGISTRO
+                </button>
             `;
             div.appendChild(card);
         });
@@ -595,6 +670,8 @@
         ];
 
         allProspects.forEach((p) => {
+            if(currentProspectFilter !== 'Todos' && p.type !== currentProspectFilter) return;
+
             const isMili = p.type === 'milis';
             const card = document.createElement('div'); 
             card.className = 'card ' + (isMili ? 'card-mili' : 'card-gral');
