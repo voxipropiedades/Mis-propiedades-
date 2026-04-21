@@ -272,13 +272,9 @@
     <!-- ============ TAB: PROSPECTOS ============ -->
     <div id="prospectos" class="tab-content">
         <div class="card" style="margin-bottom:18px; background: #fdfdfd; border-top:4px solid var(--info);">
-            <div style="font-weight:900; font-size:0.9em; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-                <i class="fas fa-user-plus" style="color:var(--info);"></i> AÑADIR PROSPECTO
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <button class="btn" style="background:var(--info); color:white; font-size:0.8em;" onclick="addItem('milis')"><i class="fas fa-user-shield"></i> NUEVO MILITAR</button>
-                <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="addItem('grals')"><i class="fas fa-user-tag"></i> NUEVO EFECTIVO</button>
-            </div>
+            <button class="btn" style="background:var(--info); color:white; font-weight:900; width:100%;" onclick="addItem('milis')">
+                <i class="fas fa-user-plus"></i> AÑADIR PROSPECTO
+            </button>
         </div>
         <div id="prospectList"></div>
     </div>
@@ -402,6 +398,14 @@
     const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Pre-auth"];
 
     // ─── NAVEGACIÓN ───────────────────────────────────────────
+    function moveProspect(fromType, index, toType) {
+        if (fromType === toType) return;
+        const item = voxiData[fromType].splice(index, 1)[0];
+        voxiData[toType].unshift(item);
+        renderProspects();
+        autoSave();
+    }
+
     function openTab(id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active-tab'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -529,10 +533,10 @@
             });
             renderProps();
         } else if(type === 'milis') {
-            voxiData.milis.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Tibio', lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
+            voxiData.milis.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Pendiente', lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
             renderProspects();
         } else if(type === 'grals') {
-            voxiData.grals.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Tibio', lastContact: new Date().toISOString().split('T')[0], interes: '', doctos: '' });
+            voxiData.grals.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Pendiente', lastContact: new Date().toISOString().split('T')[0], interes: '', doctos: '' });
             renderProspects();
         }
         autoSave();
@@ -677,50 +681,53 @@
             const card = document.createElement('div'); 
             card.className = 'card ' + (isMili ? 'card-mili' : 'card-gral');
             
-            // Colores de Etapa (Rojo = Pendiente, Verde = Cerrado)
+            // Colores de Etapa: Pendiente(Rojo), En Pláticas(Amarillo), Ya dio apartado(Azul), Cerrado(Verde)
             const stColors = { 
                 'Pendiente':'#ffebee', 
-                'Cerrado':'#e8f5e9', 
-                'Vendido':'#e8f5e9',
-                'Frío':'#bbdefb',
-                'Tibio':'#fff9c4',
-                'Por cerrar':'#c8e6c9',
-                'Pendiente Pago':'#ffe0b2'
+                'En Pláticas':'#fff9c4', 
+                'Ya dio apartado':'#e3f2fd', 
+                'Cerrado':'#e8f5e9' 
             };
             const txtColors = { 
                 'Pendiente':'#d32f2f', 
-                'Cerrado':'#2e7d32', 
-                'Vendido':'#2e7d32' 
+                'En Pláticas':'#fbc02d', 
+                'Ya dio apartado':'#1976d2', 
+                'Cerrado':'#2e7d32' 
             };
+            
             const sc = stColors[p.status] || '#f5f5f5';
             const tc = txtColors[p.status] || '#333';
 
             card.innerHTML = `
                 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1);renderProspects();autoSave();}"><i class="fas fa-trash"></i></button>
-                <div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'Sin estado'}</div>
+                <div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'PENDIENTE'}</div>
                 
                 <div class="box-container">
                     <div class="box full-box">
-                        <label>${isMili ? '🪖 Cliente Militar (Crédito)' : '💵 Cliente Efectivo (Contado)'}</label>
-                        <input type="text" value="${p.nombre}" placeholder="Nombre completo" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
+                        <label>👉 Tipo de Cliente</label>
+                        <select onchange="moveProspect('${p.type}', ${p.originalIndex}, this.value)" style="font-weight:900; color:var(--info);">
+                            <option value="milis" ${isMili?'selected':''}>🪖 MILITAR (CRÉDITO)</option>
+                            <option value="grals" ${!isMili?'selected':''}>💵 EFECTIVO (CONTADO)</option>
+                        </select>
                     </div>
-                    <div class="box"><label>📱 Teléfono</label><input type="text" value="${p.tel||''}" placeholder="WhatsApp" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
+                    <div class="box full-box">
+                        <label>Nombre Completo</label>
+                        <input type="text" value="${p.nombre}" placeholder="Nombre del cliente" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
+                    </div>
+                    <div class="box"><label>📱 WhatsApp</label><input type="text" value="${p.tel||''}" placeholder="771..." oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
                     <div class="box"><label>Etapa</label>
                         <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()" style="color:${tc}; font-weight:700;">
                             <option value="Pendiente" ${p.status==='Pendiente'?'selected':''}>🔴 Pendiente</option>
-                            <option value="Frío" ${p.status==='Frío'?'selected':''}>Seguimiento inicial</option>
-                            <option value="Tibio" ${p.status==='Tibio'?'selected':''}>Interesado</option>
-                            <option value="Por cerrar" ${p.status==='Por cerrar'?'selected':''}>Listo para trato</option>
-                            <option value="Pendiente Pago" ${p.status==='Pendiente Pago'?'selected':''}>Esperando pago</option>
+                            <option value="En Pláticas" ${p.status==='En Pláticas'?'selected':''}>🟡 En Pláticas</option>
+                            <option value="Ya dio apartado" ${p.status==='Ya dio apartado'?'selected':''}>🔵 Ya dio apartado</option>
                             <option value="Cerrado" ${p.status==='Cerrado'?'selected':''}>🟢 Cerrado</option>
-                            <option value="Vendido" ${p.status==='Vendido'?'selected':''}>Venta cerrada</option>
                         </select>
                     </div>
                     <div class="box full-box"><label>📅 Última plática</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
                     
                     ${isMili ? `
                         <div class="section-label">📋 DOCUMENTACIÓN PARA CRÉDITO</div>
-                        <p style="grid-column:span 2; font-size:0.7em; color:#555; margin-top:-10px;">Indica qué documentos ya tienes en mano para tramitar ISSFAM/FOVISSSTE:</p>
+                        <p style="grid-column:span 2; font-size:0.7em; color:#555; margin-top:-10px;">Indica qué documentos ya tienes en mano:</p>
                         ${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
                     ` : `
                         <div class="section-label">💵 DETALLES DEL TRATO DIRECTO</div>
@@ -820,10 +827,11 @@
     function openWADirect(tel, nombre, status, tipo) {
         currentWANumber = tel;
         let msg = '';
-        if(status === 'Por cerrar') msg = `Hola ${nombre}, ¿cómo estás? Quería retomar nuestra plática sobre la propiedad. ¿Tienes un momento esta semana para que la revisemos juntos y cerremos?`;
-        else if(status === 'Pendiente Pago') msg = `Hola ${nombre}, espero que estés bien. Te escribo para coordinar lo del pago pendiente. ¿Cuándo te quedaría bien hablar?`;
+        if(status === 'En Pláticas') msg = `Hola ${nombre}, ¿cómo estás? Quería retomar nuestra plática sobre la propiedad. ¿Tienes un momento esta semana para que la revisemos juntos y avancemos?`;
+        else if(status === 'Ya dio apartado') msg = `Hola ${nombre}, espero que estés bien. Te escribo para felicitarte por el apartado y coordinar los siguientes pasos del contrato. ¿Cuándo te quedaría bien hablar?`;
+        else if(status === 'Pendiente') msg = `Hola ${nombre}, ¿cómo estás? Te escribo para saludarte y ver si ya tomaste una decisión sobre la propiedad que te enseñé. ¿Tienes dudas que pueda resolver?`;
         else if(tipo === 'mili') msg = `Hola ${nombre}, ¿cómo te ha ido? Te escribo para ver si ya tienes todo listo con tu crédito. Aquí estoy para orientarte en lo que necesites.`;
-        else msg = `Hola ${nombre}, ¿cómo estás? Te escribo para saludarte y ver si ya tomaste una decisión sobre la propiedad que te enseñé. ¿Tienes dudas que pueda resolver?`;
+        else msg = `Hola ${nombre}, ¿cómo estás? Quería darte seguimiento a lo que platicamos. ¡Sigo a tus órdenes!`;
 
         const area = document.getElementById('waDirectArea');
         area.value = msg;
@@ -867,15 +875,15 @@
     function renderAssistant() {
         const now = new Date();
         const allProspects = [...voxiData.milis, ...voxiData.grals];
-        const cold = allProspects.filter(p => p.status === 'Frío').length;
-        const closing = allProspects.filter(p => p.status === 'Por cerrar').length;
+        const cold = allProspects.filter(p => p.status === 'Pendiente').length;
+        const closing = allProspects.filter(p => p.status === 'Ya dio apartado').length;
         const totalProps = voxiData.props.length;
-        const pendingPay = allProspects.filter(p => p.status === 'Pendiente Pago').length;
+        const inTalks = allProspects.filter(p => p.status === 'En Pláticas').length;
 
         document.getElementById('stat-cold').innerText = cold;
         document.getElementById('stat-closing').innerText = closing;
         document.getElementById('stat-props').innerText = totalProps;
-        document.getElementById('stat-payments').innerText = pendingPay;
+        document.getElementById('stat-payments').innerText = inTalks;
 
         const quotes = [
             "Hoy enfócate primero en los clientes que están listos para cerrar. Ellos ya confían en ti.",
@@ -890,10 +898,9 @@
         const agendaDiv = document.getElementById('assistant-agenda');
         agendaDiv.innerHTML = '';
         let agendaItems = [];
-        if(closing > 0) agendaItems.push({ text: `Seguimiento a ${closing} cliente(s) listos para trato`, priority: true });
-        if(pendingPay > 0) agendaItems.push({ text: `Revisar ${pendingPay} pago(s) pendiente(s)`, priority: true });
-        if(unsold > 0) agendaItems.push({ text: `Publicar ${unsold} propiedad(es) en tus estados de WhatsApp`, priority: false });
-        if(cold > 0) agendaItems.push({ text: `Mandar saludo a los ${cold} clientes que tienen días sin platicar`, priority: false });
+        if(closing > 0) agendaItems.push({ text: `Continuar trámite con ${closing} cliente(s) que ya apartaron`, priority: true });
+        if(inTalks > 0) agendaItems.push({ text: `Seguimiento a ${inTalks} cliente(s) en pláticas`, priority: true });
+        if(cold > 0) agendaItems.push({ text: `Mandar saludo a los ${cold} clientes nuevos/pendientes`, priority: false });
         agendaItems.push({ text: 'Actualizar precios de tus terrenos y casas', priority: false });
         agendaItems.push({ text: 'Tomar o actualizar fotos de propiedades disponibles', priority: false });
 
@@ -914,20 +921,20 @@
             const last = p.lastContact ? new Date(p.lastContact) : null;
             const diffDays = last ? Math.ceil(Math.abs(now - last) / (1000*60*60*24)) : 99;
 
-            if(p.status === 'Por cerrar') {
+            if(p.status === 'Ya dio apartado') {
                 hasSuggestions = true;
                 const isMili = voxiData.milis.includes(p);
                 sugDiv.innerHTML += `<div class="task-item">
-                    <span style="font-size:1.4em;">🤝</span>
+                    <span style="font-size:1.4em;">🔵</span>
                     <div class="task-info">
-                        <b>${p.nombre}</b> está muy cerca de cerrar.
-                        <div style="color:#555; margin-top:3px;">Platica con él hoy para concretar los detalles finales.</div>
+                        <b>${p.nombre}</b> ya dio su apartado.
+                        <div style="color:#555; margin-top:3px;">Coordina los siguientes pasos del contrato hoy mismo.</div>
                     </div>
-                    <button class="wa-mini" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','Por cerrar','${isMili?'mili':'gral'}')">
-                        <i class="fab fa-whatsapp"></i> CONCRETAR
+                    <button class="wa-mini" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','Ya dio apartado','${isMili?'mili':'gral'}')">
+                        <i class="fab fa-whatsapp"></i> CONTRATO
                     </button>
                 </div>`;
-            } else if(diffDays > 5 && p.status !== 'Vendido') {
+            } else if(diffDays > 5 && p.status !== 'Cerrado') {
                 hasSuggestions = true;
                 const isMili = voxiData.milis.includes(p);
                 sugDiv.innerHTML += `<div class="task-item">
@@ -965,7 +972,7 @@
         const alertDiv = document.getElementById('assistant-alerts');
         alertDiv.innerHTML = '';
 
-        const hotClients = allProspects.filter(p => p.status === 'Por cerrar');
+        const hotClients = allProspects.filter(p => p.status === 'Ya dio apartado');
         if(hotClients.length > 0) {
             alertDiv.innerHTML += `<div class="alert-hot">
                 <h4><i class="fas fa-check-circle"></i> LISTOS PARA TRATO</h4>
@@ -973,15 +980,7 @@
             </div>`;
         }
 
-        if(pendingPay > 0) {
-            const pp = allProspects.filter(p => p.status === 'Pendiente Pago');
-            alertDiv.innerHTML += `<div class="alert-warn">
-                <h4><i class="fas fa-clock"></i> PAGOS PENDIENTES</h4>
-                ${pp.map(p => `<div style="font-size:0.82em; padding:4px 0; font-weight:700;">💰 ${p.nombre}</div>`).join('')}
-            </div>`;
-        }
-
-        const coldClients = allProspects.filter(p => p.status === 'Frío');
+        const coldClients = allProspects.filter(p => p.status === 'Pendiente');
         if(coldClients.length > 0) {
             alertDiv.innerHTML += `<div class="alert-cold">
                 <h4><i class="fas fa-user-clock"></i> SEGUIMIENTO INICIAL</h4>
