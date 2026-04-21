@@ -453,7 +453,7 @@
             if(areaInput) areaInput.value = area;
             
             const sumaDisplay = card.querySelector('.suma-medidas');
-            if(sumaDisplay) sumaDisplay.innerText = 'Suma: ' + suma + ' m';
+            if(sumaDisplay) sumaDisplay.innerText = '(Suma: ' + suma + ' m)';
         }
     }
 
@@ -496,7 +496,7 @@
             card.innerHTML = `
                 <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1);renderProps();autoSave();}"><i class="fas fa-trash"></i></button>
                 <div class="main-photo" onclick="document.getElementById('imgM${i}').click()">
-                    ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i>'}
+                    ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i><div style="font-size:0.7em; color:#888; margin-top:5px;">CAPTURAR FOTO</div>'}
                     <input type="file" id="imgM${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;saveLocation(${i});renderProps();autoSave();})}">
                 </div>
 
@@ -513,26 +513,26 @@
                         <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
                     </select></div>
                     <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-                    <div class="box"><label>Precio ($)</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;autoSave()" style="color:var(--success); font-size:1.1em;"></div>
-                    <div class="box"><label>Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value;renderProps();autoSave()" style="color:var(--primary);"></div>
-                    <div class="box full-box" style="background:#f0f7f0; padding:8px; border-radius:8px; font-size:0.85em;">
-                        <span style="color:#2e7d32; font-weight:700;">Costo de Obra:</span> 
-                        <span style="font-weight:900;">$${(parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toLocaleString()}</span>
+                    
+                    <div class="box"><label>Precio ($)</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;renderProps();autoSave()" style="color:var(--success); font-weight:700;"></div>
+                    <div class="box"><label>Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value;renderProps();autoSave()" style="color:var(--primary); font-weight:700;"></div>
+                    
+                    <div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;">
+                        Costo de Obra: $${(parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toLocaleString()}
                     </div>
 
                     <div class="section-label">📍 UBICACIÓN</div>
                     <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
-                    <div class="box full-box"><label>Link Google Maps <i class="fas fa-location-arrow" style="cursor:pointer; color:var(--primary); margin-left:8px;" onclick="saveLocation(${i})" title="Obtener GPS"></i>${p.maps ? ` <i class="fas fa-external-link-alt" style="cursor:pointer; color:var(--info); margin-left:12px;" onclick="window.open('${p.maps}','_blank')" title="Ver Mapa"></i>` : ''}</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value;autoSave()"></div>
+                    <div class="box full-box"><label>Link Maps <i class="fas fa-location-arrow" style="cursor:pointer; color:var(--primary); margin-left:8px;" onclick="saveLocation(${i})" title="Obtener GPS"></i>${p.maps ? ` <i class="fas fa-external-link-alt" style="cursor:pointer; color:var(--info); margin-left:12px;" onclick="window.open('${p.maps}','_blank')" title="Ver Mapa"></i>` : ''}</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value;autoSave()"></div>
 
                     <div class="section-label">🗺️ MEDIDAS DEL TERRENO</div>
                     <div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value;calcArea(${i});autoSave()"></div>
                     <div class="box"><label>Sur</label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value;calcArea(${i});autoSave()"></div>
                     <div class="box"><label>Este</label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value;calcArea(${i});autoSave()"></div>
                     <div class="box"><label>Oeste</label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value;calcArea(${i});autoSave()"></div>
-                    <div class="box full-box" style="border:3px solid var(--primary); background:#fff9f9;">
-                        <label style="color:var(--primary); font-weight:950;">ÁREA TOTAL (Calculada)</label>
-                        <input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value;autoSave()" style="font-weight:950; font-size:1.4em; color:var(--primary);">
-                        <div class="suma-medidas" style="font-size:0.7em; color:var(--primary); font-weight:700; margin-top:4px;">Suma: ${((parseFloat(p.norte)||0) + (parseFloat(p.sur)||0) + (parseFloat(p.este)||0) + (parseFloat(p.oeste)||0)).toFixed(2)} m</div>
+                    <div class="box full-box">
+                        <label>ÁREA TOTAL <span class="suma-medidas" style="color:var(--primary); margin-left:10px;">(Suma: ${((parseFloat(p.norte)||0) + (parseFloat(p.sur)||0) + (parseFloat(p.este)||0) + (parseFloat(p.oeste)||0)).toFixed(2)} m)</span></label>
+                        <input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value;autoSave()" style="font-weight:900; color:var(--primary); font-size:1.2em;">
                     </div>
 
                     <div class="section-label">📋 DOCUMENTOS</div>
@@ -544,9 +544,9 @@
                         <option value="No" ${p.permisos==='No'?'selected':''}>No</option>
                         <option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option>
                     </select></div>
-                    <div class="box full-box" style="background:#e8f5e9; border:2px solid #2e7d32;">
-                        <label style="color:#2e7d32; font-weight:900;">📄 ESCANEAR ${p.docto}</label>
-                        <button class="btn" style="background:#2e7d32; color:white; margin-top:8px;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR</button>
+                    <div class="box full-box" style="background:#f1f8e9; border:1px solid #c5e1a5; padding:10px; border-radius:10px;">
+                        <label style="color:#2e7d32; font-weight:700;">📄 ESCANEAR ${p.docto}</label>
+                        <button class="btn" style="background:#2e7d32; color:white; width:100%; margin-top:8px;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR DOCUMENTO</button>
                         <input type="file" id="docUp${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b;saveLocation(${i});renderProps();autoSave();})}">
                     </div>
 
@@ -575,31 +575,7 @@
                         <div class="box"><label>Zaguán</label><select onchange="voxiData.props[${i}].zaguan=this.value;autoSave()">
                             <option value="No" ${p.zaguan==='No'?'selected':''}>No</option><option value="Sí" ${p.zaguan==='Sí'?'selected':''}>Sí</option>
                         </select></div>
-                        <div class="box"><label>Ventanas</label><input type="text" value="${p.ventanas||''}" oninput="voxiData.props[${i}].ventanas=this.value;autoSave()" placeholder="Material/Tipo"></div>
-                        <div class="box"><label>Puertas</label><input type="text" value="${p.puertas||''}" oninput="voxiData.props[${i}].puertas=this.value;autoSave()" placeholder="Material/Tipo"></div>
                     ` : ''}
-
-                    <div class="section-label">⚙️ EXTRAS Y SERVICIOS</div>
-                    <div class="box"><label>Antigüedad</label><select onchange="voxiData.props[${i}].antiguedad=this.value;autoSave()">
-                        <option value="Nueva" ${p.antiguedad==='Nueva'?'selected':''}>Nueva</option>
-                        <option value="Usada" ${p.antiguedad==='Usada'?'selected':''}>Usada</option>
-                    </select></div>
-                    <div class="box"><label>Calle</label><select onchange="voxiData.props[${i}].calle=this.value;autoSave()">
-                        <option value="Terracería" ${p.calle==='Terracería'?'selected':''}>Terracería</option>
-                        <option value="Pavimentada" ${p.calle==='Pavimentada'?'selected':''}>Pavimentada</option>
-                        <option value="Empedrada" ${p.calle==='Empedrada'?'selected':''}>Empedrada</option>
-                    </select></div>
-                    <div class="box"><label>Bardeado</label><select onchange="voxiData.props[${i}].bardeado=this.value;autoSave()">
-                        <option value="No" ${p.bardeado==='No'?'selected':''}>No</option>
-                        <option value="Sí" ${p.bardeado==='Sí'?'selected':''}>Sí</option>
-                    </select></div>
-                    <div class="box"><label>Servicios</label>
-                        <div style="display:flex; gap:10px; font-size:0.8em; margin-top:5px;">
-                            <label><input type="checkbox" ${p.luz?'checked':''} onchange="voxiData.props[${i}].luz=this.checked;autoSave()"> Luz</label>
-                            <label><input type="checkbox" ${p.agua?'checked':''} onchange="voxiData.props[${i}].agua=this.checked;autoSave()"> Agua</label>
-                            <label><input type="checkbox" ${p.drenaje?'checked':''} onchange="voxiData.props[${i}].drenaje=this.checked;autoSave()"> Drenaje</label>
-                        </div>
-                    </div>
 
                     <div class="section-label">📸 GALERÍA DE FOTOS</div>
                     <div class="gallery" style="grid-column:span 2;">${galH}
