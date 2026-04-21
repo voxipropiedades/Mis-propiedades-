@@ -59,8 +59,8 @@
             position: relative; border: 1px solid #e0e0e0;
         }
         /* Estilos diferenciados por tipo de cliente */
-        .card-mili { border-left: 8px solid var(--info); background: #f0f7ff; }
-        .card-gral { border-left: 8px solid var(--success); background: #f1f8e9; }
+        .card-mili { border: 2px solid #2e7d32; border-left: 10px solid #2e7d32; background: #f1f8e9; }
+        .card-gral { border: 2px solid #757575; border-left: 10px solid #757575; background: #f5f5f5; }
         .box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .box { background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px; }
         .box label { font-size: 0.62em; font-weight: 900; color: #757575; display: block; text-transform: uppercase; margin-bottom: 3px; }
@@ -395,7 +395,7 @@
     let voxiData = { props: [], milis: [], grals: [], files: [] };
     let currentPropIndex = null;
     let currentWANumber = '';
-    const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial militar (ambos lados)"];
+    const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
     const REQS_E = ["INE (ambos lados)"];
 
     // ─── NAVEGACIÓN ───────────────────────────────────────────
@@ -679,18 +679,20 @@
 
         allProspects.forEach((p) => {
             const isMili = p.type === 'milis';
+            const accentColor = isMili ? '#2e7d32' : '#757575';
             
             // Sincronizar campos de documentación si faltan
             const currentReqs = isMili ? REQS_M : REQS_E;
             if(!p.m) p.m = [];
+            
+            // Limpieza de documentación extraña al cambiar de tipo
+            p.m = p.m.filter(doc => currentReqs.includes(doc.n));
+
             currentReqs.forEach(reqName => {
                 if(!p.m.find(doc => doc.n === reqName)) {
                     p.m.push({ n: reqName, s: 'f' });
                 }
             });
-            // Renombrar Pre-auth si existe en p.m
-            const preAuthIdx = p.m.findIndex(doc => doc.n === "Pre-auth");
-            if(preAuthIdx !== -1) p.m[preAuthIdx].n = "Preautorización";
 
             const card = document.createElement('div'); 
             card.className = 'card ' + (isMili ? 'card-mili' : 'card-gral');
@@ -721,18 +723,18 @@
                 
                 <div class="box-container">
                     <div class="box full-box">
-                        <label>Seleccionar Tipo</label>
-                        <select onchange="moveProspect('${p.type}', ${p.originalIndex}, this.value)" style="font-weight:900; color:var(--info);">
+                        <label style="color:${accentColor};">Seleccionar Tipo</label>
+                        <select onchange="moveProspect('${p.type}', ${p.originalIndex}, this.value)" style="font-weight:900; color:${accentColor};">
                             <option value="milis" ${isMili?'selected':''}>👉 MILITAR</option>
                             <option value="grals" ${!isMili?'selected':''}>👉 EFECTIVO</option>
                         </select>
                     </div>
                     <div class="box full-box">
-                        <label>Nombre del Prospecto</label>
+                        <label style="color:${accentColor};">Nombre del Prospecto</label>
                         <input type="text" value="${p.nombre}" placeholder="Nombre del cliente" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
                     </div>
-                    <div class="box"><label>📱 WhatsApp</label><input type="text" value="${p.tel||''}" placeholder="771..." oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
-                    <div class="box"><label>Etapa</label>
+                    <div class="box"><label style="color:${accentColor};">📱 WhatsApp</label><input type="text" value="${p.tel||''}" placeholder="771..." oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
+                    <div class="box"><label style="color:${accentColor};">Etapa</label>
                         <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()" style="color:${tc}; font-weight:700;">
                             <option value="Nuevo cliente" ${p.status==='Nuevo cliente'?'selected':''}>Nuevo cliente</option>
                             <option value="Pláticas avanzadas" ${p.status==='Pláticas avanzadas'?'selected':''}>Pláticas avanzadas</option>
@@ -741,24 +743,24 @@
                             <option value="Cerrado" ${p.status==='Cerrado'?'selected':''}>Cerrado</option>
                         </select>
                     </div>
-                    <div class="box full-box"><label>📅 Última plática</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
+                    <div class="box full-box"><label style="color:${accentColor};">📅 Última plática</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
                     
                     ${isMili ? `
-                        <div class="section-label">📋 DOCUMENTACIÓN PARA CRÉDITO</div>
+                        <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 DOCUMENTACIÓN PARA CRÉDITO</div>
                         <p style="grid-column:span 2; font-size:0.7em; color:#555; margin-top:-10px;">Indica qué documentos ya tienes en mano:</p>
                         ${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
                     ` : `
-                        <div class="section-label">📋 DOCUMENTACIÓN</div>
+                        <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 DOCUMENTACIÓN</div>
                         ${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r) => {
                             const realIdx = p.m.findIndex(d => d.n === r.n);
                             return `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.grals[${p.originalIndex}].m[${realIdx}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`;
                         }).join('')}
-                        <div class="section-label">💵 DETALLES DEL TRATO DIRECTO</div>
-                        <div class="box full-box" style="background:#fff;"><label>¿Qué busca? / Notas del trato</label><textarea rows="2" style="font-weight:700;" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()">${p.interes||''}</textarea></div>
+                        <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💵 DETALLES DEL TRATO DIRECTO</div>
+                        <div class="box full-box" style="background:#fff;"><label style="color:${accentColor};">¿Qué busca? / Notas del trato</label><textarea rows="2" style="font-weight:700;" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()">${p.interes||''}</textarea></div>
                     `}
                 </div>
                 
-                <button class="btn" style="background:var(--wa-green); color:white; margin-top:14px; font-size:0.85em; border-radius:12px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
+                <button class="btn" style="background:${accentColor}; color:white; margin-top:14px; font-size:0.85em; border-radius:12px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
                     <i class="fab fa-whatsapp"></i> ENVIAR MENSAJE PERSONALIZADO
                 </button>
             `;
