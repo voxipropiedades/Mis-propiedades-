@@ -694,6 +694,7 @@
 
             const card = document.createElement('div'); 
             card.className = 'card ' + (isMili ? 'card-mili' : 'card-gral');
+            card.id = 'prospectCard' + p.type + p.originalIndex;
             
             // Colores de Etapa
             const stColors = { 
@@ -896,7 +897,11 @@
     // ─── ASISTENTE DE VENTAS INTELIGENTE (TABLERO) ─────────────
     function renderAssistant() {
         const now = new Date();
-        const allProspects = [...voxiData.milis, ...voxiData.grals];
+        const allProspects = [
+            ...voxiData.milis.map((m, i) => ({ ...m, type: 'milis', idx: i })),
+            ...voxiData.grals.map((g, i) => ({ ...g, type: 'grals', idx: i }))
+        ].sort((a,b) => b.id - a.id);
+
         const cold = allProspects.filter(p => p.status === 'Nuevo cliente').length;
         const closing = allProspects.filter(p => p.status === 'Dio apartado').length;
         const totalProps = voxiData.props.length;
@@ -914,9 +919,9 @@
             "Las ventas se cierran cuando hay seguimiento. ¿Cómo van tus trámites militares?",
             "Recuerda que para el cliente efectivo, la rapidez y el ahorro son clave."
         ];
-        document.getElementById('assistant-quote').innerText = quotes[now.getDay() % quotes.length];
+        const qElem = document.getElementById('assistant-quote');
+        if(qElem) qElem.innerText = quotes[now.getDay() % quotes.length];
 
-        // AGENDA
         const agendaDiv = document.getElementById('assistant-agenda');
         agendaDiv.innerHTML = '';
         let agendaItems = [];
@@ -933,7 +938,6 @@
             </div>`;
         });
 
-        // SUGERENCIAS INTELIGENTES
         const sugDiv = document.getElementById('assistant-suggestions');
         sugDiv.innerHTML = '';
         let hasSuggestions = false;
@@ -945,7 +949,7 @@
 
             if(p.status === 'Dio apartado') {
                 hasSuggestions = true;
-                const isMili = voxiData.milis.includes(p);
+                const isMili = p.type === 'milis';
                 sugDiv.innerHTML += `<div class="task-item">
                     <span style="font-size:1.4em;">🔵</span>
                     <div class="task-info">
@@ -958,7 +962,7 @@
                 </div>`;
             } else if(diffDays > 5 && p.status !== 'Cerrado' && p.status !== 'El cliente ya no quiso') {
                 hasSuggestions = true;
-                const isMili = voxiData.milis.includes(p);
+                const isMili = p.type === 'milis';
                 sugDiv.innerHTML += `<div class="task-item">
                     <span style="font-size:1.4em;">✉️</span>
                     <div class="task-info">
@@ -972,7 +976,6 @@
             }
         });
 
-        // Sugerir promover propiedad libre
         const propLibre = voxiData.props.find(p => p.estatus !== 'Vendido');
         if(propLibre) {
             hasSuggestions = true;
@@ -985,34 +988,85 @@
                 <button class="wa-mini" style="background:var(--info);" onclick="openTab('inventario')">VER</button>
             </div>`;
         }
+        if(!hasSuggestions) sugDiv.innerHTML = `<div style="color:#888; font-size:0.85em; text-align:center; padding:20px;">✅ Todo en orden por ahora.</div>`;
 
-        if(!hasSuggestions) {
-            sugDiv.innerHTML = `<div style="color:#888; font-size:0.85em; text-align:center; padding:20px;">✅ Todo en orden por ahora. Agrega clientes o propiedades para ver sugerencias.</div>`;
-        }
-
-        // ALERTAS
+        // --- NUEVA LÓGICA DE ALERTAS ---
         const alertDiv = document.getElementById('assistant-alerts');
         alertDiv.innerHTML = '';
+        let alertsHtml = '';
 
-        const hotClients = allProspects.filter(p => p.status === 'Dio apartado');
-        if(hotClients.length > 0) {
-            alertDiv.innerHTML += `<div class="alert-hot">
-                <h4><i class="fas fa-check-circle"></i> LISTOS PARA TRATO</h4>
-                ${hotClients.map(p => `<div style="font-size:0.82em; padding:4px 0; font-weight:700;">✅ ${p.nombre} — <span style="color:#777;">Dar seguimiento final</span></div>`).join('')}
+        function createAlert(level, text, action, tel = null) {
+            const bg = { 'Rojo': '#ffebee', 'Amarillo': '#fff9c4', 'Azul': '#e3f2fd' }[level];
+            const border = { 'Rojo': '#d32f2f', 'Amarillo': '#fbc02d', 'Azul': '#1e88e5' }[level];
+            let btns = `<button class="wa-mini" style="background:${border};" onclick="${action}">IR</button>`;
+            if (tel) {
+                btns = `<div style="display:flex; gap:5px;">
+                    <button class="wa-mini" style="background:#2e7d32; width:36px;" onclick="window.open('tel:${tel}')"><i class="fas fa-phone"></i></button>
+                    <button class="wa-mini" style="background:#25d366; width:36px;" onclick="window.open('https://wa.me/52${tel}')"><i class="fab fa-whatsapp"></i></button>
+                    ${btns}
+                </div>`;
+            }
+            return `<div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; animation: fadeIn 0.5s ease-in-out;">
+                <div style="font-size:0.82em; font-weight:700; color:#333; padding-right:8px;">${text}</div>
+                ${btns}
             </div>`;
         }
 
-        const coldClients = allProspects.filter(p => p.status === 'Nuevo cliente');
-        if(coldClients.length > 0) {
-            alertDiv.innerHTML += `<div class="alert-cold">
-                <h4><i class="fas fa-user-clock"></i> SEGUIMIENTO INICIAL</h4>
-                ${coldClients.slice(0,5).map(p => `<div style="font-size:0.82em; padding:4px 0; font-weight:700;">👤 ${p.nombre}</div>`).join('')}
-            </div>`;
-        }
+        // 1. Faltantes Propiedades & 5. Llamar Dueño
+        voxiData.props.forEach((p, i) => {
+            const missingInfo = !p.norte || !p.sur || !p.este || !p.oeste || !p.area || !p.desc;
+            const missingImgs = !p.mainImg || (!p.gallery || p.gallery.length === 0);
+            if (missingInfo || missingImgs) {
+                alertsHtml += createAlert('Amarillo', `👉 Falta información/imágenes en la propiedad ${p.titulo || p.tipo || 'Sin título'}`, `goToRecord('inventario', 'fullPropCard${i}')`);
+            }
+            const phoneMatch = (p.dueño || "").match(/[0-9]{10}/);
+            if (phoneMatch) {
+                alertsHtml += createAlert('Azul', `📞 Llamar al dueño: ${p.dueño}`, `goToRecord('inventario', 'fullPropCard${i}')`, phoneMatch[0]);
+            }
+        });
 
-        if(alertDiv.innerHTML === '') {
-            alertDiv.innerHTML = `<div style="color:#888; font-size:0.85em; text-align:center; padding:16px;">✅ Sin alertas activas.</div>`;
-        }
+        // 2, 3, 4. Prospectos
+        allProspects.forEach(p => {
+            const isMili = p.type === 'milis';
+            const cardId = 'prospectCard' + p.type + p.idx;
+
+            if (isMili && p.m.some(doc => doc.s === 'f')) {
+                alertsHtml += createAlert('Rojo', `🪖 Documentos pendientes ISSFAM: ${p.nombre}`, `goToRecord('prospectos', '${cardId}')`);
+            }
+
+            const dateMatch = (p.interes || "").match(/(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2})/);
+            if (dateMatch) {
+                let dStr = dateMatch[0];
+                if(dStr.includes('/')) dStr = dStr.split('/').reverse().join('-');
+                const target = new Date(dStr + 'T12:00:00'); 
+                const diff = (target - now) / (1000*60*60*24);
+                if (diff >= -0.5 && diff <= 2) {
+                    alertsHtml += createAlert('Rojo', `👉 Vencimiento próximo para ${p.nombre}: ${dateMatch[0]}`, `goToRecord('prospectos', '${cardId}')`);
+                }
+            }
+
+            const isSeguimiento = p.status === 'Pláticas avanzadas';
+            const daysSince = (now - new Date(p.lastContact)) / (1000*60*60*24);
+            const preAuth = p.m.find(d => d.n === "Preautorización" || d.n === "Pre-auth");
+            if (isSeguimiento && daysSince > 3 && (!preAuth || preAuth.s === 'f')) {
+                alertsHtml += createAlert('Amarillo', `👉 Revisar estatus de preautorización para ${p.nombre}`, `goToRecord('prospectos', '${cardId}')`);
+            }
+        });
+
+        alertDiv.innerHTML = alertsHtml || `<div style="color:#888; font-size:0.85em; text-align:center; padding:16px;">✅ Sin alertas activas.</div>`;
+    }
+
+    function goToRecord(tab, id) {
+        openTab(tab);
+        setTimeout(() => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.style.transition = '0.5s';
+                el.style.boxShadow = '0 0 30px rgba(183, 28, 28, 0.6)';
+                setTimeout(() => el.style.boxShadow = '', 3000);
+            }
+        }, 300);
     }
 
     // ─── GUARDADO AUTOMÁTICO ──────────────────────────────────
