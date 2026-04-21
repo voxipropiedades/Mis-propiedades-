@@ -446,10 +446,20 @@
             });
             renderProps();
         } else if(type === 'milis') {
-            voxiData.milis.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Tibio', lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
+            voxiData.milis.unshift({ 
+                id: Date.now(), nombre: '', tel: '', status: 'Pendiente', 
+                lastContact: new Date().toISOString().split('T')[0], 
+                casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [],
+                pagos: [], montoTotal: 0, fechaApartado: ''
+            });
             renderProspects();
         } else if(type === 'grals') {
-            voxiData.grals.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Tibio', lastContact: new Date().toISOString().split('T')[0], interes: '', doctos: '' });
+            voxiData.grals.unshift({ 
+                id: Date.now(), nombre: '', tel: '', status: 'Pendiente', 
+                lastContact: new Date().toISOString().split('T')[0], 
+                interes: '', doctos: '',
+                pagos: [], montoTotal: 0, fechaApartado: ''
+            });
             renderProspects();
         }
         autoSave();
@@ -588,8 +598,19 @@
             const isMili = p.type === 'milis';
             const card = document.createElement('div'); 
             card.className = 'card ' + (isMili ? 'card-mili' : 'card-gral');
-            const statusColors = { 'Frío':'#bbdefb','Tibio':'#fff9c4','Por cerrar':'#c8e6c9','Pendiente Pago':'#ffe0b2','Vendido':'#e8f5e9' };
+            const statusColors = { 'Pendiente':'#f5f5f5','En proceso':'#bbdefb','Apartado':'#fff9c4','Liquidado':'#c8e6c9' };
             const sc = statusColors[p.status] || '#f5f5f5';
+
+            const totalPagado = (p.pagos || []).reduce((acc, curr) => acc + curr.monto, 0);
+            const restante = (parseFloat(p.montoTotal) || 0) - totalPagado;
+            
+            let reminderHtml = '';
+            if(p.status === 'Apartado' && p.fechaApartado) {
+                const fa = new Date(p.fechaApartado);
+                fa.setDate(fa.getDate() + 30);
+                const reminderDate = fa.toISOString().split('T')[0];
+                reminderHtml = `<div style="background:#ffebee; border:1px solid #ffcdd2; color:#c62828; padding:8px; border-radius:10px; font-size:0.75em; margin-top:10px; font-weight:bold;">⏰ Recordatorio seguimiento: ${reminderDate}</div>`;
+            }
 
             card.innerHTML = `
                 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1);renderProspects();autoSave();}"><i class="fas fa-trash"></i></button>
@@ -600,18 +621,38 @@
                         <label>${isMili ? '🪖 Cliente Militar (Crédito)' : '💵 Cliente Efectivo (Contado)'}</label>
                         <input type="text" value="${p.nombre}" placeholder="Nombre completo" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
                     </div>
-                    <div class="box"><label>📱 Teléfono</label><input type="text" value="${p.tel||''}" placeholder="WhatsApp" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
+                    <div class="box"><label>📱 Teléfono <i class="fas fa-user-plus" style="cursor:pointer; color:var(--primary); margin-left:8px;" onclick="saveContact('${p.nombre}','${p.tel}')" title="Guardar en Teléfono"></i></label><input type="text" value="${p.tel||''}" placeholder="WhatsApp" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
                     <div class="box"><label>Etapa</label>
                         <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()">
-                            <option value="Frío" ${p.status==='Frío'?'selected':''}>Seguimiento inicial</option>
-                            <option value="Tibio" ${p.status==='Tibio'?'selected':''}>Interesado</option>
-                            <option value="Por cerrar" ${p.status==='Por cerrar'?'selected':''}>Listo para trato</option>
-                            <option value="Pendiente Pago" ${p.status==='Pendiente Pago'?'selected':''}>Esperando pago</option>
-                            <option value="Vendido" ${p.status==='Vendido'?'selected':''}>Venta cerrada</option>
+                            <option value="Pendiente" ${p.status==='Pendiente'?'selected':''}>⏳ Pendiente</option>
+                            <option value="En proceso" ${p.status==='En proceso'?'selected':''}>📂 En proceso</option>
+                            <option value="Apartado" ${p.status==='Apartado'?'selected':''}>💰 Apartado</option>
+                            <option value="Liquidado" ${p.status==='Liquidado'?'selected':''}>✅ Liquidado</option>
                         </select>
                     </div>
-                    <div class="box full-box"><label>📅 Última plática</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
+
+                    <div class="box"><label>Precio Acordado ($)</label><input type="number" value="${p.montoTotal||''}" oninput="voxiData.${p.type}[${p.originalIndex}].montoTotal=this.value;renderProspects();autoSave()"></div>
+                    <div class="box"><label>📅 Última plática</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
                     
+                    <div class="section-label">💰 APARTADO Y PAGOS</div>
+                    <div class="box full-box" style="background:#f1f8e9; border:1px dashed #689f38; display:flex; flex-direction:column; gap:8px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.85em; font-weight:bold;">
+                            <span>Total Pagado: <span style="color:#2e7d32;">$${totalPagado.toLocaleString()}</span></span>
+                            <span>Restante: <span style="color:#c62828;">$${restante.toLocaleString()}</span></span>
+                        </div>
+                        <div id="listPagos${p.type}${p.originalIndex}" style="font-size:0.75em;">
+                            ${(p.pagos || []).map(pa => `
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid #ddd; padding:2px 0;">
+                                    <span>${pa.fecha}: $${pa.monto.toLocaleString()}</span>
+                                    <i class="fas fa-times" style="color:red; cursor:pointer;" onclick="deletePayment('${p.type}',${p.originalIndex},${pa.id})"></i>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn" style="background:#689f38; color:white; padding:4px; font-size:0.75em;" onclick="addPayment('${p.type}',${p.originalIndex})">+ AGREGAR PAGO / APARTADO</button>
+                    </div>
+
+                    ${reminderHtml}
+
                     ${isMili ? `
                         <div class="section-label">📋 DOCUMENTACIÓN PARA CRÉDITO</div>
                         <p style="grid-column:span 2; font-size:0.7em; color:#555; margin-top:-10px;">Indica qué documentos ya tienes en mano para tramitar ISSFAM/FOVISSSTE:</p>
@@ -693,13 +734,45 @@
 
     function closeModal() { document.getElementById('flyerModal').style.display = 'none'; }
 
+    function saveContact(nombre, tel) {
+        if(!tel) { alert('Ingresa un número primero'); return; }
+        const cleanTel = tel.replace(/\D/g,'');
+        const vcf = `BEGIN:VCARD\nVERSION:3.0\nFN:${nombre}\nTEL;TYPE=CELL:+52${cleanTel}\nEND:VCARD`;
+        const blob = new Blob([vcf], { type: 'text/vcard' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `${nombre}.vcf`;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+    }
+
+    function addPayment(type, idx) {
+        const monto = prompt('Monto del pago:');
+        if(!monto || isNaN(monto)) return;
+        const p = voxiData[type][idx];
+        if(!p.pagos) p.pagos = [];
+        p.pagos.push({ id: Date.now(), monto: parseFloat(monto), fecha: new Date().toISOString().split('T')[0] });
+        if(p.status === 'Pendiente' || p.status === 'En proceso') {
+            p.status = 'Apartado';
+            p.fechaApartado = new Date().toISOString().split('T')[0];
+        }
+        renderProspects(); autoSave();
+    }
+
+    function deletePayment(type, pIdx, payId) {
+        if(!confirm('¿Borrar este pago?')) return;
+        voxiData[type][pIdx].pagos = voxiData[type][pIdx].pagos.filter(pa => pa.id !== payId);
+        renderProspects(); autoSave();
+    }
+
     // ─── MENSAJE DIRECTO A PROSPECTO DESDE ASISTENTE ──────────
     function openWADirect(tel, nombre, status, tipo) {
         currentWANumber = tel;
         let msg = '';
-        if(status === 'Por cerrar') msg = `Hola ${nombre}, ¿cómo estás? Quería retomar nuestra plática sobre la propiedad. ¿Tienes un momento esta semana para que la revisemos juntos y cerremos?`;
-        else if(status === 'Pendiente Pago') msg = `Hola ${nombre}, espero que estés bien. Te escribo para coordinar lo del pago pendiente. ¿Cuándo te quedaría bien hablar?`;
-        else if(tipo === 'mili') msg = `Hola ${nombre}, ¿cómo te ha ido? Te escribo para ver si ya tienes todo listo con tu crédito. Aquí estoy para orientarte en lo que necesites.`;
+        if(status === 'Apartado') msg = `Hola ${nombre}, ¿cómo estás? Te escribo para dar seguimiento a tu apartado de la propiedad. ¿Cómo vas con el resto de los trámites o el siguiente pago?`;
+        else if(status === 'Liquidado') msg = `¡Hola ${nombre}! Felicidades nuevamente por liquidar tu propiedad. ¿Cuándo nos vemos para formalizar los documentos finales?`;
+        else if(status === 'En proceso') msg = `Hola ${nombre}, espero que estés muy bien. Te escribo para ver si tienes alguna duda con el proceso que estamos llevando de la propiedad.`;
+        else if(tipo === 'mili') msg = `Hola ${nombre}, ¿cómo te ha ido? Te escribo para ver si ya tienes todo listo con tu crédito militar. Aquí estoy para lo que necesites.`;
         else msg = `Hola ${nombre}, ¿cómo estás? Te escribo para saludarte y ver si ya tomaste una decisión sobre la propiedad que te enseñé. ¿Tienes dudas que pueda resolver?`;
 
         const area = document.getElementById('waDirectArea');
