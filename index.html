@@ -507,6 +507,7 @@
             voxiData.milis.unshift({ 
                 id: Date.now(), nombre: '', tel: '', status: 'Pendiente', 
                 lastContact: new Date().toISOString().split('T')[0], 
+                tipoInteres: 'Casa',
                 casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [],
                 pagos: [], montoTotal: 0, fechaApartado: ''
             });
@@ -520,6 +521,7 @@
             voxiData.grals.unshift({ 
                 id: Date.now(), nombre: '', tel: '', status: 'Pendiente', 
                 lastContact: new Date().toISOString().split('T')[0], 
+                tipoInteres: 'Terreno',
                 interes: '', doctos: '',
                 pagos: [], montoTotal: 0, fechaApartado: ''
             });
@@ -559,7 +561,7 @@
 
                 <div class="box-container">
                     <div class="box full-box"><label>Dueño / Vendedor</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value;autoSave()"></div>
-                    <div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();autoSave()">
+                    <div class="box"><label>📍 Categoría de Inventario</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();autoSave()">
                         <option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏠 Casa</option>
                         <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🏞️ Terreno</option>
                         <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>🌄 Parcela</option>
@@ -695,15 +697,26 @@
                 
                 <div class="box-container">
                     <div class="box full-box">
-                        <label>${isMili ? '🪖 Cliente Militar (Crédito)' : '💵 Cliente Efectivo (Contado)'}</label>
+                        <label>${isMili ? '🪖 Cliente Militar' : '💵 Cliente Efectivo'} — ${p.tipoInteres || (isMili ? 'Casa' : 'Terreno')}</label>
                         <input type="text" value="${p.nombre}" placeholder="Nombre completo" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
                     </div>
                     <div class="box"><label>📱 Teléfono <i class="fas fa-user-plus" style="cursor:pointer; color:var(--primary); margin-left:8px;" onclick="saveContact('${p.nombre}','${p.tel}')" title="Guardar en Teléfono"></i></label><input type="text" value="${p.tel||''}" placeholder="WhatsApp" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
+                    <div class="box"><label>Interés</label>
+                        <select onchange="voxiData.${p.type}[${p.originalIndex}].tipoInteres=this.value; renderProspects(); autoSave()">
+                            <option value="Casa" ${p.tipoInteres==='Casa'?'selected':''}>🏠 Casa</option>
+                            <option value="Terreno" ${p.tipoInteres==='Terreno'?'selected':''}>🏞️ Terreno</option>
+                            <option value="Parcela" ${p.tipoInteres==='Parcela'?'selected':''}>🌄 Parcela</option>
+                            <option value="Bodega" ${p.tipoInteres==='Bodega'?'selected':''}>🏗️ Bodega</option>
+                        </select>
+                    </div>
                     <div class="box"><label>Etapa</label>
                         <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()">
                             <option value="Pendiente" ${p.status==='Pendiente'?'selected':''}>⏳ Pendiente</option>
                             <option value="En proceso" ${p.status==='En proceso'?'selected':''}>📂 En proceso</option>
-                            <option value="Apartado" ${p.status==='Apartado'?'selected':''}>💰 Apartado</option>
+                            <option value="Por cerrar" ${p.status==='Por cerrar'?'selected':''}>🔥 Por cerrar</option>
+                            <option value="Pendiente Pago" ${p.status==='Pendiente Pago'?'selected':''}>💰 Pendiente Pago</option>
+                            <option value="Apartado" ${p.status==='Apartado'?'selected':''}>💵 Apartado</option>
+                            <option value="Frío" ${p.status==='Frío'?'selected':''}>❄️ Frío</option>
                             <option value="Liquidado" ${p.status==='Liquidado'?'selected':''}>✅ Liquidado</option>
                         </select>
                     </div>
