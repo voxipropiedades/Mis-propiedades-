@@ -395,7 +395,8 @@
     let voxiData = { props: [], milis: [], grals: [], files: [] };
     let currentPropIndex = null;
     let currentWANumber = '';
-    const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Pre-auth"];
+    const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial militar (ambos lados)"];
+    const REQS_E = ["INE (ambos lados)"];
 
     // ─── NAVEGACIÓN ───────────────────────────────────────────
     function moveProspect(fromType, index, toType) {
@@ -536,7 +537,7 @@
             voxiData.milis.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Nuevo cliente', lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
             renderProspects();
         } else if(type === 'grals') {
-            voxiData.grals.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Nuevo cliente', lastContact: new Date().toISOString().split('T')[0], interes: '', doctos: '' });
+            voxiData.grals.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Nuevo cliente', lastContact: new Date().toISOString().split('T')[0], interes: '', m: REQS_E.map(n => ({ n, s: 'f' })) });
             renderProspects();
         }
         autoSave();
@@ -678,6 +679,19 @@
 
         allProspects.forEach((p) => {
             const isMili = p.type === 'milis';
+            
+            // Sincronizar campos de documentación si faltan
+            const currentReqs = isMili ? REQS_M : REQS_E;
+            if(!p.m) p.m = [];
+            currentReqs.forEach(reqName => {
+                if(!p.m.find(doc => doc.n === reqName)) {
+                    p.m.push({ n: reqName, s: 'f' });
+                }
+            });
+            // Renombrar Pre-auth si existe en p.m
+            const preAuthIdx = p.m.findIndex(doc => doc.n === "Pre-auth");
+            if(preAuthIdx !== -1) p.m[preAuthIdx].n = "Preautorización";
+
             const card = document.createElement('div'); 
             card.className = 'card ' + (isMili ? 'card-mili' : 'card-gral');
             
@@ -733,6 +747,11 @@
                         <p style="grid-column:span 2; font-size:0.7em; color:#555; margin-top:-10px;">Indica qué documentos ya tienes en mano:</p>
                         ${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
                     ` : `
+                        <div class="section-label">📋 DOCUMENTACIÓN</div>
+                        ${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r) => {
+                            const realIdx = p.m.findIndex(d => d.n === r.n);
+                            return `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.grals[${p.originalIndex}].m[${realIdx}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`;
+                        }).join('')}
                         <div class="section-label">💵 DETALLES DEL TRATO DIRECTO</div>
                         <div class="box full-box" style="background:#fff;"><label>¿Qué busca? / Notas del trato</label><textarea rows="2" style="font-weight:700;" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()">${p.interes||''}</textarea></div>
                     `}
