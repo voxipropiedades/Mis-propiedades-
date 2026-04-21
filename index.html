@@ -645,7 +645,7 @@
                     <div class="gallery" style="grid-column:span 2;">${galH}
                         <div class="gallery-item" onclick="document.getElementById('gal${i}').click()">
                             <i class="fas fa-plus" style="color:#aaa;"></i>
-                            <input type="file" id="gal${i}" hidden multiple accept="image/*" capture="environment" onchange="if(this.files){saveLocation(${i},true);Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();autoSave();}))}">
+                            <input type="file" id="gal${i}" hidden multiple accept="image/*" onchange="if(this.files){saveLocation(${i},true);Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();autoSave();}))}">
                         </div>
                     </div>
 
