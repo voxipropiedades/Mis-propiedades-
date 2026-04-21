@@ -372,6 +372,7 @@
 </div>
 
 <div class="fixed-footer">
+    <button class="btn" style="background:#444; color:white; width:auto; padding:0 15px; margin-right:10px;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+ NUEVO</button>
     <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
 
@@ -982,11 +983,27 @@
     }
 
     function saveMaster(showMsg) {
+        // --- CLASIFICACIÓN AUTOMÁTICA ---
+        voxiData.props.forEach(p => {
+            const text = (p.desc || "").toUpperCase();
+            const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
+            const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
+            
+            if (keywordsMilitar.some(k => text.includes(k))) {
+                p.estatus = "CRÉDITO MILITAR";
+            } else if (keywordsEfectivo.some(k => text.includes(k))) {
+                p.estatus = "CLIENTE EFECTIVO";
+            }
+        });
+
         localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
         
         // --- CLOUD SYNC ---
         const cStatus = document.getElementById('cloud-status');
-        if(cStatus) cStatus.style.display = 'block';
+        if(cStatus) {
+            cStatus.style.display = 'block';
+            cStatus.innerHTML = '⌛ Guardando...';
+        }
         
         db.collection("data").doc(SYNC_ID).set(voxiData)
             .then(() => { 
@@ -994,6 +1011,16 @@
                 if(cStatus) {
                     cStatus.innerHTML = '☁️ Nube Actualizada';
                     setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+                }
+                
+                if(showMsg) {
+                    const uniqueID = "ID-" + Date.now();
+                    alert("✅ Registro guardado con éxito.\n📂 Ubicación: Propiedades/Ventas\n🆔 Folio: " + uniqueID);
+                    
+                    // Limpieza automática (Formulario nuevo)
+                    voxiData.props = [];
+                    autoSave();
+                    renderProps();
                 }
             })
             .catch(err => {
@@ -1003,8 +1030,6 @@
                     cStatus.style.color = 'red';
                 }
             });
-
-        if(showMsg) alert('✅ TODO GUARDADO CORRECTAMENTE');
     }
 
     async function loadMaster() {
