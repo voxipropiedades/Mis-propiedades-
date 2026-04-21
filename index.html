@@ -698,36 +698,33 @@
     function generateMessage(style, p) {
         const nombre = p.titulo || 'Propiedad';
         const precio = p.precio ? `$${p.precio}` : 'precio especial';
-        const ubi = p.ubicacion || 'Acayuca, Hidalgo';
-        const area = p.area || '';
+        const ubi = p.ubicacion || 'Hidalgo';
+        const area = p.area || '0';
         const desc = p.desc || '';
-        const maps = p.maps ? `\n📍 Ubicación en Maps: ${p.maps}` : '';
+        const maps = p.maps ? `\n📍 Ubicación en Google Maps: ${p.maps}` : '';
         
-        // Calcular suma de medidas para el mensaje
+        // Suma total de medidas (lados) para el mensaje
         const n = parseFloat(p.norte) || 0;
         const s = parseFloat(p.sur) || 0;
         const e = parseFloat(p.este) || 0;
         const o = parseFloat(p.oeste) || 0;
-        const suma = (n + s + e + o).toFixed(2);
+        const sumaTotal = (n + s + e + o).toFixed(2);
         
-        const cantFotos = (p.mainImg ? 1 : 0) + (p.gallery ? p.gallery.length : 0);
-        const fotosTexto = cantFotos > 0 ? `\n📸 Se adjuntan ${cantFotos} fotos de la propiedad.` : '';
+        const nFotos = (p.mainImg ? 1 : 0) + (p.gallery ? p.gallery.length : 0);
+        const fotosInfo = nFotos > 0 ? `\n📸 *Fotos:* Se adjuntan ${nFotos} imágenes de la propiedad.` : '';
 
-        const datosCapturados = `\n📋 *DATOS DE LA PROPIEDAD:*\n• Tipo: ${p.tipo}\n• Estatus: ${p.estatus}\n• Medidas: ${n}m x ${s}m x ${e}m x ${o}m\n• Suma Total: ${suma} m\n• Área: ${area} m²\n• Recámaras: ${p.recamaras || '0'}\n• Baños: ${p.banos || '0'}\n• Cochera: ${p.estacionamiento || 'No'}`;
+        const ficha = `\n📋 *DATOS CAPTURADOS:*\n• Tipo: ${p.tipo}\n• Estatus: ${p.estatus}\n• Superficie: ${area} m²\n• Medidas: ${n}m x ${s}m x ${e}m x ${o}m\n• Suma Total Lados: ${sumaTotal} m\n• Distribución: ${p.recamaras || '0'} rec., ${p.banos || '0'} baños, cochera ${p.estacionamiento || 'No'}`;
 
-        if(style === 1) return `🔥 *¡OPORTUNIDAD ÚNICA!* 🔥\n\n📌 *${nombre}*\n💰 PRECIO: *${precio}*\n📍 ${ubi}\n\n📝 *DESCRIPCIÓN:* ${desc}\n${datosCapturados}\n${maps}${fotosTexto}\n\n¿Te gustaría agendar una visita para conocerla? Quedo a tus órdenes.`;
+        const base = `📌 *${nombre}*\n💰 PRECIO: *${precio}*\n📍 UBICACIÓN: ${ubi}\n\n📝 *DESCRIPCIÓN:* ${desc}\n${ficha}\n${maps}${fotosInfo}`;
+
+        if(style === 1) return `🔥 *¡OPORTUNIDAD DE INVERSIÓN!* 🔥\n\n${base}\n\n¿Te gustaría más información o agendar una cita?`;
+        if(style === 2) return `📋 *DETALLES TÉCNICOS DE LA PROPIEDAD*\n\n${base}\n\nQuedo a la espera de tus comentarios para avanzar.`;
+        if(style === 3) return `🏠 *TU PRÓXIMO HOGAR EN ${ubi.toUpperCase()}*\n\n${base}\n\n¿Cuándo te gustaría conocerla personalmente?`;
+        if(style === 4) return `🎖️ *OPCIÓN PARA CRÉDITO MILITAR*\n\n${base}\n\nEsta propiedad califica perfectamente para tu crédito. ¡Contáctame!`;
+        if(style === 5) return `🔑 *TRATO DIRECTO - PAGO DE CONTADO*\n\n${base}\n\n¡Excelente opción para cerrar trato hoy mismo! 🤝`;
+        if(style === 6) return `🏗️ *PROYECTO EN PREVENTA*\n\n${base}\n\n¡Asegura tu patrimonio con precio especial de preventa!`;
         
-        if(style === 2) return `📋 *FICHA TÉCNICA DETALLADA*\n\n🏠 *${nombre}*\n💰 Precio: *${precio}*\n📍 Ubicación: ${ubi}\n\n${datosCapturados}\n\n📝 *Notas:* ${desc}\n${maps}${fotosTexto}\n\n¿Tienes alguna duda técnica sobre esta propiedad?`;
-        
-        if(style === 3) return `🏡 *TU PRÓXIMO HOGAR EN ${ubi.toUpperCase()}*\n\n*${nombre}* es el lugar ideal para tu familia.\n💰 Inversión: *${precio}*\n\n✨ *¿Qué ofrece?*${datosCapturados}\n\n📝 *Descripción:* ${desc}\n${maps}${fotosTexto}\n\n¿Cuándo te gustaría venir a verla? Es una excelente opción. 🏠`;
-        
-        if(style === 4) return `🎖️ *OPCIÓN PARA CRÉDITO MILITAR (ISSFAM/FOVISSSTE)*\n\nHola, tengo esta propiedad que califica perfectamente para tu crédito:\n🏠 *${nombre}*\n💰 Valor: *${precio}*\n📍 Ubicación: ${ubi}\n\n${datosCapturados}\n\n📝 *Detalles:* ${desc}\n${maps}${fotosTexto}\n\nYo te ayudo con todo el trámite de documentos para que sea rápido y seguro. 💪`;
-        
-        if(style === 5) return `🤝 *OFERTA POR PAGO DE CONTADO / TRATO DIRECTO*\n\nSi buscas una compra rápida, esta es la mejor opción:\n🔑 *${nombre}*\n💰 Precio de Lista: *${precio}*\n📍 Ubicación: ${ubi}\n\n${datosCapturados}\n\n📝 *Descripción:* ${desc}\n\nAl ser trato directo, podemos negociar un descuento especial. ${maps}${fotosTexto}\n\n¿Platicamos?`;
-        
-        if(style === 6) return `🏗️ *PROYECTO EN PREVENTA - ¡ESTRENA CASA!*\n\nTe comparto los detalles de este proyecto:\n📌 *${nombre}*\n💰 Inversión: *${precio}*\n📍 Ubicación: ${ubi}\n\n${datosCapturados}\n\n📝 *Descripción del proyecto:* ${desc}\n\nComprar en preventa te permite asegurar el mejor precio y personalizar detalles. ${maps}${fotosTexto}\n\n¿Te gustaría ver el avance de obra?`;
-        
-        return '';
+        return base;
     }
 
     function selectFlyer(style) {
