@@ -372,6 +372,24 @@
     </div>
 </div>
 
+<!-- MODAL SELECCIONAR CÁMARA O GALERÍA -->
+<div class="modal-overlay" id="photoMenuModal">
+    <div class="modal-card">
+        <div class="modal-title"><i class="fas fa-camera" style="color:var(--primary);"></i> Subir Foto</div>
+        <p style="font-size:0.85em; color:#666; margin-bottom:18px;">Selecciona la fuente de la imagen:</p>
+        
+        <button class="btn" style="background:var(--primary); color:white; padding:18px; margin-bottom:12px; font-weight:900;" onclick="triggerCamera()">
+            <i class="fas fa-camera fa-lg"></i> TOMAR FOTO (CÁMARA)
+        </button>
+        
+        <button class="btn" style="background:var(--info); color:white; padding:18px; margin-bottom:12px; font-weight:900;" onclick="triggerGallery()">
+            <i class="fas fa-images fa-lg"></i> ELEGIR DE GALERÍA
+        </button>
+        
+        <button class="btn" style="background:#eee; color:#333; margin-top:10px;" onclick="closePhotoMenu()">CANCELAR</button>
+    </div>
+</div>
+
 <div class="fixed-footer">
     <button class="btn" style="background:#444; color:white; width:auto; padding:0 15px; margin-right:10px;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+ NUEVO</button>
     <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
@@ -395,6 +413,67 @@
     let voxiData = { props: [], milis: [], grals: [], files: [] };
     let currentPropIndex = null;
     let currentWANumber = '';
+    
+    // --- LÓGICA DE CÁMARA Y GALERÍA ---
+    let currentPhotoTarget = { index: null, type: null };
+
+    function selectPhotoSource(i, type) {
+        currentPhotoTarget = { index: i, type: type };
+        document.getElementById('photoMenuModal').style.display = 'flex';
+    }
+
+    function closePhotoMenu() {
+        document.getElementById('photoMenuModal').style.display = 'none';
+    }
+
+    function triggerCamera() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        input.onchange = (e) => handlePhotoResult(e.target.files);
+        input.click();
+        closePhotoMenu();
+    }
+
+    function triggerGallery() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        if (currentPhotoTarget.type === 'main' || currentPhotoTarget.type === 'gallery') {
+            input.multiple = true;
+        }
+        input.onchange = (e) => handlePhotoResult(e.target.files);
+        input.click();
+        closePhotoMenu();
+    }
+
+    function handlePhotoResult(files) {
+        if (!files || files.length === 0) return;
+        const { index, type } = currentPhotoTarget;
+        
+        if (type === 'main' || type === 'gallery') {
+            saveLocation(index, true);
+        }
+
+        Array.from(files).forEach((f, idx) => {
+            const maxW = (type === 'doc' ? 1000 : 800);
+            processImg(f, maxW, (b) => {
+                if (type === 'main') {
+                    if (idx === 0) voxiData.props[index].mainImg = b;
+                    else voxiData.props[index].gallery.push(b);
+                } else if (type === 'gallery') {
+                    if (!voxiData.props[index].mainImg) voxiData.props[index].mainImg = b;
+                    else voxiData.props[index].gallery.push(b);
+                } else if (type === 'doc') {
+                    voxiData.props[index].docImg = b;
+                }
+                renderProps();
+                autoSave();
+            });
+        });
+    }
+
     const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
     const REQS_E = ["INE (ambos lados)"];
 
@@ -559,9 +638,8 @@
             card.id = 'fullPropCard' + i;
             card.innerHTML = `
                 <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1);renderProps();autoSave();}"><i class="fas fa-trash"></i></button>
-                <div class="main-photo" onclick="document.getElementById('imgM${i}').click()">
+                <div class="main-photo" onclick="selectPhotoSource(${i}, 'main')">
                     ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i><div style="font-size:0.7em; color:#888; margin-top:5px;">CAPTURAR FOTO</div>'}
-                    <input type="file" id="imgM${i}" hidden multiple accept="image/*" onchange="if(this.files){saveLocation(${i},true); Array.from(this.files).forEach((f,idx)=>{ processImg(f,800,(b)=>{ if(idx===0) voxiData.props[${i}].mainImg=b; else voxiData.props[${i}].gallery.push(b); renderProps(); autoSave(); })}); }">
                 </div>
 
                 <div class="box-container">
@@ -610,8 +688,7 @@
                     </select></div>
                     <div class="box full-box" style="background:#f1f8e9; border:1px solid #c5e1a5; padding:10px; border-radius:10px;">
                         <label style="color:#2e7d32; font-weight:700;">📄 ESCANEAR ${p.docto}</label>
-                        <button class="btn" style="background:#2e7d32; color:white; width:100%; margin-top:8px;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR DOCUMENTO</button>
-                        <input type="file" id="docUp${i}" hidden accept="image/*" onchange="if(this.files[0]){processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b;saveLocation(${i},true);renderProps();autoSave();})}">
+                        <button class="btn" style="background:#2e7d32; color:white; width:100%; margin-top:8px;" onclick="selectPhotoSource(${i}, 'doc')"><i class="fas fa-camera"></i> CAPTURAR DOCUMENTO</button>
                     </div>
 
                     ${esCasa ? `
@@ -643,9 +720,8 @@
 
                     <div class="section-label">📸 GALERÍA DE FOTOS</div>
                     <div class="gallery" style="grid-column:span 2;">${galH}
-                        <div class="gallery-item" onclick="document.getElementById('gal${i}').click()">
+                        <div class="gallery-item" onclick="selectPhotoSource(${i}, 'gallery')">
                             <i class="fas fa-plus" style="color:#aaa;"></i>
-                            <input type="file" id="gal${i}" hidden multiple accept="image/*" onchange="if(this.files){saveLocation(${i},true); Array.from(this.files).forEach(f=>processImg(f,800,(b)=>{ if(!voxiData.props[${i}].mainImg) voxiData.props[${i}].mainImg=b; else voxiData.props[${i}].gallery.push(b); renderProps(); autoSave(); })); }">
                         </div>
                     </div>
 
