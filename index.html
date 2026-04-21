@@ -405,15 +405,32 @@
     }
 
     // ─── IMÁGENES ─────────────────────────────────────────────
-    function saveLocation(i) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                const url = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                voxiData.props[i].maps = url;
-                renderProps();
-                autoSave();
-            }, null, { enableHighAccuracy: true });
+    function saveLocation(i, silent = false) {
+        if (!navigator.geolocation) {
+            if(!silent) alert("Geolocalización no soportada.");
+            return;
         }
+        navigator.geolocation.getCurrentPosition(pos => {
+            const url = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+            voxiData.props[i].maps = url;
+            autoSave();
+            if(!silent) {
+                renderProps();
+                alert("📍 Ubicación GPS guardada correctamente.");
+            }
+        }, err => {
+            if(!silent) {
+                let msg = "No se pudo obtener la ubicación GPS.";
+                if(err.code === 1) msg = "Permiso de ubicación denegado.";
+                alert(msg + "\n\nPrueba usando el icono de búsqueda para abrir Google Maps.");
+            }
+        }, { enableHighAccuracy: true, timeout: 8000 });
+    }
+
+    function searchInMaps(i) {
+        const query = voxiData.props[i].ubicacion || "";
+        const url = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+        window.open(url, '_blank');
     }
 
     function processImg(file, maxW, callback) {
@@ -497,7 +514,7 @@
                 <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1);renderProps();autoSave();}"><i class="fas fa-trash"></i></button>
                 <div class="main-photo" onclick="document.getElementById('imgM${i}').click()">
                     ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i><div style="font-size:0.7em; color:#888; margin-top:5px;">CAPTURAR FOTO</div>'}
-                    <input type="file" id="imgM${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;saveLocation(${i});renderProps();autoSave();})}">
+                    <input type="file" id="imgM${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;saveLocation(${i},true);renderProps();autoSave();})}">
                 </div>
 
                 <div class="box-container">
@@ -523,7 +540,7 @@
 
                     <div class="section-label">📍 UBICACIÓN</div>
                     <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
-                    <div class="box full-box"><label>Link Maps <i class="fas fa-location-arrow" style="cursor:pointer; color:var(--primary); margin-left:8px;" onclick="saveLocation(${i})" title="Obtener GPS"></i>${p.maps ? ` <i class="fas fa-external-link-alt" style="cursor:pointer; color:var(--info); margin-left:12px;" onclick="window.open('${p.maps}','_blank')" title="Ver Mapa"></i>` : ''}</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value;autoSave()"></div>
+                    <div class="box full-box"><label>LINK GOOGLE MAPS <i class="fas fa-location-arrow" style="cursor:pointer; color:#e53935; margin-left:10px; padding:5px;" onclick="saveLocation(${i})" title="Obtener GPS"></i> <i class="fas fa-search" style="cursor:pointer; color:#1e88e5; margin-left:12px; padding:5px;" onclick="searchInMaps(${i})" title="Buscar en Maps"></i>${p.maps ? ` <i class="fas fa-external-link-alt" style="cursor:pointer; color:var(--info); margin-left:15px; padding:5px;" onclick="window.open('${p.maps}','_blank')" title="Ver Mapa"></i>` : ''}</label><input type="text" value="${p.maps||''}" oninput="voxiData.props[${i}].maps=this.value;autoSave()"></div>
 
                     <div class="section-label">🗺️ MEDIDAS DEL TERRENO</div>
                     <div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value;calcArea(${i});autoSave()"></div>
@@ -547,7 +564,7 @@
                     <div class="box full-box" style="background:#f1f8e9; border:1px solid #c5e1a5; padding:10px; border-radius:10px;">
                         <label style="color:#2e7d32; font-weight:700;">📄 ESCANEAR ${p.docto}</label>
                         <button class="btn" style="background:#2e7d32; color:white; width:100%; margin-top:8px;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR DOCUMENTO</button>
-                        <input type="file" id="docUp${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b;saveLocation(${i});renderProps();autoSave();})}">
+                        <input type="file" id="docUp${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b;saveLocation(${i},true);renderProps();autoSave();})}">
                     </div>
 
                     ${esCasa ? `
@@ -581,7 +598,7 @@
                     <div class="gallery" style="grid-column:span 2;">${galH}
                         <div class="gallery-item" onclick="document.getElementById('gal${i}').click()">
                             <i class="fas fa-plus" style="color:#aaa;"></i>
-                            <input type="file" id="gal${i}" hidden multiple accept="image/*" capture="environment" onchange="if(this.files){saveLocation(${i});Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();autoSave();}))}">
+                            <input type="file" id="gal${i}" hidden multiple accept="image/*" capture="environment" onchange="if(this.files){saveLocation(${i},true);Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();autoSave();}))}">
                         </div>
                     </div>
 
