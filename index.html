@@ -407,13 +407,18 @@
     // ─── IMÁGENES ─────────────────────────────────────────────
     function saveLocation(i, silent = false) {
         if (!navigator.geolocation) {
-            if(!silent) alert("Geolocalización no soportada en este dispositivo.");
+            if(!silent) alert("Tu navegador no soporta geolocalización.");
             return;
         }
-        
-        // Feedback visual inmediato
-        const btn = event ? event.currentTarget : null;
-        if(btn && !silent) btn.style.color = "#4caf50";
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        };
+
+        const icon = document.querySelector(`[onclick="saveLocation(${i})"]`);
+        if(icon && !silent) icon.style.color = "#ff9800"; // Naranja: Cargando
 
         navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude;
@@ -424,35 +429,37 @@
             autoSave();
             
             if(!silent) {
-                // Actualizamos el input directamente para evitar re-renderizado total (pantalla negra)
+                if(icon) icon.style.color = "#4caf50"; // Verde: Éxito
+                // Actualizamos el input directamente sin refrescar toda la app
                 const card = document.getElementById('fullPropCard' + i);
                 if(card) {
                     const inp = card.querySelector('input[oninput*=".maps="]');
                     if(inp) inp.value = url;
                     
-                    // Aseguramos que el icono de enlace externo aparezca/se actualice
-                    const label = card.querySelector('label[onclick*="saveLocation"]')?.parentElement;
+                    // Si no tiene el botón de ver mapa (external link), refrescamos la tarjeta para que aparezca
+                    const label = card.querySelector('label');
                     if(label && !label.innerHTML.includes('fa-external-link-alt')) {
-                         renderProps(); // Si no existía el icono, re-renderizamos una vez
+                        renderProps(); 
                     }
                 }
-                alert("📍 Ubicación GPS guardada con éxito.");
+                alert("📍 Ubicación GPS obtenida y guardada.");
             }
         }, err => {
             if(!silent) {
-                if(btn) btn.style.color = "#e53935";
-                let msg = "No se pudo obtener la ubicación GPS.";
-                if(err.code === 1) msg = "Permiso de ubicación denegado. Activa el GPS y permite el acceso en tu navegador.";
-                else if(err.code === 3) msg = "Tiempo de espera agotado. Intenta de nuevo en un espacio abierto.";
-                alert(msg + "\n\nO utiliza la lupa 🔍 para buscar la dirección manualmente.");
+                if(icon) icon.style.color = "#e53935"; // Rojo: Error
+                let msg = "Error al obtener ubicación.";
+                if(err.code === 1) msg = "Permiso denegado. Por favor, activa el GPS y permite el acceso en la configuración de tu navegador.";
+                else if(err.code === 2) msg = "Ubicación no disponible. Revisa tu señal.";
+                else if(err.code === 3) msg = "Tiempo de espera agotado. Intenta de nuevo en un lugar abierto.";
+                alert(msg + "\n\n💡 Puedes usar la lupa 🔍 o escribir la dirección manualmente.");
             }
-        }, { enableHighAccuracy: true, timeout: 10000 });
+        }, options);
     }
 
     function searchInMaps(i) {
         const p = voxiData.props[i];
         const query = p.ubicacion || p.titulo || "";
-        const url = query ? `https://www.google.com/maps/search/${encodeURIComponent(query)}` : `https://www.google.com/maps`;
+        const url = query ? `https://www.google.com/maps/search/${encodeURIComponent(query)}` : "https://www.google.com/maps";
         window.open(url, '_blank');
     }
 
