@@ -561,7 +561,7 @@
                 <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1);renderProps();autoSave();}"><i class="fas fa-trash"></i></button>
                 <div class="main-photo" onclick="document.getElementById('imgM${i}').click()">
                     ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i><div style="font-size:0.7em; color:#888; margin-top:5px;">CAPTURAR FOTO</div>'}
-                    <input type="file" id="imgM${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;saveLocation(${i},true);renderProps();autoSave();})}">
+                    <input type="file" id="imgM${i}" hidden accept="image/*" onchange="if(this.files[0]){processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;saveLocation(${i},true);renderProps();autoSave();})}">
                 </div>
 
                 <div class="box-container">
@@ -611,7 +611,7 @@
                     <div class="box full-box" style="background:#f1f8e9; border:1px solid #c5e1a5; padding:10px; border-radius:10px;">
                         <label style="color:#2e7d32; font-weight:700;">📄 ESCANEAR ${p.docto}</label>
                         <button class="btn" style="background:#2e7d32; color:white; width:100%; margin-top:8px;" onclick="document.getElementById('docUp${i}').click()"><i class="fas fa-camera"></i> CAPTURAR DOCUMENTO</button>
-                        <input type="file" id="docUp${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b;saveLocation(${i},true);renderProps();autoSave();})}">
+                        <input type="file" id="docUp${i}" hidden accept="image/*" onchange="if(this.files[0]){processImg(this.files[0],1000,(b)=>{voxiData.props[${i}].docImg=b;saveLocation(${i},true);renderProps();autoSave();})}">
                     </div>
 
                     ${esCasa ? `
