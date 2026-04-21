@@ -407,29 +407,52 @@
     // ─── IMÁGENES ─────────────────────────────────────────────
     function saveLocation(i, silent = false) {
         if (!navigator.geolocation) {
-            if(!silent) alert("Geolocalización no soportada.");
+            if(!silent) alert("Geolocalización no soportada en este dispositivo.");
             return;
         }
+        
+        // Feedback visual inmediato
+        const btn = event ? event.currentTarget : null;
+        if(btn && !silent) btn.style.color = "#4caf50";
+
         navigator.geolocation.getCurrentPosition(pos => {
-            const url = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const url = `https://www.google.com/maps?q=${lat},${lon}`;
+            
             voxiData.props[i].maps = url;
             autoSave();
+            
             if(!silent) {
-                renderProps();
-                alert("📍 Ubicación GPS guardada correctamente.");
+                // Actualizamos el input directamente para evitar re-renderizado total (pantalla negra)
+                const card = document.getElementById('fullPropCard' + i);
+                if(card) {
+                    const inp = card.querySelector('input[oninput*=".maps="]');
+                    if(inp) inp.value = url;
+                    
+                    // Aseguramos que el icono de enlace externo aparezca/se actualice
+                    const label = card.querySelector('label[onclick*="saveLocation"]')?.parentElement;
+                    if(label && !label.innerHTML.includes('fa-external-link-alt')) {
+                         renderProps(); // Si no existía el icono, re-renderizamos una vez
+                    }
+                }
+                alert("📍 Ubicación GPS guardada con éxito.");
             }
         }, err => {
             if(!silent) {
+                if(btn) btn.style.color = "#e53935";
                 let msg = "No se pudo obtener la ubicación GPS.";
-                if(err.code === 1) msg = "Permiso de ubicación denegado.";
-                alert(msg + "\n\nPrueba usando el icono de búsqueda para abrir Google Maps.");
+                if(err.code === 1) msg = "Permiso de ubicación denegado. Activa el GPS y permite el acceso en tu navegador.";
+                else if(err.code === 3) msg = "Tiempo de espera agotado. Intenta de nuevo en un espacio abierto.";
+                alert(msg + "\n\nO utiliza la lupa 🔍 para buscar la dirección manualmente.");
             }
-        }, { enableHighAccuracy: true, timeout: 8000 });
+        }, { enableHighAccuracy: true, timeout: 10000 });
     }
 
     function searchInMaps(i) {
-        const query = voxiData.props[i].ubicacion || "";
-        const url = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+        const p = voxiData.props[i];
+        const query = p.ubicacion || p.titulo || "";
+        const url = query ? `https://www.google.com/maps/search/${encodeURIComponent(query)}` : `https://www.google.com/maps`;
         window.open(url, '_blank');
     }
 
