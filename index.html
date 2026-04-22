@@ -200,6 +200,7 @@ body { background: white; padding: 0 !important; }
 <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
 <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
 <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')"><i class="fas fa-users"></i> PROSPECTOS</button>
+<button class="tab-btn" id="btn-galeria" onclick="openTab('galeria')"><i class="fas fa-images"></i> GALERÍA</button>
 <button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> CONTRATOS</button>
 <button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> ARCHIVOS</button>
 </div>
@@ -289,6 +290,23 @@ oninput="voxiSearch(this.value)">
 <div id="prospectList"></div>
 </div>
 <!-- ============ TAB: CONTRATOS ============ -->
+<!-- ============ TAB: GALERÍA ============ -->
+<div id="galeria" class="tab-content">
+    <div class="card" style="border-top:4px solid var(--primary);">
+        <div style="font-weight:900; color:var(--primary); margin-bottom:15px; font-size:1.1em;"><i class="fas fa-images"></i> GALERÍA DE VENTAS</div>
+        <div id="folderGallery" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;"></div>
+        <div id="activeFolderView" style="display:none;">
+            <button class="btn" style="background:#eee; color:#333; margin-bottom:15px;" onclick="closeFolder()"><i class="fas fa-arrow-left"></i> VOLVER</button>
+            <div id="folderTitle" style="font-weight:900; margin-bottom:15px; color:var(--primary);"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                <button class="btn" style="background:var(--primary); color:white;" onclick="triggerFolderUpload('camera')"><i class="fas fa-camera"></i> CÁMARA</button>
+                <button class="btn" style="background:var(--info); color:white;" onclick="triggerFolderUpload('gallery')"><i class="fas fa-images"></i> GALERÍA</button>
+            </div>
+            <div id="folderImages" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+        </div>
+    </div>
+</div>
+
 <div id="papeleo" class="tab-content">
 <div class="card">
 <h2 style="margin:0 0 10px;"><i class="fas fa-file-signature"></i> Oficina de Papeleo</h2>
@@ -445,7 +463,13 @@ measurementId: "G-77F6483313"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const SYNC_ID = "voxi_main_db"; // ID único para este usuario
-let voxiData = { props: [], milis: [], grals: [], files: [] };
+let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {} };
+const GALLERY_FOLDERS = [
+    '🏠 Fachadas', '📐 Planos (1 piso)', '🏢 Planos (2 pisos)', '🚿 Baños',
+    '🚪 Herrería', '🚪 Madera', '🚪 Baño', '🍽️ Cocina',
+    '🪟 Ventanas', '🌿 Jardín', '🧺 Lavadero', '💡 Iluminación'
+];
+let activeFolder = null;
 let currentPropIndex = null;
 let activePropId = null;
 let currentWANumber = '';
@@ -516,6 +540,7 @@ document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
 document.getElementById(id).classList.add('active-tab');
 document.getElementById('btn-' + id).classList.add('active');
 if(id === 'prospectos') renderProspects();
+if(id === 'galeria') renderFolderGallery();
 if(id === 'inventario') renderProps();
 if(id === 'papeleo') {
 const select = document.getElementById('papeleoProspecto');
@@ -1390,10 +1415,81 @@ cStatus.style.color = 'red';
 }
 });
 }
+function renderFolderGallery() {
+    const div = document.getElementById('folderGallery'); if(!div) return;
+    div.innerHTML = GALLERY_FOLDERS.map(f => `
+        <div class="card" style="margin:0; padding:15px; text-align:center; cursor:pointer; background:white; border:2px solid #eee;" onclick="openFolder('${f}')">
+            <div style="font-size:2em; margin-bottom:8px;">${f.split(' ')[0]}</div>
+            <div style="font-size:0.7em; font-weight:900; line-height:1.2;">${f.split(' ').slice(1).join(' ')}</div>
+            <div style="font-size:0.6em; color:#888; margin-top:5px;">${(voxiData.galleries[f] || []).length} fotos</div>
+        </div>
+    `).join('');
+}
+
+function openFolder(f) {
+    activeFolder = f;
+    document.getElementById('folderGallery').style.display = 'none';
+    document.getElementById('activeFolderView').style.display = 'block';
+    document.getElementById('folderTitle').innerText = f;
+    renderFolderImages();
+}
+
+function closeFolder() {
+    activeFolder = null;
+    document.getElementById('folderGallery').style.display = 'grid';
+    document.getElementById('activeFolderView').style.display = 'none';
+    renderFolderGallery();
+}
+
+function renderFolderImages() {
+    const div = document.getElementById('folderImages'); if(!div) return;
+    const images = voxiData.galleries[activeFolder] || [];
+    div.innerHTML = images.map((img, i) => `
+        <div class="gallery-item" style="position:relative; margin-bottom:10px;">
+            <img src="${img}" style="width:100%; border-radius:10px;" onclick="shareFolderImage('${img}')">
+            <button class="del" style="position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer;" onclick="deleteFolderImage(${i})">×</button>
+        </div>
+    `).join('');
+}
+
+function triggerFolderUpload(type) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    if(type === 'camera') input.setAttribute('capture', 'environment');
+    input.multiple = true;
+    input.onchange = (e) => {
+        const files = e.target.files;
+        if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
+        Array.from(files).forEach(f => {
+            processImg(f, 800, (b) => {
+                voxiData.galleries[activeFolder].push(b);
+                renderFolderImages();
+                autoSave();
+            });
+        });
+    };
+    input.click();
+}
+
+function deleteFolderImage(i) {
+    if(confirm('¿Eliminar esta imagen?')) {
+        voxiData.galleries[activeFolder].splice(i, 1);
+        renderFolderImages();
+        autoSave();
+    }
+}
+
+function shareFolderImage(img) {
+    const msg = `Hola, te comparto este diseño del catálogo de Constructor HR: ${activeFolder}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+}
+
 async function loadMaster() {
 const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
 if(s) { 
 voxiData = JSON.parse(s); 
+if(!voxiData.galleries) voxiData.galleries = {};
 renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
 }
 db.collection("data").doc(SYNC_ID).get().then(doc => {
