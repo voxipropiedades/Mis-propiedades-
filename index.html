@@ -1479,26 +1479,28 @@ function renderAssistant() {
             </div>`;
         }
 
-        // 1. Detección de Pagos Pendientes (Apartados)
-        allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
-            alertsHtml += createAlert('Amarillo', `💰 PAGO PENDIENTE: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
-        });
+        // 1. Detección de Recordatorios para Mañana (Seguimiento)
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-        // 2. Detección de Papeleo Crítico (Documentos Faltantes)
         allProspects.forEach(p => {
-            const isMilis = milis.some(m => m.id === p.id);
-            if (p.m && Array.isArray(p.m)) {
-                const missing = p.m.filter(doc => doc.s === 'f').length;
-                if (missing > 0 && (p.status === 'Nuevo Cliente' || p.status === 'Pláticas avanzadas')) {
-                    alertsHtml += createAlert('Rojo', `📄 Papeleo Incompleto (${missing}): ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`);
-                }
+            if (p.proximaCita === tomorrowStr) {
+                alertsHtml += createAlert('Azul', `📅 SEGUIMIENTO MAÑANA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
             }
         });
 
-        // 3. Propiedades sin precio (Error de captura)
-        props.forEach(p => {
-            if(!p.precio || p.precio === '0') {
-                alertsHtml += createAlert('Azul', `🏠 Sin Precio: ${p.titulo || p.tipo}`, `goToRecord('inventario', '', 'null', '${p.id}')`);
+        // 2. Pagos Pendientes (Vencimiento Cercano o Dio Apartado sin fecha)
+        allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
+            const label = p.fechaVencimiento ? `VENCE ${p.fechaVencimiento}` : 'PAGO PENDIENTE';
+            alertsHtml += createAlert('Amarillo', `💰 ${label}: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
+        });
+
+        // 3. Tareas Manuales Asignadas (Notas con "URGENTE" o "PENDIENTE")
+        allProspects.forEach(p => {
+            const nota = (p.notas || '').toUpperCase();
+            if (nota.includes('URGENTE') || nota.includes('PENDIENTE')) {
+                alertsHtml += createAlert('Rojo', `⚠️ TAREA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
             }
         });
 
