@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Constructor Independiente HR</title>
     <link rel="manifest" href="manifest.json">
-    <script>if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js"); }</script>
+    <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -13,71 +13,544 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --primary: #b71c1c; --secondary: #ff5252; --accent: #ffde59; --bg: #f0f2f5; --white: #ffffff; --text: #1c1e21; --success: #2e7d32; --wa-green: #25D366; --info: #1565c0; }
-        * { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
-        body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
-        header { background: linear-gradient(135deg, #7f0000, #d32f2f); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .nav-tabs { display: flex; gap: 4px; margin: 10px 0; background: white; padding: 5px; border-radius: 12px; overflow-x: auto; }
-        .tab-btn { flex: 1; border: none; padding: 10px 5px; border-radius: 8px; background: #eee; font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 0.65em; min-width: 75px; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .btn { border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 800; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        :root {
+            --primary: #b71c1c;
+            --secondary: #ff5252;
+            --accent: #ffde59;
+            --bg: #f0f2f5;
+            --white: #ffffff;
+            --text: #1c1e21;
+            --success: #2e7d32;
+            --wa-green: #25D366;
+            --info: #1565c0;
+            --soft-red: #fff1f1;
+            --red-border: #ffcdd2;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
+        body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 140px; }
+
+        header {
+            background: linear-gradient(135deg, #7f0000 0%, #b71c1c 50%, #d32f2f 100%);
+            color: white; padding: 14px 20px; text-align: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .header-logo { max-width: 42px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
+        .header-sub { font-size: 0.65em; opacity: 0.85; display: block; margin-top: 2px; }
+
+        .container { max-width: 800px; margin: auto; padding: 10px; }
+
+        .nav-tabs {
+            display: flex; gap: 5px; margin: 12px 0; background: white; padding: 8px;
+            border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .tab-btn {
+            flex: 1; border: 1px solid var(--red-border); padding: 11px 6px; border-radius: 10px;
+            background: var(--soft-red); color: var(--primary); font-weight: 800; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            min-width: 85px; transition: 0.25s; font-size: 0.65em;
+        }
+        .tab-btn i { font-size: 1.2em; }
+        .tab-btn.active { background: var(--primary); color: white; transform: scale(1.05); border-color: var(--primary); }
+
+        .card {
+            background: var(--white); border-radius: 18px; padding: 20px;
+            margin-bottom: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.09);
+            position: relative; border: 1px solid #e0e0e0;
+        }
+        .card-mili { border-left: 8px solid var(--info); background: #f0f7ff; }
+        .card-gral { border-left: 8px solid var(--success); background: #f1f8e9; }
+        .box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .box { background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px; }
+        .box label { font-size: 0.62em; font-weight: 900; color: #757575; display: block; text-transform: uppercase; margin-bottom: 3px; }
+        .box input, .box select, .box textarea {
+            width: 100%; border: none; background: transparent; font-size: 0.95em;
+            color: var(--text); padding: 2px 0; outline: none; font-weight: 700;
+        }
+        .full-box { grid-column: span 2; }
+
+        .section-label {
+            grid-column: span 2; font-size: 0.82em; font-weight: 950; color: var(--primary);
+            margin-top: 18px; border-bottom: 3px solid #b71c1c22; padding-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            border: none; padding: 14px; border-radius: 12px; cursor: pointer;
+            font-weight: 800; display: flex; align-items: center; gap: 10px;
+            justify-content: center; width: 100%; transition: 0.2s; font-size: 0.9em;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-add { background: var(--primary); color: white; margin-bottom: 18px; }
+        .btn-save { background: var(--success); color: white; font-size: 1.1em; border: 2px solid white; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+        .btn-delete { position: absolute; top: 14px; right: 14px; color: #bbb; background: none; border: none; font-size: 1.2em; cursor: pointer; }
+
+        .fixed-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 12px 15px;
+            box-shadow: 0 -4px 18px rgba(0,0,0,0.12); z-index: 1000;
+        }
         .tab-content { display: none; }
         .active-tab { display: block; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .folder-card { background: #fff; border: 2px solid #f0f0f0; border-radius: 15px; padding: 15px; text-align: center; cursor: pointer; }
+
+        .main-photo {
+            width: 100%; height: 220px; background: #eee; border-radius: 15px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            border: 2px dashed #bbb; cursor: pointer;
+        }
+        .main-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+        .gallery-item { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 10px; overflow: hidden; position: relative; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-item .del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor:pointer; }
+
+        /* GALERÍA DE VENTAS */
+        .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
+        .folder-card { background: var(--soft-red); border: 2px solid var(--red-border); border-radius: 15px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .folder-card:active { transform: scale(0.95); }
+        .folder-card i { font-size: 2em; color: var(--primary); margin-bottom: 8px; display: block; font-style: normal; }
+        .folder-card span { font-weight: 900; font-size: 0.7em; color: var(--primary); text-transform: uppercase; }
+
+        #editor {
+            background: white; border: 2px solid #eee; border-radius: 15px; padding: 15px;
+            min-height: 380px; margin-top: 15px; outline: none; font-size: 1em; line-height: 1.6;
+        }
+        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 11px; background: white; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 8px; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.72); display: none; align-items: flex-end; justify-content: center;
+            z-index: 2000; padding: 0;
+        }
+        .modal-card {
+            background: white; border-radius: 24px 24px 0 0; padding: 24px; width: 100%; max-width: 600px;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-title { font-size: 1.1em; font-weight: 900; margin: 0 0 16px; display:flex; align-items:center; gap:10px; }
+
+        .flyer-option {
+            background: #f8f9fa; border: 2px solid #eee; border-radius: 15px;
+            padding: 14px; margin-bottom: 10px; cursor: pointer; transition:0.2s;
+        }
+        .flyer-option:active { transform: scale(0.98); border-color: var(--primary); }
+        .flyer-option h4 { margin: 0 0 5px; font-size:0.9em; color: var(--primary); }
+        .flyer-option p { margin: 0; font-size: 0.8em; color: #555; }
+
+        .wa-preview {
+            background: #e8f5e9; border: 2px solid var(--wa-green); border-radius: 15px;
+            padding: 14px; margin: 14px 0; font-size: 0.9em; line-height: 1.6; white-space: pre-wrap;
+            word-break: break-word; min-height: 100px;
+        }
+        .wa-edit {
+            width: 100%; border: 2px solid #ddd; border-radius: 12px; padding: 12px;
+            font-size: 0.9em; line-height: 1.6; min-height: 140px; outline: none;
+            resize: vertical; font-family: inherit;
+        }
+        .wa-btn-send {
+            background: var(--wa-green); color: white; border: none; border-radius: 14px;
+            padding: 15px; font-size: 1em; font-weight: 900; width: 100%; cursor: pointer;
+            display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px;
+        }
+        .wa-btn-send:active { transform: scale(0.97); }
+
+        .assist-card { background: #fff; border-radius: 20px; padding: 18px; border-left: 7px solid var(--info); margin-bottom: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.07); }
+        .assist-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .assist-header i { font-size: 1.8em; color: var(--info); }
+        .assist-quote { font-style: italic; color: #444; background: #e8f0fe; padding: 13px; border-radius: 12px; margin-bottom: 16px; border-left: 4px solid var(--info); font-size: 0.9em; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .stat-box { background: #f8f9fa; padding: 14px; border-radius: 14px; text-align: center; border: 1px solid #eee; }
+        .stat-box h5 { margin: 0; font-size: 0.65em; color: #888; text-transform: uppercase; letter-spacing:.5px; }
+        .stat-box p { margin: 6px 0 0; font-size: 1.6em; font-weight: 900; }
+
+        .task-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #fff; border: 1px solid #eee; border-radius: 13px; margin-bottom: 8px; flex-wrap: wrap; }
+        .task-item .task-info { flex: 1; font-size: 0.85em; }
+        .task-item .task-badge { font-size: 0.65em; font-weight: 900; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+
+        .alert-hot { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
+        .alert-hot h4 { margin: 0 0 8px; color: #2e7d32; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
+        .alert-cold { background: #e3f2fd; border: 2px solid #90caf9; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
+        .alert-cold h4 { margin: 0 0 8px; color: #1565c0; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
+        .alert-warn { background: #fff8e1; border: 2px solid #ffe082; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
+        .alert-warn h4 { margin: 0 0 8px; color: #e65100; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
+        .alert-danger { background: #fff5f5; border: 2px solid #ef9a9a; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
+        .alert-danger h4 { margin: 0 0 8px; color: #b71c1c; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
+
+        .wa-mini { background: var(--wa-green); color: white; border: none; border-radius: 10px; padding: 6px 12px; font-size: 0.65em; font-weight: 900; cursor: pointer; white-space: nowrap; }
+        .wa-mini:active { transform: scale(0.96); }
+
+        .agenda-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; margin-bottom:8px; font-size:0.85em; font-weight:700; }
+        .agenda-item.priority { background:#fff3e0; border:1px solid #ffcc80; }
+        .agenda-item.normal { background:#f9f9f9; border:1px solid #eee; }
+        .agenda-num { background: var(--primary); color:white; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75em; font-weight:900; flex-shrink:0; }
+
+        .check-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
+        .check-item span { font-size: 0.78em; font-weight: 800; }
+
+        .btn-print-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+
+        #auto-save-status { font-size: 0.72em; color: var(--success); font-weight: 900; display: none; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; display:none; width:fit-content; }
+
+        @media print {
+            body { background: white; padding: 0 !important; }
+            .nav-tabs, header, .fixed-footer, .btn, .btn-delete, .modal-overlay, .btn-print-options, #auto-save-status { display: none !important; }
+            .card { box-shadow: none !important; border: 1px solid #000 !important; page-break-inside: avoid !important; }
+        }
     </style>
 </head>
 <body>
-<header>
-    <div style="font-weight:900; font-size:1.2em;">Voxi Propiedades 🚀</div>
-    <div style="font-size:0.7em; opacity:0.9;">Socio Inmobiliario en Hidalgo</div>
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="icon.png" class="header-logo" alt="HR">
+        <div>
+            <span style="font-weight:950; font-size:1.1em; display: block;">Constructor Independiente HR</span>
+            <span class="header-sub" style="font-size: 0.7em;">Sistema de Ventas Inteligente</span>
+        </div>
+    </div>
+    <button onclick="manualSync()" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Sincronizar Nube">
+        <i class="fas fa-cloud-download-alt"></i>
+    </button>
 </header>
-<div style="max-width:600px; margin:auto; padding:10px;">
+
+<div class="container">
+    <div id="auto-save-status">💾 Guardando...</div>
+    <div id="cloud-status" style="font-size: 0.72em; color: #1565c0; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e3f2fd; border-radius:8px; display:none; width:fit-content;">☁️ Sincronizando Nube...</div>
+
     <div class="nav-tabs">
-        <button class="tab-btn active" id="btn-asistente" onclick="openTab(\"asistente\")"><i class="fas fa-chart-line"></i> 📊 TABLERO</button>
-        <button class="tab-btn" id="btn-inventario" onclick="openTab(\"inventario\")"><i class="fas fa-home"></i> 📦 INVENTARIO</button>
-        <button class="tab-btn" id="btn-prospectos" onclick="openTab(\"prospectos\")"><i class="fas fa-users"></i> 👥 PROSPECTOS</button>
-        <button class="tab-btn" id="btn-papeleo" onclick="openTab(\"papeleo\")"><i class="fas fa-file-contract"></i> 📄 CONTRATOS</button>
-        <button class="tab-btn" id="btn-archivos" onclick="openTab(\"archivos\")"><i class="fas fa-folder-open"></i> 📁 ARCHIVOS</button>
+        <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> 📊 TABLERO</button>
+        <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> 📦 INVENTARIO</button>
+        <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')"><i class="fas fa-users"></i> 👥 PROSPECTOS</button>
+        <button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> 📄 CONTRATOS</button>
+        <button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> 📁 ARCHIVOS</button>
     </div>
+
+    <!-- ============ TAB: TABLERO ============ -->
     <div id="asistente" class="tab-content active-tab">
-        <div class="card" style="border-left: 6px solid var(--primary);">
-            <button class="btn" style="background:var(--primary); color:white; padding:15px; font-size:1.1em;" onclick="openTab(\"archivos\")">
-                <i class="fas fa-images"></i> 🖼️ GALERÍA DE PROPIEDADES
-            </button>
+        <div class="assist-card">
+            <div class="assist-header">
+                <i class="fas fa-th-large"></i>
+                <div>
+                    <div style="font-weight:950; font-size:1.1em;">Tablero de Control</div>
+                    <div style="font-size:0.75em; color:#777;">Constructor Independiente HR</div>
+                </div>
+            </div>
+            <div id="assistant-quote" class="assist-quote">"Preparando tu plan de hoy..."</div>
+            <div class="section-label" style="grid-column:unset;">📊 MÉTRICAS Y RESUMEN</div>
+            <div class="stat-grid" style="margin-top:12px;">
+                <div class="stat-box"><h5>🏠 Propiedades</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
+                <div class="stat-box"><h5>🤝 Por Cerrar</h5><p id="stat-closing" style="color:var(--success);">0</p></div>
+                <div class="stat-box"><h5>❄️ Seguimiento</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
+                <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
+            </div>
         </div>
-        <div class="card" id="agenda-hoy">
-            <h3>📅 Tareas de Hoy</h3>
-            <p style="font-size:0.9em; color:#666;">No hay tareas pendientes.</p>
+        <div class="assist-card">
+            <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px;">📅 AGENDA DE HOY</div>
+            <div id="assistant-agenda"></div>
+        </div>
+        <div class="assist-card">
+            <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px;">🧠 ACCIONES RECOMENDADAS</div>
+            <div id="assistant-suggestions"></div>
+        </div>
+        <div class="assist-card">
+            <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px;">🚨 ALERTAS</div>
+            <div id="assistant-alerts"></div>
         </div>
     </div>
+
+    <!-- ============ TAB: INVENTARIO ============ -->
     <div id="inventario" class="tab-content">
-        <div class="card"><button class="btn" style="background:var(--success); color:white;"><i class="fas fa-plus"></i> NUEVA PROPIEDAD</button></div>
+        <button class="btn btn-add" onclick="addItem('props')"><i class="fas fa-plus-circle"></i> AGREGAR PROPIEDAD / PARCELA</button>
+        <div id="propList"></div>
     </div>
+
+    <!-- ============ TAB: PROSPECTOS ============ -->
     <div id="prospectos" class="tab-content">
-        <div class="card"><button class="btn" style="background:var(--info); color:white;"><i class="fas fa-user-plus"></i> NUEVO LEAD</button></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
+            <button class="btn" style="background:var(--info); color:white; font-size:0.8em;" onclick="addItem('milis')"><i class="fas fa-user-shield"></i> NUEVO MILITAR</button>
+            <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="addItem('grals')"><i class="fas fa-user-tag"></i> NUEVO EFECTIVO</button>
+        </div>
+        <div id="prospectList"></div>
     </div>
+
+    <!-- ============ TAB: CONTRATOS ============ -->
+    <div id="papeleo" class="tab-content">
+        <div class="card">
+            <h2 style="margin:0 0 10px;"><i class="fas fa-file-signature"></i> Oficina de Papeleo</h2>
+            <div id="editorArea"><div id="editor" contenteditable="true">Escribe o escanea aquí...</div></div>
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:14px;">
+                <button class="btn" style="background:#d32f2f; color:white; font-size:0.65em;" onclick="exportPDF()">PDF</button>
+                <button class="btn" style="background:#2b579a; color:white; font-size:0.65em;" onclick="exportWord()">WORD</button>
+                <button class="btn" style="background:#ff9800; color:white; font-size:0.65em;" onclick="exportJPG_Simple()">IMG</button>
+                <button class="btn" style="background:#333; color:white; font-size:0.65em;" onclick="window.print()">PRINT</button>
+            </div>
+            <button class="btn" style="background:var(--success); color:white; margin-top:14px;" onclick="saveContractAsFile()"><i class="fas fa-save"></i> GUARDAR EN ARCHIVOS</button>
+        </div>
+    </div>
+
+    <!-- ============ TAB: ARCHIVOS ============ -->
     <div id="archivos" class="tab-content">
-        <h3 style="margin-left:5px;"><i class="fas fa-images"></i> Galería de Ventas</h3>
-        <div class="gallery-grid" id="folderGallery"></div>
+        <div class="card">
+            <h2 style="margin:0 0 14px;"><i class="fas fa-images"></i> Galería de Ventas</h2>
+            <div class="gallery-grid" id="folderGallery"></div>
+        </div>
+        <div class="card">
+            <h2 style="margin:0 0 14px;"><i class="fas fa-archive"></i> Archivos y Respaldo</h2>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
+                <button class="btn" style="background:var(--info); color:white; font-size:0.75em;" onclick="exportData()"><i class="fas fa-download"></i> 💾 EXPORTAR RESPALDO</button>
+                <button class="btn" style="background:#673ab7; color:white; font-size:0.75em;" onclick="document.getElementById('importInput').click()"><i class="fas fa-upload"></i> 📂 IMPORTAR RESPALDO</button>
+                <input type="file" id="importInput" hidden accept=".json" onchange="importData(this)">
+            </div>
+            <div id="fileList"></div>
+        </div>
     </div>
 </div>
-<script>
-    function openTab(id) {
-        document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active-tab"));
-        document.getElementById(id).classList.add("active-tab");
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        document.getElementById("btn-" + id).classList.add("active");
-    }
-    const FOLDERS = ["🏠 Fachadas", "📐 Planos 1 piso", "🏢 Planos 2 pisos", "🚿 Baños", "🚪 Herrería", "🚪 Madera", "🚪 Baño", "🍽️ Barritas cocina", "🪟 Ventanas aluminio", "🌿 Jardín", "🧺 Lavadero", "💡 Iluminación"];
-    window.onload = () => {
-        document.getElementById("folderGallery").innerHTML = FOLDERS.map(f => `
-            <div class="folder-card" onclick="alert(\"Abriendo: \" + \"${f}\")">
-                <div style="font-size:2.2em;">${f.split(" ")[0]}</div>
-                <div style="font-weight:900; font-size:0.75em; margin-top:5px;">${f.split(" ").slice(1).join(" ")}</div>
+
+<div class="modal-overlay" id="flyerModal">
+    <div class="modal-card">
+        <div class="modal-title"><i class="fas fa-paper-plane" style="color:var(--wa-green);"></i> Enviar por WhatsApp</div>
+        <div id="flyerStep1">
+            <p style="font-size:0.82em; color:#666; margin:0 0 12px;">Elige el tipo de mensaje para esta propiedad:</p>
+            <div class="flyer-option" onclick="selectFlyer(1)">
+                <h4>🔥 Mensaje de OPORTUNIDAD</h4>
+                <p id="opt1-p">Enfocado en precio y urgencia</p>
             </div>
-        `).join("");
+            <div class="flyer-option" onclick="selectFlyer(2)">
+                <h4>📋 Ficha TÉCNICA</h4>
+                <p id="opt2-p">Medidas, habitaciones y características</p>
+            </div>
+            <div class="flyer-option" onclick="selectFlyer(3)">
+                <h4>🏡 Mensaje EMOCIONAL</h4>
+                <p id="opt3-p">Tu hogar, tu familia, tu futuro</p>
+            </div>
+            <div class="flyer-option" onclick="selectFlyer(4)">
+                <h4>🪖 Mensaje MILITAR</h4>
+                <p>Para crédito Fovissste / Issfam</p>
+            </div>
+            <div class="flyer-option" onclick="selectFlyer(5)">
+                <h4>💵 Pago en EFECTIVO</h4>
+                <p>Descuento especial por pago de contado</p>
+            </div>
+            <div class="flyer-option" onclick="selectFlyer(6)">
+                <h4>🏗️ PREVENTA / Construcción</h4>
+                <p>Elige tu diseño antes de que se termine</p>
+            </div>
+            <button class="btn" style="background:#999; color:white; margin-top:8px;" onclick="closeModal()">CANCELAR</button>
+        </div>
+        <div id="flyerStep2" style="display:none;">
+            <p style="font-size:0.8em; color:#666; margin:0 0 8px;">✏️ Edita el mensaje antes de enviar:</p>
+            <textarea class="wa-edit" id="waEditArea"></textarea>
+            <div class="wa-preview" id="waPreview"></div>
+            <div style="font-size:0.75em; color:#888; margin-bottom:6px;">Número del cliente: <span id="waRecipientDisplay" style="font-weight:900; color:var(--success);">—</span></div>
+            <button class="wa-btn-send" onclick="sendWAFinal()"><i class="fab fa-whatsapp" style="font-size:1.3em;"></i> ENVIAR POR WHATSAPP</button>
+            <button class="btn" style="background:#f0f0f0; color:#333; margin-top:8px;" onclick="backToStep1()"><i class="fas fa-arrow-left"></i> CAMBIAR TIPO</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="waDirectModal">
+    <div class="modal-card">
+        <div class="modal-title"><i class="fab fa-whatsapp" style="color:var(--wa-green);"></i> Mensaje al Cliente</div>
+        <textarea class="wa-edit" id="waDirectArea"></textarea>
+        <div class="wa-preview" id="waDirectPreview" style="margin-top:10px;"></div>
+        <div style="font-size:0.75em; color:#888; margin:6px 0;">Número: <span id="waDirectNum" style="font-weight:900; color:var(--success);">—</span></div>
+        <button class="wa-btn-send" onclick="sendWADirect()"><i class="fab fa-whatsapp" style="font-size:1.3em;"></i> ENVIAR</button>
+        <button class="btn" style="background:#f0f0f0; color:#333; margin-top:8px;" onclick="document.getElementById('waDirectModal').style.display='none'">CANCELAR</button>
+    </div>
+</div>
+
+<div class="fixed-footer">
+    <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
+</div>
+
+<script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
+      authDomain: "voxiapp-6672e.firebaseapp.com",
+      projectId: "voxiapp-6672e",
+      storageBucket: "voxiapp-6672e.firebasestorage.app",
+      messagingSenderId: "332968241548",
+      appId: "1:332968241548:web:7f35ebe2cd2443fb0732",
+      measurementId: "G-77F6483313"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const SYNC_ID = "voxi_main_db";
+
+    let voxiData = { props: [], milis: [], grals: [], files: [] };
+    let currentPropIndex = null;
+    let currentWANumber = '';
+    const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Pre-auth"];
+
+    function openTab(id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active-tab'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active-tab');
+        document.getElementById('btn-' + id).classList.add('active');
+        if(id === 'asistente') renderAssistant();
+        if(id === 'archivos') renderGallery();
+    }
+
+    const FOLDERS = [
+        { n: 'Fachadas', e: '🏠' }, { n: 'Planos 1 piso', e: '📐' }, { n: 'Planos 2 pisos', e: '🏢' },
+        { n: 'Baños', e: '🚿' }, { n: 'Puertas herrería', e: '🚪' }, { n: 'Puertas madera', e: '🚪' },
+        { n: 'Puertas baño', e: '🚪' }, { n: 'Barritas cocina', e: '🍽️' }, { n: 'Ventanas aluminio', e: '🪟' },
+        { n: 'Jardín', e: '🌿' }, { n: 'Lavadero', e: '🧺' }, { n: 'Iluminación', e: '💡' }
+    ];
+
+    function renderGallery() {
+        const div = document.getElementById('folderGallery');
+        if(!div) return;
+        div.innerHTML = FOLDERS.map(f => `
+            <div class="folder-card" onclick="alert('Abriendo: ' + '${f.n}')">
+                <i>${f.e}</i>
+                <span>${f.n}</span>
+            </div>
+        `).join('');
+    }
+
+    function addItem(type) {
+        if(type === 'props') {
+            voxiData.props.unshift({ id: Date.now(), dueño: '', tipo: 'Casa', estatus: 'Preventa', titulo: '', ubicacion: '', maps: '', precio: '', ganancia: '', norte: '', sur: '', este: '', oeste: '', area: '', sala: '', cocina: '', cocina_integral: 'No', recamaras: '', banos: '', patio: '', estacionamiento: '', cisterna: '', tinacos: 'Ninguno', calentador: 'Ninguno', zaguan: 'No', ventanas: '', puertas: '', bardeado: 'No', calle: 'Terracería', antiguedad: 'Nueva', docto: 'Escritura Pública', permisos: 'No', luz: false, agua: false, drenaje: false, mainImg: null, gallery: [], desc: '', docImg: null });
+            renderProps();
+        } else if(type === 'milis') {
+            voxiData.milis.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Tibio', lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
+            renderProspects();
+        } else if(type === 'grals') {
+            voxiData.grals.unshift({ id: Date.now(), nombre: '', tel: '', status: 'Tibio', lastContact: new Date().toISOString().split('T')[0], interes: '', doctos: '' });
+            renderProspects();
+        }
+        autoSave();
+    }
+
+    function renderProps() {
+        const div = document.getElementById('propList');
+        if(!div) return;
+        div.innerHTML = '';
+        voxiData.props.forEach((p, i) => {
+            const esCasa = p.tipo.includes('Casa');
+            let galH = '';
+            (p.gallery || []).forEach((img, gi) => { galH += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="if(confirm('¿Quitar foto?')){voxiData.props[${i}].gallery.splice(${gi},1);renderProps();autoSave();}">✕</button></div>`; });
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1);renderProps();autoSave();}"><i class="fas fa-trash"></i></button>
+                <div class="main-photo" onclick="document.getElementById('imgM${i}').click()">
+                    ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i>'}
+                    <input type="file" id="imgM${i}" hidden accept="image/*" capture="environment" onchange="if(this.files[0]){processImg(this.files[0],800,(b)=>{voxiData.props[${i}].mainImg=b;renderProps();autoSave();})}">
+                </div>
+                <div class="box-container">
+                    <div class="box full-box"><label>Dueño / Vendedor</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value;autoSave()"></div>
+                    <div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();autoSave()">
+                        <option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏠 Casa</option>
+                        <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🏞️ Terreno</option>
+                        <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>🌄 Parcela</option>
+                    </select></div>
+                    <div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value;autoSave()">
+                        <option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>🏗️ Preventa</option>
+                        <option value="Construida" ${p.estatus==='Construida'?'selected':''}>🏠 Construida</option>
+                        <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
+                    </select></div>
+                    <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
+                    <div class="box"><label>Precio ($)</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;autoSave()" style="color:var(--success); font-weight:800;"></div>
+                    <div class="box"><label>Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value;autoSave()" style="color:var(--primary);"></div>
+                    <div class="section-label">📋 DETALLES</div>
+                    <div class="box full-box"><label>Notas</label><textarea oninput="voxiData.props[${i}].desc=this.value;autoSave()">${p.desc||''}</textarea></div>
+                    <div class="gallery" style="grid-column:span 2;">${galH}
+                        <div class="gallery-item" onclick="document.getElementById('gal${i}').click()">
+                            <i class="fas fa-plus" style="color:#aaa;"></i>
+                            <input type="file" id="gal${i}" hidden multiple accept="image/*" onchange="if(this.files){Array.from(this.files).forEach(f=>processImg(f,600,(b)=>{voxiData.props[${i}].gallery.push(b);renderProps();autoSave();}))}">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" style="background:var(--wa-green); color:white; margin-top:15px;" onclick="openFlyerOptions(${i})"><i class="fab fa-whatsapp"></i> ENVIAR FICHA</button>
+            `;
+            div.appendChild(card);
+        });
+    }
+
+    function renderProspects() {
+        const div = document.getElementById('prospectList');
+        if(!div) return;
+        div.innerHTML = '';
+        const all = [...voxiData.milis.map((m,i)=>({...m,t:'milis',oi:i})), ...voxiData.grals.map((g,i)=>({...g,t:'grals',oi:i}))];
+        all.forEach(p => {
+            const isM = p.t==='milis';
+            const card = document.createElement('div');
+            card.className = 'card ' + (isM?'card-mili':'card-gral');
+            card.innerHTML = `
+                <button class="btn-delete" onclick="if(confirm('¿Borrar?')){voxiData.${p.t}.splice(${p.oi},1);renderProspects();autoSave();}"><i class="fas fa-trash"></i></button>
+                <div class="box-container">
+                    <div class="box full-box"><label>${isM?'🪖 MILITAR':'💵 EFECTIVO'}</label><input type="text" value="${p.nombre}" oninput="voxiData.${p.t}[${p.oi}].nombre=this.value;autoSave()"></div>
+                    <div class="box"><label>📱 Tel</label><input type="text" value="${p.tel||''}" oninput="voxiData.${p.t}[${p.oi}].tel=this.value;autoSave()"></div>
+                    <div class="box"><label>Etapa</label><select onchange="voxiData.${p.t}[${p.oi}].status=this.value;renderProspects();autoSave()">
+                        <option value="Tibio" ${p.status==='Tibio'?'selected':''}>Interesado</option>
+                        <option value="Por cerrar" ${p.status==='Por cerrar'?'selected':''}>Por Cerrar</option>
+                        <option value="Vendido" ${p.status==='Vendido'?'selected':''}>Vendido</option>
+                    </select></div>
+                </div>
+                <button class="btn" style="background:var(--wa-green); color:white; margin-top:10px;" onclick="openWADirect('${p.tel||''}','${p.nombre}','${p.status}','${isM?'mili':'gral'}')"><i class="fab fa-whatsapp"></i> CONTACTAR</button>
+            `;
+            div.appendChild(card);
+        });
+    }
+
+    function processImg(file, maxW, cb) {
+        const r = new FileReader();
+        r.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas');
+                let w = img.width, h = img.height;
+                if(w > maxW) { h *= maxW/w; w = maxW; }
+                c.width = w; c.height = h;
+                c.getContext('2d').drawImage(img,0,0,w,h);
+                cb(c.toDataURL('image/jpeg',0.6));
+            };
+            img.src = e.target.result;
+        };
+        r.readAsDataURL(file);
+    }
+
+    function renderAssistant() {
+        const ap = [...voxiData.milis, ...voxiData.grals];
+        document.getElementById('stat-props').innerText = voxiData.props.length;
+        document.getElementById('stat-closing').innerText = ap.filter(p=>p.status==='Por cerrar').length;
+        document.getElementById('stat-cold').innerText = ap.filter(p=>p.status==='Tibio').length;
+        document.getElementById('stat-payments').innerText = ap.filter(p=>p.status==='Pendiente Pago').length;
+        
+        const agenda = document.getElementById('assistant-agenda');
+        agenda.innerHTML = '<div class="agenda-item normal"><div class="agenda-num">1</div><span>Revisar prospectos nuevos</span></div>';
+        
+        const sug = document.getElementById('assistant-suggestions');
+        sug.innerHTML = '<div class="task-item"><div class="task-info"><b>Socio:</b> Enfócate en cerrar ventas hoy.</div></div>';
+
+        const alerts = document.getElementById('assistant-alerts');
+        const pc = ap.filter(p=>p.status==='Por cerrar');
+        alerts.innerHTML = pc.length ? `<div class="alert-hot"><h4>🔥 LISTOS PARA CIERRE</h4>${pc.map(p=>`<div>✅ ${p.nombre}</div>`).join('')}</div>` : '<div style="text-align:center;color:#888;">Sin alertas.</div>';
+    }
+
+    function autoSave() {
+        const s = document.getElementById('auto-save-status');
+        if(s) s.style.display='block';
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        db.collection("data").doc(SYNC_ID).set(voxiData).then(()=>setTimeout(()=>{if(s)s.style.display='none'},800));
+    }
+
+    function saveMaster(m) { autoSave(); if(m) alert('¡Guardado!'); }
+
+    function manualSync() {
+        const cStatus = document.getElementById('cloud-status');
+        if(cStatus) cStatus.style.display='block';
+        db.collection("data").doc(SYNC_ID).get().then(doc => {
+            if(doc.exists) { voxiData = doc.data(); renderProps(); renderProspects(); renderAssistant(); }
+            if(cStatus) cStatus.style.display='none';
+        });
+    }
+
+    window.onload = () => {
+        const local = localStorage.getItem('hr_v38_db');
+        if(local) { voxiData = JSON.parse(local); renderProps(); renderProspects(); renderAssistant(); }
+        manualSync();
     };
 </script>
 </body>
