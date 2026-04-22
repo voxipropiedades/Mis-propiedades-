@@ -158,7 +158,7 @@
         .assist-header i { font-size: 1.8em; color: var(--info); }
         .assist-quote { font-style: italic; color: #444; background: #e8f0fe; padding: 13px; border-radius: 12px; margin-bottom: 16px; border-left: 4px solid var(--info); font-size: 0.9em; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-        .stat-box { background: var(--soft-red); padding: 14px; border-radius: 14px; text-align: center; border: 2px solid var(--red-border); cursor: pointer; transition: 0.2s; }
+        .stat-box { background: #f8f9fa; padding: 14px; border-radius: 14px; text-align: center; border: 1px solid #eee; }
         .stat-box h5 { margin: 0; font-size: 0.65em; color: #888; text-transform: uppercase; letter-spacing:.5px; }
         .stat-box p { margin: 6px 0 0; font-size: 1.6em; font-weight: 900; }
 
@@ -220,6 +220,7 @@
         <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> 📊 TABLERO</button>
         <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> 📦 INVENTARIO</button>
         <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')"><i class="fas fa-users"></i> 👥 PROSPECTOS</button>
+        <button class="tab-btn" id="btn-galeria" onclick="openTab('galeria')"><i class="fas fa-images"></i> 🖼️ GALERÍA</button>
         <button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> 📄 CONTRATOS</button>
         <button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> 📁 ARCHIVOS</button>
     </div>
@@ -242,84 +243,15 @@
                 <div class="stat-box"><h5>❄️ Seguimiento</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
                 <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
             </div>
-            <div class="section-label" style="grid-column:unset;">🚀 MÓDULOS DE VENTA</div>
-            <div class="stat-grid" style="margin-top:12px; grid-template-columns: repeat(2, 1fr);">
-                <div class="stat-box" onclick="openTab('inventario')">
-                    <i class="fas fa-home" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📦 INVENTARIO</span>
-                </div>
-                <div class="stat-box" onclick="openTab('prospectos')">
-                    <i class="fas fa-users" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">👥 PROSPECTOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('papeleo')">
-                    <i class="fas fa-file-contract" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📄 CONTRATOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('archivos')">
-                    <i class="fas fa-folder-open" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📁 ARCHIVOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('archivos')" style="grid-column: span 2; background: linear-gradient(135deg, #fff1f1, #ffebee); border-color: var(--primary);">
-                    <i class="fas fa-images" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.85em; font-weight:950; color:var(--primary);">🖼️ GALERÍA DE VENTAS</span>
-                </div>
-            </div>
-</div>
+        </div>
         <div class="assist-card">
             <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px;">📅 AGENDA DE HOY</div>
             <div id="assistant-agenda"></div>
-            <div class="section-label" style="grid-column:unset;">🚀 MÓDULOS DE VENTA</div>
-            <div class="stat-grid" style="margin-top:12px; grid-template-columns: repeat(2, 1fr);">
-                <div class="stat-box" onclick="openTab('inventario')">
-                    <i class="fas fa-home" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📦 INVENTARIO</span>
-                </div>
-                <div class="stat-box" onclick="openTab('prospectos')">
-                    <i class="fas fa-users" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">👥 PROSPECTOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('papeleo')">
-                    <i class="fas fa-file-contract" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📄 CONTRATOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('archivos')">
-                    <i class="fas fa-folder-open" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📁 ARCHIVOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('archivos')" style="grid-column: span 2; background: linear-gradient(135deg, #fff1f1, #ffebee); border-color: var(--primary);">
-                    <i class="fas fa-images" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.85em; font-weight:950; color:var(--primary);">🖼️ GALERÍA DE VENTAS</span>
-                </div>
-            </div>
-</div>
+        </div>
         <div class="assist-card">
             <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px;">🧠 ACCIONES RECOMENDADAS</div>
             <div id="assistant-suggestions"></div>
-            <div class="section-label" style="grid-column:unset;">🚀 MÓDULOS DE VENTA</div>
-            <div class="stat-grid" style="margin-top:12px; grid-template-columns: repeat(2, 1fr);">
-                <div class="stat-box" onclick="openTab('inventario')">
-                    <i class="fas fa-home" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📦 INVENTARIO</span>
-                </div>
-                <div class="stat-box" onclick="openTab('prospectos')">
-                    <i class="fas fa-users" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">👥 PROSPECTOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('papeleo')">
-                    <i class="fas fa-file-contract" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📄 CONTRATOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('archivos')">
-                    <i class="fas fa-folder-open" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.75em; font-weight:900; color:var(--primary);">📁 ARCHIVOS</span>
-                </div>
-                <div class="stat-box" onclick="openTab('archivos')" style="grid-column: span 2; background: linear-gradient(135deg, #fff1f1, #ffebee); border-color: var(--primary);">
-                    <i class="fas fa-images" style="font-size:1.4em; color:var(--primary); margin-bottom:5px; display:block;"></i>
-                    <span style="font-size:0.85em; font-weight:950; color:var(--primary);">🖼️ GALERÍA DE VENTAS</span>
-                </div>
-            </div>
-</div>
+        </div>
         <div class="assist-card">
             <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px;">🚨 ALERTAS</div>
             <div id="assistant-alerts"></div>
@@ -339,6 +271,14 @@
             <button class="btn" style="background:var(--success); color:white; font-size:0.8em;" onclick="addItem('grals')"><i class="fas fa-user-tag"></i> NUEVO EFECTIVO</button>
         </div>
         <div id="prospectList"></div>
+    </div>
+
+    <!-- ============ TAB: GALERIA (NUEVO) ============ -->
+    <div id="galeria" class="tab-content">
+        <div class="card">
+            <h2 style="margin:0 0 14px;"><i class="fas fa-images"></i> Galería de Ventas</h2>
+            <div class="gallery-grid" id="folderGalleryReal"></div>
+        </div>
     </div>
 
     <!-- ============ TAB: CONTRATOS ============ -->
@@ -456,7 +396,7 @@
         document.getElementById(id).classList.add('active-tab');
         document.getElementById('btn-' + id).classList.add('active');
         if(id === 'asistente') renderAssistant();
-        if(id === 'archivos') renderGallery();
+        if(id === 'galeria' || id === 'archivos') renderGallery();
     }
 
     const FOLDERS = [
@@ -467,7 +407,7 @@
     ];
 
     function renderGallery() {
-        const div = document.getElementById('folderGallery');
+        const div = document.getElementById('folderGalleryReal') || document.getElementById('folderGallery');
         if(!div) return;
         div.innerHTML = FOLDERS.map(f => `
             <div class="folder-card" onclick="alert('Abriendo: ' + '${f.n}')">
