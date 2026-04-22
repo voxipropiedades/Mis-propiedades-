@@ -761,7 +761,7 @@
             const currentReqs = isMili ? REQS_M : REQS_E;
             if(!p.m) p.m = [];
             
-            // Limpieza de documentación extraña al cambiar de tipo
+            // Limpieza de documentación extraña al cambiar de tipo (solo dejar los que corresponden)
             p.m = p.m.filter(doc => currentReqs.includes(doc.n));
 
             currentReqs.forEach(reqName => {
@@ -793,6 +793,7 @@
             const sc = stColors[p.status] || '#f5f5f5';
             const tc = txtColors[p.status] || '#333';
 
+            // AQUÍ SE CONSTRUYE EL CUADRO ÚNICO DINÁMICO
             card.innerHTML = `
                 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1);renderProspects();autoSave();}"><i class="fas fa-trash"></i></button>
                 <div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
@@ -822,10 +823,12 @@
                     <div class="box full-box"><label style="color:${accentColor};">📅 Última plática</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
                     
                     ${isMili ? `
+                        <!-- SOLO BLOQUE MILITAR -->
                         <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 DOCUMENTACIÓN PARA CRÉDITO</div>
                         <p style="grid-column:span 2; font-size:0.7em; color:#555; margin-top:-10px;">Indica qué documentos ya tienes en mano:</p>
                         ${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
                     ` : `
+                        <!-- SOLO BLOQUE EFECTIVO -->
                         <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 DOCUMENTACIÓN</div>
                         ${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r) => {
                             const realIdx = p.m.findIndex(d => d.n === r.n);
