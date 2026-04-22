@@ -1186,107 +1186,136 @@ alert('✅ Archivo guardado correctamente en dispositivo y nube.');
 }
 function voxiSearch(q) {
     const resDiv = document.getElementById('search-results');
-    if(!q || q.trim().length < 2) {
+    if (!resDiv) return;
+
+    // LIMPIEZA INICIAL
+    if (!q || q.trim().length < 2) {
         resDiv.style.display = 'none';
         resDiv.innerHTML = '';
         return;
     }
-    
-    resDiv.style.display = 'block';
-    const query = q.toLowerCase().trim();
-    const words = query.split(/\s+/);
-    
-    // CAPA DE DATOS (BLINDAJE LOCAL)
-    let results = [];
-    const allProspects = [...voxiData.milis, ...voxiData.grals];
 
-    // 1. CLIENTES
-    allProspects.forEach(p => {
-        const text = `${p.nombre} ${p.status} ${p.notas || ''} ${p.telefono || ''}`.toLowerCase();
-        if (words.every(w => text.includes(w))) {
-            results.push({
-                type: 'CLIENTE',
-                title: p.nombre,
-                desc: `Status: ${p.status} | ${p.telefono || 'S/T'}`,
-                action: `goToRecord('prospectos','','${p.id}')`,
-                icon: 'fa-user'
-            });
-        }
-    });
+    try {
+        // 1. CAPA DE DATOS PROTEGIDA (BLINDAJE LOCAL)
+        // Si voxiData o sus ramas no existen, inicializar temporalmente para evitar crash
+        const db = voxiData || {};
+        const milis = Array.isArray(db.milis) ? db.milis : [];
+        const grals = Array.isArray(db.grals) ? db.grals : [];
+        const props = Array.isArray(db.props) ? db.props : [];
+        const files = Array.isArray(db.files) ? db.files : [];
+        const allProspects = [...milis, ...grals];
 
-    // 2. PROPIEDADES
-    voxiData.props.forEach(p => {
-        const text = `${p.titulo} ${p.tipo} ${p.ubicacion} ${p.precio} ${p.notas || ''}`.toLowerCase();
-        if (words.every(w => text.includes(w))) {
-            results.push({
-                type: 'PROPIEDAD',
-                title: p.titulo || p.tipo,
-                desc: `$${p.precio} - ${p.ubicacion}`,
-                action: `goToRecord('inventario','','null','${p.id}')`,
-                icon: 'fa-home'
-            });
-        }
-    });
+        const query = q.toLowerCase().trim();
+        const words = query.split(/\s+/).filter(w => w.length > 0);
+        let results = [];
 
-    // 3. DEUDAS / PAGOS
-    if (query.includes('debe') || query.includes('pago') || query.includes('deuda') || query.includes('cobro') || query.includes('apartado')) {
-        allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
-            results.push({
-                type: 'DEUDA',
-                title: `Adeudo: ${p.nombre}`,
-                desc: `Cliente con apartado activo.`,
-                action: `goToRecord('prospectos','','${p.id}')`,
-                icon: 'fa-hand-holding-usd'
-            });
-        });
-    }
-
-    // 4. CONTRATOS / PAPELEO
-    if (query.includes('contrato') || query.includes('papeleo') || query.includes('firma') || query.includes('expediente')) {
+        // 2. LÓGICA DE BÚSQUEDA (DESACOPLADA)
+        
+        // Búsqueda en Clientes (Prospectos)
         allProspects.forEach(p => {
-            if ((p.m && p.m.some(doc => doc.s === 'f')) || p.status === 'En escrituración') {
+            const searchBody = `${p.nombre || ''} ${p.status || ''} ${p.telefono || ''} ${p.notas || ''}`.toLowerCase();
+            if (words.every(w => searchBody.includes(w))) {
                 results.push({
-                    type: 'CONTRATO',
-                    title: `Papeleo: ${p.nombre}`,
-                    desc: `Estado del expediente/contrato.`,
-                    action: `goToRecord('prospectos','','${p.id}')`,
-                    icon: 'fa-file-contract'
+                    cat: 'CLIENTE',
+                    title: p.nombre || 'Sin nombre',
+                    desc: `${p.status || 'Sin status'} | 📞 ${p.telefono || 'S/T'}`,
+                    icon: 'fa-user-tie',
+                    action: `goToRecord('prospectos','','${p.id}')`
                 });
             }
         });
-    }
 
-    // 5. ARCHIVOS
-    voxiData.files.forEach(f => {
-        if (f.name.toLowerCase().includes(query)) {
-            results.push({
-                type: 'ARCHIVO',
-                title: f.name,
-                desc: `Subido: ${new Date(f.date).toLocaleDateString()}`,
-                action: `openTab('archivos')`,
-                icon: 'fa-file'
+        // Búsqueda en Propiedades (Inventario)
+        props.forEach(p => {
+            const searchBody = `${p.titulo || ''} ${p.tipo || ''} ${p.ubicacion || ''} ${p.precio || ''} ${p.notas || ''}`.toLowerCase();
+            if (words.every(w => searchBody.includes(w))) {
+                results.push({
+                    cat: 'PROPIEDAD',
+                    title: p.titulo || p.tipo || 'Sin título',
+                    desc: `💰 $${p.precio || '0'} | 📍 ${p.ubicacion || 'Sin ubicación'}`,
+                    icon: 'fa-house-user',
+                    action: `goToRecord('inventario','','null','${p.id}')`
+                });
+            }
+        });
+
+        // Búsqueda de Deudas y Papeleo (Inteligente)
+        if (query.match(/(debe|pago|deuda|cobro|apartado|deudor)/)) {
+            allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
+                results.push({
+                    cat: 'DEUDA/COBRO',
+                    title: `Pendiente: ${p.nombre}`,
+                    desc: `Cliente con apartado. Revisar pagos pendientes.`,
+                    icon: 'fa-file-invoice-dollar',
+                    action: `goToRecord('prospectos','','${p.id}')`
+                });
             });
         }
-    });
 
-    // RENDERIZADO DESACOPLADO
-    if (results.length === 0) {
-        resDiv.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-size:0.85em;"><i class="fas fa-search"></i> No hay resultados para "' + q + '"</div>';
-    } else {
-        resDiv.innerHTML = '<div style="font-weight:900; font-size:0.65em; color:var(--primary); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Resultados Locales</div>' + 
-        results.map(r => `
-            <div style="background:white; padding:12px; margin-bottom:10px; border-radius:12px; border:1px solid #eee; display:flex; align-items:center; gap:12px; box-shadow:0 2px 4px rgba(0,0,0,0.02); cursor:pointer;" onclick="${r.action}">
-                <div style="width:38px; height:38px; background:#f8f9fa; border-radius:10px; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.1em;">
-                    <i class="fas ${r.icon}"></i>
+        if (query.match(/(contrato|papeleo|firma|expediente|documento|militar)/)) {
+            allProspects.forEach(p => {
+                const isMilitar = milis.some(m => m.id === p.id);
+                const hasMissingDoc = p.m && Array.isArray(p.m) && p.m.some(doc => doc.s === 'f');
+                if (hasMissingDoc || p.status === 'En escrituración') {
+                    results.push({
+                        cat: 'DOCUMENTACIÓN',
+                        title: `${isMilitar ? 'Militar' : 'Prospecto'}: ${p.nombre}`,
+                        desc: `Faltan documentos o en proceso de firma.`,
+                        icon: 'fa-paste',
+                        action: `goToRecord('prospectos','','${p.id}')`
+                    });
+                }
+            });
+        }
+
+        // Búsqueda en Archivos
+        files.forEach(f => {
+            if (f.name && f.name.toLowerCase().includes(query)) {
+                results.push({
+                    cat: 'ARCHIVO',
+                    title: f.name,
+                    desc: `📁 Documento guardado en nube.`,
+                    icon: 'fa-cloud-download-alt',
+                    action: `openTab('archivos')`
+                });
+            }
+        });
+
+        // 3. CAPA DE RENDERIZADO (BLINDADO)
+        resDiv.style.display = 'block';
+        if (results.length === 0) {
+            resDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#999; font-size:0.8em;">
+                <i class="fas fa-search-minus" style="font-size:2em; display:block; margin-bottom:10px; opacity:0.3;"></i>
+                No hay coincidencias locales para "${q}"
+            </div>`;
+        } else {
+            // Limitar a los mejores 15 resultados para evitar lentitud
+            const topResults = results.slice(0, 15);
+            resDiv.innerHTML = `
+                <div style="font-weight:950; font-size:0.65em; color:var(--primary); margin-bottom:12px; display:flex; justify-content:space-between;">
+                    <span>RESULTADOS ENCONTRADOS (${results.length})</span>
+                    <i class="fas fa-bolt"></i>
                 </div>
-                <div style="flex:1;">
-                    <div style="font-size:0.6em; font-weight:900; color:#aaa; margin-bottom:2px;">${r.type}</div>
-                    <div style="font-size:0.85em; font-weight:700; color:#333;">${r.title}</div>
-                    <div style="font-size:0.7em; color:#777;">${r.desc}</div>
+                ${topResults.map(r => `
+                <div class="card" style="margin:0 0 10px 0; padding:12px; display:flex; align-items:center; gap:12px; cursor:pointer; border:1px solid #eee; border-left:4px solid var(--primary);" onclick="${r.action}">
+                    <div style="width:35px; height:35px; background:#f0f2f5; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--primary);">
+                        <i class="fas ${r.icon}"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:0.55em; font-weight:950; color:#aaa; margin-bottom:2px;">${r.cat}</div>
+                        <div style="font-size:0.85em; font-weight:800; color:#333; line-height:1.2;">${r.title}</div>
+                        <div style="font-size:0.7em; color:#666; margin-top:2px;">${r.desc}</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="font-size:0.7em; color:#ccc;"></i>
                 </div>
-                <i class="fas fa-chevron-right" style="color:#ddd; font-size:0.8em;"></i>
-            </div>
-        `).join('');
+                `).join('')}
+                ${results.length > 15 ? `<div style="text-align:center; font-size:0.7em; color:#999; padding:5px;">+${results.length - 15} más... sea más específico</div>` : ''}
+            `;
+        }
+
+    } catch (e) {
+        console.error("Search Error:", e);
+        resDiv.innerHTML = `<div style="color:red; font-size:0.7em; padding:10px;">Error en motor de búsqueda. Reiniciando...</div>`;
     }
 }
 function startVoiceSearch() {
