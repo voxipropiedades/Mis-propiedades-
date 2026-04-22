@@ -407,10 +407,6 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <h4>🏗️ PREVENTA / Construcción</h4>
 <p>Elige tu diseño antes de que se termine</p>
 </div>
-<div class="flyer-option" onclick="selectFlyer(7)" style="background:#e7f3ff; border:1px solid #1877f2;">
-<h4 style="color:#1877f2;"><i class="fab fa-facebook"></i> FACEBOOK Marketplace</h4>
-<p>Optimizado con emojis y hashtags para vender más</p>
-</div>
 <button class="btn" style="background:#999; color:white; margin-top:8px;" onclick="closeModal()">CANCELAR</button>
 </div>
 <!-- Paso 2: Vista previa + edición -->
@@ -784,9 +780,6 @@ ${esCasa ? `
 <button class="btn" style="background:var(--wa-green); color:white;" onclick="openFlyerOptions(${i})">
 <i class="fab fa-whatsapp" style="font-size:1.2em;"></i> 🧠 ENVIAR MENSAJE INTELIGENTE
 </button>
-<button class="btn" style="background:#4285F4; color:white; margin-top:8px;" onclick="window.open('https://wa.me/?text=' + encodeURIComponent('📍 Hola, te comparto la ubicación de la propiedad ${p.nombre.toUpperCase()}: ' + (p.maps || 'Consultar')), '_blank')">
-<i class="fas fa-map-marker-alt"></i> COMPARTIR UBICACIÓN RÁPIDA
-</button>
 </div>
 <div class="btn-print-options">
 <button class="btn" style="background:var(--success); color:white; font-size:0.78em;" onclick="exportFullJPG(${i})"><i class="fas fa-image"></i> GUARDAR JPG</button>
@@ -831,21 +824,7 @@ const stColors = { 'Nuevo Cliente':'#eeeeee', 'Pláticas avanzadas':'#fff9c4', '
 const txtColors = { 'Nuevo Cliente':'#757575', 'Pláticas avanzadas':'#fbc02d', 'El cliente ya no quiso':'#d32f2f', 'Dio apartado':'#1976d2', 'Cerrado':'#2e7d32' };
 const sc = stColors[p.status] || '#f5f5f5';
 const tc = txtColors[p.status] || '#333';
-
-// IA Socio Reasoning (Optimización de Ventas)
-let iaHint = "🎯 Empieza a recopilar documentos básicos.";
-if(p.status === 'Nuevo Cliente') iaHint = "🚀 El cliente es nuevo. Envíale el mensaje de 'OPORTUNIDAD' para despertar su interés.";
-if(p.status === 'Pláticas avanzadas') iaHint = "🔥 ¡Cliente caliente! Asegúrate de tener su INE y verifica su capacidad de pago.";
-if(p.status === 'Dio apartado') iaHint = "💼 ¡Casi listo! Prepara el contrato de compra-venta y solicita el resto de los documentos.";
-if(p.status === 'Cerrado') iaHint = "✅ ¡Felicidades! Archiva los documentos y solicita una referencia para futuros clientes.";
-const docsOk = p.m.filter(d => d.s === 'o').length;
-const docsTotal = p.m.length;
-if(docsOk > 0 && docsOk < docsTotal) iaHint += `<br>📂 Faltan ${docsTotal - docsOk} documentos por completar.`;
-
 card.innerHTML = `
-<div style="background:#fff3e0; border:1px solid #ffe0b2; border-radius:12px; padding:10px; margin-bottom:15px; font-size:0.75em; color:#e65100;">
-    <i class="fas fa-brain"></i> <b>SUGERENCIA DEL SOCIO:</b><br>${iaHint}
-</div>
 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1); activeProspectId=null; renderProspects(); autoSave();}"><i class="fas fa-trash"></i></button>
 <div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
 <div class="box-container">
@@ -983,9 +962,8 @@ if(style === 2) return `📋 *DETALLES TÉCNICOS DE LA PROPIEDAD*\n\n${base}\n\n
 if(style === 3) return `🏠 *TU PRÓXIMO HOGAR EN ${ubi.toUpperCase()}*\n\n${base}\n\n¿Cuándo te gustaría conocerla personalmente?`;
 if(style === 4) return `🎖️ *OPCIÓN PARA CRÉDITO MILITAR*\n\n${base}\n\nEsta propiedad califica perfectamente para tu crédito. ¡Contáctame!`;
 if(style === 5) return `🔑 *TRATO DIRECTO - PAGO DE CONTADO*\n\n${base}\n\n¡Excelente opción para cerrar trato hoy mismo! 🤝`;
-    if(style === 6) return `🏗️ *PROYECTO EN PREVENTA*\n\n${base}\n\n¡Asegura tu patrimonio con precio especial de preventa!`;
-    if(style === 7) return `📢 *¡DISPONIBLE EN ${ubi.toUpperCase()}!* 📢\n\n¿Buscas tu próximo hogar o inversión? ¡Mira esta opción!\n\n✨ *${nombre}*\n💰 *${precio}*\n📏 ${area} m² de superficie\n🛌 ${p.recamaras || '0'} Recámaras\n🚿 ${p.banos || '0'} Baños\n\n✅ *ESTATUS:* ${p.estatus}\n📍 *ZONA:* ${ubi}\n\n📝 *DETALLES:* ${desc}\n\n🤝 Trato serio y profesional. ¡Contáctame para más info o agendar una cita!\n\n#Venta #Hidalgo #Inmuebles #ConstructorHR`;
-    return base;
+if(style === 6) return `🏗️ *PROYECTO EN PREVENTA*\n\n${base}\n\n¡Asegura tu patrimonio con precio especial de preventa!`;
+return base;
 }
 function selectFlyer(style) {
 const p = voxiData.props[currentPropIndex];
@@ -1801,3 +1779,4 @@ window.onload = loadMaster;
 </script>
 </body>
 </html>
+
