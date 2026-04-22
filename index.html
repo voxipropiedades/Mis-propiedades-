@@ -1504,6 +1504,18 @@ function renderAssistant() {
             }
         });
 
+        // 4. Notas Editables del Socio (Persistent Note Area)
+        const noteArea = `
+            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:15px;">
+                <div style="font-size:0.65em; font-weight:900; color:#aaa; margin-bottom:8px; text-transform:uppercase;">📝 NOTAS RÁPIDAS DEL SOCIO</div>
+                <textarea id="socio-quick-notes" 
+                    style="width:100%; border:1px solid #ddd; border-radius:12px; padding:12px; font-size:0.85em; min-height:80px; font-family:inherit; outline:none; background:#fcfcfc;"
+                    placeholder="Escribe aquí tus pendientes o notas del día..."
+                    oninput="voxiData.quickNotes = this.value; autoSave();">${db.quickNotes || ''}</textarea>
+            </div>
+        `;
+        alertsHtml += noteArea;
+
         alertDiv.innerHTML = alertsHtml || '<div style="text-align:center; color:#888; font-size:0.85em; padding:20px;"><i class="fas fa-check-circle" style="color:var(--success); font-size:1.5em; display:block; margin-bottom:5px;"></i> Todo bajo control, socio.</div>';
     }
 }
