@@ -1185,58 +1185,109 @@ autoSave();
 alert('✅ Archivo guardado correctamente en dispositivo y nube.');
 }
 function voxiSearch(q) {
-const resDiv = document.getElementById('search-results');
-if(!q || q.length < 2) {
-resDiv.style.display = 'none';
-return;
-}
-resDiv.style.display = 'block';
-resDiv.innerHTML = '<div style="font-weight:900; font-size:0.75em; color:var(--primary); margin-bottom:8px;">🔍 RESULTADOS DE BÚSQUEDA</div>';
-let found = [];
-const lowerQ = q.toLowerCase();
-if(lowerQ.includes('debe') || lowerQ.includes('pagar') || lowerQ.includes('deudor')) {
-const deudores = [
-...voxiData.milis.filter(p => p.status === 'Dio apartado'),
-...voxiData.grals.filter(p => p.status === 'Dio apartado')
-];
-deudores.forEach(p => found.push({ t: `Deudor: ${p.nombre}`, d: 'Estado: Dio apartado', link: `goToRecord('prospectos','','${p.id}')` }));
-}
-if(lowerQ.includes('militar') && lowerQ.includes('incompleto')) {
-voxiData.milis.forEach(p => {
-const missing = p.m.filter(req => req.s === 'f').length;
-if(missing > 0) found.push({ t: `Militar: ${p.nombre}`, d: `Faltan ${missing} documentos`, link: `goToRecord('prospectos','','${p.id}')` });
-});
-}
-voxiData.props.forEach(p => {
-if((p.titulo||'').toLowerCase().includes(lowerQ) || (p.ubicacion||'').toLowerCase().includes(lowerQ) || (p.tipo||'').toLowerCase().includes(lowerQ)) {
-found.push({ t: `Casa/Terreno: ${p.titulo || p.tipo}`, d: `$${p.precio} - ${p.ubicacion}`, link: `goToRecord('inventario','','null','${p.id}')` });
-}
-});
-const allP = [...voxiData.milis, ...voxiData.grals];
-allP.forEach(p => {
-if((p.nombre||'').toLowerCase().includes(lowerQ)) {
-found.push({ t: `Cliente: ${p.nombre}`, d: `Status: ${p.status}`, link: `goToRecord('prospectos','','${p.id}')` });
-}
-});
-voxiData.files.forEach(f => {
-if(f.name.toLowerCase().includes(lowerQ)) {
-found.push({ t: `Archivo: ${f.name}`, d: `Fecha: ${new Date(f.date).toLocaleDateString()}`, link: `openTab('archivos')` });
-}
-});
-if(found.length === 0) {
-resDiv.innerHTML += '<div style="color:#888; font-size:0.85em;">No encontré coincidencias exactas. Pruebe otra palabra.</div>';
-} else {
-found.forEach(f => {
-resDiv.innerHTML += `
-<div class="task-item" style="padding:10px; margin-bottom:5px; background:white; border:1px solid #eee; border-radius:10px;" onclick="${f.link}">
-<div class="task-info">
-<b style="font-size:0.9em; display:block;">${f.t}</b>
-<span style="font-size:0.75em; color:#666;">${f.d}</span>
-</div>
-<i class="fas fa-chevron-right" style="color:#ccc; font-size:0.8em;"></i>
-</div>`;
-});
-}
+    const resDiv = document.getElementById('search-results');
+    if(!q || q.trim().length < 2) {
+        resDiv.style.display = 'none';
+        resDiv.innerHTML = '';
+        return;
+    }
+    
+    resDiv.style.display = 'block';
+    const query = q.toLowerCase().trim();
+    const words = query.split(/\s+/);
+    
+    // CAPA DE DATOS (BLINDAJE LOCAL)
+    let results = [];
+    const allProspects = [...voxiData.milis, ...voxiData.grals];
+
+    // 1. CLIENTES
+    allProspects.forEach(p => {
+        const text = `${p.nombre} ${p.status} ${p.notas || ''} ${p.telefono || ''}`.toLowerCase();
+        if (words.every(w => text.includes(w))) {
+            results.push({
+                type: 'CLIENTE',
+                title: p.nombre,
+                desc: `Status: ${p.status} | ${p.telefono || 'S/T'}`,
+                action: `goToRecord('prospectos','','${p.id}')`,
+                icon: 'fa-user'
+            });
+        }
+    });
+
+    // 2. PROPIEDADES
+    voxiData.props.forEach(p => {
+        const text = `${p.titulo} ${p.tipo} ${p.ubicacion} ${p.precio} ${p.notas || ''}`.toLowerCase();
+        if (words.every(w => text.includes(w))) {
+            results.push({
+                type: 'PROPIEDAD',
+                title: p.titulo || p.tipo,
+                desc: `$${p.precio} - ${p.ubicacion}`,
+                action: `goToRecord('inventario','','null','${p.id}')`,
+                icon: 'fa-home'
+            });
+        }
+    });
+
+    // 3. DEUDAS / PAGOS
+    if (query.includes('debe') || query.includes('pago') || query.includes('deuda') || query.includes('cobro') || query.includes('apartado')) {
+        allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
+            results.push({
+                type: 'DEUDA',
+                title: `Adeudo: ${p.nombre}`,
+                desc: `Cliente con apartado activo.`,
+                action: `goToRecord('prospectos','','${p.id}')`,
+                icon: 'fa-hand-holding-usd'
+            });
+        });
+    }
+
+    // 4. CONTRATOS / PAPELEO
+    if (query.includes('contrato') || query.includes('papeleo') || query.includes('firma') || query.includes('expediente')) {
+        allProspects.forEach(p => {
+            if ((p.m && p.m.some(doc => doc.s === 'f')) || p.status === 'En escrituración') {
+                results.push({
+                    type: 'CONTRATO',
+                    title: `Papeleo: ${p.nombre}`,
+                    desc: `Estado del expediente/contrato.`,
+                    action: `goToRecord('prospectos','','${p.id}')`,
+                    icon: 'fa-file-contract'
+                });
+            }
+        });
+    }
+
+    // 5. ARCHIVOS
+    voxiData.files.forEach(f => {
+        if (f.name.toLowerCase().includes(query)) {
+            results.push({
+                type: 'ARCHIVO',
+                title: f.name,
+                desc: `Subido: ${new Date(f.date).toLocaleDateString()}`,
+                action: `openTab('archivos')`,
+                icon: 'fa-file'
+            });
+        }
+    });
+
+    // RENDERIZADO DESACOPLADO
+    if (results.length === 0) {
+        resDiv.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-size:0.85em;"><i class="fas fa-search"></i> No hay resultados para "' + q + '"</div>';
+    } else {
+        resDiv.innerHTML = '<div style="font-weight:900; font-size:0.65em; color:var(--primary); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Resultados Locales</div>' + 
+        results.map(r => `
+            <div style="background:white; padding:12px; margin-bottom:10px; border-radius:12px; border:1px solid #eee; display:flex; align-items:center; gap:12px; box-shadow:0 2px 4px rgba(0,0,0,0.02); cursor:pointer;" onclick="${r.action}">
+                <div style="width:38px; height:38px; background:#f8f9fa; border-radius:10px; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.1em;">
+                    <i class="fas ${r.icon}"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:0.6em; font-weight:900; color:#aaa; margin-bottom:2px;">${r.type}</div>
+                    <div style="font-size:0.85em; font-weight:700; color:#333;">${r.title}</div>
+                    <div style="font-size:0.7em; color:#777;">${r.desc}</div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ddd; font-size:0.8em;"></i>
+            </div>
+        `).join('');
+    }
 }
 function startVoiceSearch() {
 if (!('webkitSpeechRecognition' in window)) {
