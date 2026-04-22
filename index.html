@@ -1504,20 +1504,56 @@ function renderAssistant() {
             }
         });
 
-        // 4. Notas Editables del Socio (Persistent Note Area)
+        // 4. Notas y Recordatorios Manuales del Socio
+        if (!voxiData.manualAlerts) voxiData.manualAlerts = [];
+        
+        let manualAlertsHtml = '';
+        voxiData.manualAlerts.forEach((ma, idx) => {
+            manualAlertsHtml += `
+                <div style="background:#f1f8e9; border-left:5px solid #4caf50; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.82em; font-weight:700; color:#333;">
+                        <span style="color:#2e7d32;">[${ma.time}]</span> ${ma.text}
+                    </div>
+                    <button class="wa-mini" style="background:#e57373; width:30px;" onclick="event.stopPropagation(); voxiData.manualAlerts.splice(${idx},1); renderAssistant(); autoSave();">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+        });
+
         const noteArea = `
+            ${manualAlertsHtml}
             <div style="margin-top:15px; border-top:1px solid #eee; padding-top:15px;">
-                <div style="font-size:0.65em; font-weight:900; color:#aaa; margin-bottom:8px; text-transform:uppercase;">📝 NOTAS RÁPIDAS DEL SOCIO</div>
-                <textarea id="socio-quick-notes" 
-                    style="width:100%; border:1px solid #ddd; border-radius:12px; padding:12px; font-size:0.85em; min-height:80px; font-family:inherit; outline:none; background:#fcfcfc;"
-                    placeholder="Escribe aquí tus pendientes o notas del día..."
-                    oninput="voxiData.quickNotes = this.value; autoSave();">${db.quickNotes || ''}</textarea>
+                <div style="font-size:0.65em; font-weight:900; color:#aaa; margin-bottom:8px; text-transform:uppercase;">📝 AGREGAR RECORDATORIO</div>
+                <div style="display:flex; gap:8px;">
+                    <textarea id="new-manual-alert" 
+                        style="flex:1; border:1px solid #ddd; border-radius:12px; padding:12px; font-size:0.85em; min-height:60px; font-family:inherit; outline:none; background:#fcfcfc;"
+                        placeholder="Escribe tu pendiente aquí..."></textarea>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <input type="time" id="alert-time" style="padding:5px; border-radius:8px; border:1px solid #ddd; font-size:0.8em;">
+                        <button onclick="saveManualAlert()" style="background:var(--primary); color:white; border:none; border-radius:8px; padding:8px; font-size:0.8em; font-weight:bold; cursor:pointer;">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
         alertsHtml += noteArea;
 
         alertDiv.innerHTML = alertsHtml || '<div style="text-align:center; color:#888; font-size:0.85em; padding:20px;"><i class="fas fa-check-circle" style="color:var(--success); font-size:1.5em; display:block; margin-bottom:5px;"></i> Todo bajo control, socio.</div>';
     }
+}
+function saveManualAlert() {
+    const text = document.getElementById('new-manual-alert').value;
+    const time = document.getElementById('alert-time').value;
+    if(!text || !time) {
+        alert("Por favor escribe la nota y selecciona una hora.");
+        return;
+    }
+    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
+    voxiData.manualAlerts.push({ text, time, type: 'Recordatorio Manual' });
+    renderAssistant();
+    autoSave();
 }
 function goToRecord(tab, id, prospectId = null, propId = null) {
 if(prospectId) activeProspectId = prospectId;
