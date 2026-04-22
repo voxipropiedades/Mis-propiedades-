@@ -1536,22 +1536,23 @@ function renderAssistant() {
 
         const noteArea = `
             ${manualAlertsHtml}
-            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:15px;">
+            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:15px;" onclick="event.stopPropagation();">
                 <div style="font-size:0.65em; font-weight:900; color:#aaa; margin-bottom:8px; text-transform:uppercase;">📝 NUEVO RECORDATORIO (CRM)</div>
                 <textarea id="new-manual-alert" 
                     style="width:100%; border:1px solid #ddd; border-radius:12px; padding:12px; font-size:0.85em; min-height:60px; font-family:inherit; outline:none; background:#fcfcfc; margin-bottom:8px;"
-                    placeholder="Escribe tu pendiente aquí..."></textarea>
+                    placeholder="Escribe tu pendiente aquí..."
+                    onclick="event.stopPropagation();"></textarea>
                 
-                <div style="display:flex; gap:5px; flex-wrap:wrap; align-items:center;">
-                    <select id="alert-priority" style="padding:8px; border-radius:8px; border:1px solid #ddd; font-size:0.75em; font-weight:bold; flex:1;">
+                <div style="display:flex; gap:5px; flex-wrap:wrap; align-items:center;" onclick="event.stopPropagation();">
+                    <select id="alert-priority" style="padding:8px; border-radius:8px; border:1px solid #ddd; font-size:0.75em; font-weight:bold; flex:1;" onclick="event.stopPropagation();">
                         <option value="🔴 URGENTE">🔴 URGENTE</option>
                         <option value="🟠 HOY">🟠 HOY</option>
                         <option value="🟡 MAÑANA">🟡 MAÑANA</option>
                         <option value="🔵 SEMANA">🔵 SEMANA</option>
                         <option value="⚪ PENDIENTE" selected>⚪ PENDIENTE</option>
                     </select>
-                    <input type="time" id="alert-time" style="padding:7px; border-radius:8px; border:1px solid #ddd; font-size:0.75em;">
-                    <button onclick="saveManualAlert()" style="background:var(--primary); color:white; border:none; border-radius:12px; padding:10px 15px; font-size:0.85em; font-weight:900; cursor:pointer;">
+                    <input type="time" id="alert-time" style="padding:7px; border-radius:8px; border:1px solid #ddd; font-size:0.75em;" onclick="event.stopPropagation();">
+                    <button onclick="event.stopPropagation(); saveManualAlert();" style="background:var(--primary); color:white; border:none; border-radius:12px; padding:10px 15px; font-size:0.85em; font-weight:900; cursor:pointer;">
                         <i class="fas fa-save"></i> GUARDAR
                     </button>
                 </div>
