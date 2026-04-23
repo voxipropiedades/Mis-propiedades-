@@ -1192,7 +1192,7 @@ if(missing > 0) found.push({ t: `Militar: ${p.nombre}`, d: `Faltan ${missing} do
 }
 voxiData.props.forEach(p => {
 if((p.titulo||'').toLowerCase().includes(lowerQ) || (p.ubicacion||'').toLowerCase().includes(lowerQ) || (p.tipo||'').toLowerCase().includes(lowerQ)) {
-found.push({ t: `Casa/Terreno: ${p.titulo || p.tipo}`, d: `$${p.precio} - ${p.ubicacion}`, link: `goToRecord('inventario','','null','${p.id}')` });
+found.push({ t: `Casa/Terreno: ${p.titulo || p.tipo}`, d: `${formatVoxiNumber(p.precio)} - ${p.ubicacion}`, link: `goToRecord('inventario','','null','${p.id}')` });
 }
 });
 const allP = [...voxiData.milis, ...voxiData.grals];
