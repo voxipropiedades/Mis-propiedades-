@@ -13,6 +13,8 @@
 <!-- Firebase SDKs Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
 <style>
 :root {
 --primary: #b71c1c;
@@ -95,6 +97,16 @@ border: 2px dashed #bbb; cursor: pointer;
 .gallery-item { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 10px; overflow: hidden; position: relative; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 .gallery-item .del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor:pointer; }
+#voxiLoader {
+    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8); color: white; padding: 20px 30px; border-radius: 15px;
+    z-index: 10000; flex-direction: column; align-items: center; gap: 10px;
+}
+.spinner {
+    width: 30px; height: 30px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent);
+    border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 #editorArea { 
 border: 1px solid #ddd; padding: 20px; min-height: 400px; background: #fff; 
 border-radius: 12px; margin-top: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
@@ -462,6 +474,124 @@ measurementId: "G-77F6483313"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const storage = firebase.storage();
+const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
+
+// GESTIÓN DE NOTIFICACIONES REALES (PWA)
+async function initNotifications() {
+    if (!messaging) return;
+    
+    // Registrar Service Worker para notificaciones en segundo plano
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('firebase-messaging-sw.js')
+        .then(function(registration) {
+            console.log('FCM Service Worker registrado con éxito:', registration.scope);
+            messaging.useServiceWorker(registration);
+        }).catch(function(err) {
+            console.error('Error al registrar FCM Service Worker:', err);
+        });
+    }
+
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            console.log("Permiso de notificaciones concedido.");
+            // Generar token real del dispositivo
+            const token = await messaging.getToken({ 
+                vapidKey: 'BPH5S_v68N0vLpXm8N7xG_Xyv0-8jL9UeX0G_vL0V9U' // Key Pública de Firebase Console
+            });
+            
+            if (token) {
+                console.log("Token FCM generado:", token);
+                // Guardar en Firestore para vinculación real
+                db.collection("tokens").doc(SYNC_ID).set({ 
+                    token: token, 
+                    lastUpdate: new Date().toISOString(),
+                    platform: navigator.platform,
+                    status: 'active'
+                }, { merge: true });
+            }
+        } else {
+            console.warn("Permiso de notificaciones denegado.");
+        }
+    } catch (e) {
+        console.warn("Error en initNotifications:", e);
+    }
+
+    // Manejar mensajes recibidos cuando la app está abierta
+    messaging.onMessage((payload) => {
+        console.log('Mensaje FCM recibido (Foreground):', payload);
+        const title = payload.notification ? payload.notification.title : "ALERTA DE SISTEMA";
+        const body = payload.notification ? payload.notification.body : payload.data.message;
+        sendLocalPush(title, body);
+    });
+}
+
+const notifiedAlerts = new Set();
+
+function sendLocalPush(title, body) {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    
+    const alertKey = title + body + new Date().getHours() + new Date().getMinutes();
+    if (notifiedAlerts.has(alertKey)) return;
+    notifiedAlerts.add(alertKey);
+
+    const options = {
+        body: body,
+        icon: 'icon-192.png',
+        vibrate: [300, 100, 300, 100, 300], // Vibración fuerte
+        badge: 'icon-192.png',
+        requireInteraction: true,
+        tag: 'voxi-alert-real',
+        data: { arrival: Date.now() }
+    };
+
+    // Alerta sonora
+    try {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        audio.play().catch(() => {});
+    } catch(e) {}
+
+    // Actualizar badge del app si es soportado
+    if ('setAppBadge' in navigator) {
+        const count = (voxiData.manualAlerts || []).filter(a => !a.notified).length;
+        navigator.setAppBadge(count).catch(() => {});
+    }
+
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(title, options);
+        });
+    } else {
+        new Notification(title, options);
+    }
+}
+
+// SISTEMA DE MONITOREO DE ALERTAS EN TIEMPO REAL
+function startAlertMonitor() {
+    setInterval(() => {
+        if (!voxiData.manualAlerts) return;
+        
+        const now = new Date();
+        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        const today = now.toISOString().split('T')[0];
+
+        voxiData.manualAlerts.forEach((alert, idx) => {
+            // Verificar si la alerta es para hoy y la hora coincide
+            if (alert.time === currentTime && !alert.notified) {
+                sendLocalPush("ALERTA DE SEGUIMIENTO", alert.text);
+                alert.notified = true; // Evitar duplicados
+                autoSave();
+            }
+            
+            // Alertas Críticas (URGENTE) notifican cada vez que se abre si no han sido atendidas
+            if (alert.priority === '🔴 URGENTE' && !alert.notifiedInSession) {
+                sendLocalPush("ALERTA URGENTE", alert.text);
+                alert.notifiedInSession = true;
+            }
+        });
+    }, 60000); // Revisar cada minuto
+}
 const SYNC_ID = "voxi_main_db"; // ID único para este usuario
 let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {} };
 const GALLERY_FOLDERS = [
@@ -502,28 +632,112 @@ input.onchange = (e) => handlePhotoResult(e.target.files);
 input.click();
 closePhotoMenu();
 }
+function saveImageInState(data, type, index, idx) {
+    let targetObj = (type === 'main' || type === 'gallery' || type === 'doc') ? voxiData.props[index] : null;
+    if (type === 'main') {
+        if (idx === 0) targetObj.mainImg = data;
+        else targetObj.gallery.push(data);
+        renderProps();
+    } else if (type === 'gallery') {
+        if (!targetObj.mainImg) targetObj.mainImg = data;
+        else targetObj.gallery.push(data);
+        renderProps();
+    } else if (type === 'doc') {
+        targetObj.docImg = data;
+        renderProps();
+    } else if (type === 'folder') {
+        if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
+        voxiData.galleries[activeFolder].push(data);
+        renderFolderImages();
+    }
+    autoSave();
+}
+
 function handlePhotoResult(files) {
-if (!files || files.length === 0) return;
-const { index, type } = currentPhotoTarget;
-if (type === 'main' || type === 'gallery') {
-saveLocation(index, true);
+    if (!files || files.length === 0) return;
+    const { index, type } = currentPhotoTarget;
+    if (index === null && type !== 'folder') return;
+    if (type !== 'folder') saveLocation(index, true);
+    Array.from(files).forEach((f, idx) => saveImageHibrido(f, type, index, idx));
 }
-Array.from(files).forEach((f, idx) => {
-const maxW = (type === 'doc' ? 1000 : 800);
-processImg(f, maxW, (b) => {
-if (type === 'main') {
-if (idx === 0) voxiData.props[index].mainImg = b;
-else voxiData.props[index].gallery.push(b);
-} else if (type === 'gallery') {
-if (!voxiData.props[index].mainImg) voxiData.props[index].mainImg = b;
-else voxiData.props[index].gallery.push(b);
-} else if (type === 'doc') {
-voxiData.props[index].docImg = b;
+
+// MODO SINCRONIZACIÓN PROFESIONAL
+if (!voxiData.pendingUploads) voxiData.pendingUploads = [];
+
+async function processSyncQueue() {
+    if (!navigator.onLine || voxiData.pendingUploads.length === 0) return;
+    
+    console.log("Sincronizando imágenes pendientes:", voxiData.pendingUploads.length);
+    const item = voxiData.pendingUploads[0]; // Procesar de uno en uno para estabilidad
+    
+    try {
+        const blob = await fetch(item.data).then(r => r.blob());
+        const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
+        const snapshot = await ref.put(blob);
+        const url = await snapshot.ref.getDownloadURL();
+        
+        replaceBase64WithUrl(item.tempId, url);
+        voxiData.pendingUploads.shift();
+        
+        // Guardar progreso y seguir con el siguiente
+        saveMaster(false);
+        setTimeout(processSyncQueue, 500);
+    } catch (e) {
+        console.error("Error en sincronización, reintentando luego:", e);
+    }
 }
-renderProps();
-autoSave();
-});
-});
+
+function replaceBase64WithUrl(tempId, url) {
+    // Buscar en propiedades
+    voxiData.props.forEach(p => {
+        if (p.mainImg === tempId) p.mainImg = url;
+        if (p.docImg === tempId) p.docImg = url;
+        if (p.gallery) {
+            const idx = p.gallery.indexOf(tempId);
+            if (idx !== -1) p.gallery[idx] = url;
+        }
+    });
+    // Buscar en prospectos
+    ['prospects','leads','closed'].forEach(key => {
+        if (voxiData[key]) {
+            voxiData[key].forEach(p => {
+                if (p.gallery) {
+                    const idx = p.gallery.indexOf(tempId);
+                    if (idx !== -1) p.gallery[idx] = url;
+                }
+            });
+        }
+    });
+    // Buscar en carpetas/galerías
+    for (let folder in voxiData.galleries) {
+        const idx = voxiData.galleries[folder].indexOf(tempId);
+        if (idx !== -1) voxiData.galleries[folder][idx] = url;
+    }
+    
+    // Refrescar vistas activas
+    if (typeof renderProps === 'function') renderProps();
+    if (typeof renderFolderImages === 'function') renderFolderImages();
+    if (typeof renderProspects === 'function') renderProspects();
+}
+
+function saveImageHibrido(file, type, index, subIdx) {
+    processImg(file, 1000, (b64) => {
+        const tempId = "TEMP_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+        
+        // 1. Guardar Base64 localmente con ID temporal
+        saveImageInState(tempId, type, index, subIdx);
+        
+        // 2. Agregar a cola de subida
+        voxiData.pendingUploads.push({
+            tempId: tempId,
+            data: b64, // El base64 real para subir
+            timestamp: Date.now()
+        });
+        
+        // 3. Persistir local y disparar sync
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        processSyncQueue();
+    });
 }
 const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
 const REQS_E = ["INE (ambos lados)"];
@@ -604,6 +818,66 @@ voxiData.props[i].maps = currentMaps ? currentMaps + "\n" + url : url;
 autoSave();
 renderProps();
 window.open(url, '_blank');
+}
+async function uploadImage(file) {
+  const loader = document.getElementById('voxiLoader');
+  const loaderText = document.getElementById('voxiLoaderText');
+  if(loader) {
+    loader.style.display = 'flex';
+    if(loaderText) loaderText.innerText = "Subiendo...";
+  }
+
+  try {
+    console.log("Iniciando subida de archivo:", file.name, "Tamaño:", file.size);
+    
+    // Si el archivo es mayor a 1.5MB, lo comprimimos antes de subir
+    let fileToUpload = file;
+    if (file.size > 1500000) {
+        console.log("Archivo pesado detectado, comprimiendo...");
+        if(loaderText) loaderText.innerText = "Comprimiendo...";
+        fileToUpload = await compressImage(file, 1000);
+    }
+
+    const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
+    
+    // Usamos el evento de progreso para dar feedback
+    const uploadTask = ref.put(fileToUpload);
+    
+    uploadTask.on('state_changed', 
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            if(loaderText) loaderText.innerText = "Subiendo: " + Math.round(progress) + "%";
+        }
+    );
+
+    await uploadTask;
+    const url = await ref.getDownloadURL();
+    console.log("URL generada con éxito:", url);
+    
+    if(loader) loader.style.display = 'none';
+    return url;
+  } catch (error) {
+    console.error("Error crítico en subida:", error);
+    if(loader) loader.style.display = 'none';
+    alert("Error al subir: " + error.message);
+    return null;
+  }
+}
+
+// Función auxiliar para compresión rápida
+async function compressImage(file, maxW) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if(w > maxW){ h *= maxW/w; w = maxW; }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.7);
+        };
+        img.src = URL.createObjectURL(file);
+    });
 }
 function processImg(file, maxW, callback) {
 const reader = new FileReader();
@@ -852,6 +1126,23 @@ const stColors = { 'Nuevo Cliente':'#eeeeee', 'Pláticas avanzadas':'#fff9c4', '
 const txtColors = { 'Nuevo Cliente':'#757575', 'Pláticas avanzadas':'#fbc02d', 'El cliente ya no quiso':'#d32f2f', 'Dio apartado':'#1976d2', 'Cerrado':'#2e7d32' };
 const sc = stColors[p.status] || '#f5f5f5';
 const tc = txtColors[p.status] || '#333';
+if(p.status === 'Dio apartado' && !p.fechaApartado) {
+    p.fechaApartado = new Date().toISOString();
+    p.fechaLimite = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
+    for(let i=1; i<=10; i++) {
+        const alertDate = new Date(new Date().getTime() + (i * 3) * 24 * 60 * 60 * 1000);
+        if(alertDate > new Date(p.fechaLimite)) break;
+        voxiData.manualAlerts.push({
+            id: Date.now() + Math.random(),
+            prospectId: p.id,
+            text: `Recordatorio seguimiento apartado: ${p.nombre}`,
+            date: alertDate.toISOString(),
+            priority: i > 8 ? 'ALTA' : 'MEDIA'
+        });
+    }
+    autoSave();
+}
 card.innerHTML = `
 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1); activeProspectId=null; renderProspects(); autoSave();}"><i class="fas fa-trash"></i></button>
 <div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
@@ -878,6 +1169,21 @@ card.innerHTML = `
 </select>
 </div>
 <div class="box full-box"><label style="color:${accentColor};">📅 Fecha de Seguimiento</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📸 MULTIMEDIA Y UBICACIÓN</div>
+<div class="box full-box"><label>Imágenes del Cliente</label><div style="display:flex; gap:10px; overflow-x:auto; padding:10px 0;">${(p.gallery || []).map((img, imgIdx) => `<div style="position:relative; flex:0 0 80px;"><img src="${img}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><button onclick="removeProspectImage('${p.type}', ${p.originalIndex}, ${imgIdx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px;">×</button></div>`).join('')}<button onclick="addProspectImage('${p.type}', ${p.originalIndex})" style="flex:0 0 80px; height:80px; border:2px dashed #ccc; border-radius:8px; background:none; color:#999;"><i class="fas fa-plus"></i></button></div></div>
+<div class="box"><label>📍 Ubicación (GPS)</label><div style="display:flex; gap:5px;"><input type="text" placeholder="Lat, Lng" value="${p.lat && p.lng ? p.lat+','+p.lng : ''}" readonly style="font-size:0.8em; border-bottom:1px solid #ddd;"><button class="btn" onclick="getProspectLocation('${p.type}', ${p.originalIndex})" style="padding:5px; height:auto; background:${accentColor}; color:white;"><i class="fas fa-map-marker-alt"></i></button></div></div>
+<div class="box"><label>🗺️ Link Maps</label><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
+<div class="box"><label>Cantidad Solicitada</label><input type="number" value="${p.montoSolicitado || ''}" oninput="voxiData.${p.type}[${p.originalIndex}].montoSolicitado=this.value; updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>Monto Recibido (Apartado)</label><input type="number" value="${p.montoRecibido || ''}" oninput="voxiData.${p.type}[${p.originalIndex}].montoRecibido=this.value; updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>Enganche Total</label><input type="number" value="${p.engancheTotal || ''}" oninput="voxiData.${p.type}[${p.originalIndex}].engancheTotal=this.value; updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">$${(p.saldoPendiente || 0).toLocaleString()}</div></div>
+${isMili ? `
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
+<div class="box"><label>Rango Militar</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
+<div class="box"><label>Presupuesto Total</label><input type="number" value="${p.presupuestoTotal || ''}" oninput="voxiData.milis[${p.originalIndex}].presupuestoTotal=this.value; updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box full-box" style="background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; padding:8px; margin-top:5px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><div style="font-size:0.6em; color:#2e7d32;">🔻 DESCUENTO 7%</div><div id="descM_${p.id}" style="font-weight:900; color:#d32f2f; font-size:0.9em;">-$${(p.montoDescuento || 0).toLocaleString()}</div></div><div style="text-align:right;"><div style="font-size:0.6em; color:#2e7d32;">💰 MONTO LIBRE VIVIENDA</div><div id="libreM_${p.id}" style="font-size:1.1em; font-weight:900; color:#1b5e20;">$${(p.montoLibre || 0).toLocaleString()}</div></div></div></div>
+` : ''}
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS CRÉDITO MILITAR</div>
 ${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
@@ -1491,6 +1797,10 @@ function renderAssistant() {
         let alertsHtml = '';
         
         function createAlert(level, text, action, tel = null) {
+            // Activar notificación real al renderizar alertas críticas nuevas
+            if (level === 'Rojo' || level === 'Amarillo') {
+                sendLocalPush("ALERTA DE SEGUIMIENTO", text);
+            }
             const colors = { 'Rojo': ['#ffebee', '#d32f2f'], 'Amarillo': ['#fff9c4', '#fbc02d'], 'Azul': ['#e3f2fd', '#1e88e5'] };
             const [bg, border] = colors[level] || colors['Azul'];
             let btns = `<button class="wa-mini" style="background:${border};" onclick="event.stopPropagation(); ${action}">IR</button>`;
@@ -1607,6 +1917,12 @@ function saveManualAlert() {
         date: new Date().toISOString(),
         type: 'Recordatorio Manual' 
     });
+
+    // Notificación Push inmediata al guardar manualmente si es prioritario
+    if (priority.includes('URGENTE') || priority.includes('HOY')) {
+        sendLocalPush("NUEVA ALERTA MANUAL", text + (time ? " a las " + time : ""));
+    }
+
     renderAssistant();
     autoSave();
     document.getElementById('new-manual-alert').value = '';
@@ -1652,7 +1968,14 @@ if(cStatus) {
 cStatus.style.display = 'block';
 cStatus.innerHTML = '⌛ Guardando...';
 }
-db.collection("data").doc(SYNC_ID).set(voxiData)
+
+// MODO PROFESIONAL: Limpiar base64 pesados antes de subir a Firestore para no exceder 1MB
+const dataToSync = JSON.parse(JSON.stringify(voxiData));
+if (dataToSync.pendingUploads) {
+    dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
+}
+
+db.collection("data").doc(SYNC_ID).set(dataToSync)
 .then(() => { 
 console.log("Cloud Save Success");
 if(cStatus) {
@@ -1718,13 +2041,7 @@ function triggerFolderUpload(type) {
     input.onchange = (e) => {
         const files = e.target.files;
         if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
-        Array.from(files).forEach(f => {
-            processImg(f, 800, (b) => {
-                voxiData.galleries[activeFolder].push(b);
-                renderFolderImages();
-                autoSave();
-            });
-        });
+        Array.from(files).forEach(f => saveImageHibrido(f, 'folder', null, null));
     };
     input.click();
 }
@@ -1747,7 +2064,9 @@ const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db')
 if(s) { 
 voxiData = JSON.parse(s); 
 if(!voxiData.galleries) voxiData.galleries = {};
+if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
 renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
+setTimeout(processSyncQueue, 3000);
 }
 db.collection("data").doc(SYNC_ID).get().then(doc => {
 if(doc.exists) {
@@ -1855,8 +2174,67 @@ function getCurrentLocationForRoute(i) {
     }, { enableHighAccuracy: true });
 }
 
-window.onload = loadMaster;
+function addProspectImage(type, idx) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (file) saveImageHibrido(file, type, idx, null);
+    };
+    input.click();
+}
+function removeProspectImage(type, idx, imgIdx) {
+    if (confirm('¿Eliminar imagen?')) {
+        voxiData[type][idx].gallery.splice(imgIdx, 1);
+        renderProspects();
+        autoSave();
+    }
+}
+function getProspectLocation(type, idx) {
+    if (!navigator.geolocation) { alert("Geolocalización no soportada."); return; }
+    navigator.geolocation.getCurrentPosition(pos => {
+        const p = voxiData[type][idx];
+        p.lat = pos.coords.latitude.toFixed(6);
+        p.lng = pos.coords.longitude.toFixed(6);
+        p.mapsLink = `https://www.google.com/maps?q=${p.lat},${p.lng}`;
+        renderProspects();
+        autoSave();
+    }, err => alert("Error: " + err.message), { enableHighAccuracy: true });
+}
+function updateFinancials(type, idx) {
+    const p = voxiData[type][idx];
+    const total = parseFloat(p.engancheTotal) || 0;
+    const recibido = parseFloat(p.montoRecibido) || 0;
+    p.saldoPendiente = total - recibido;
+    const div = document.getElementById(`saldo_${p.id}`);
+    if(div) div.innerText = `$${p.saldoPendiente.toLocaleString()}`;
+}
+function updateMilitaryBudget(idx) {
+    const p = voxiData.milis[idx];
+    const presupuesto = parseFloat(p.presupuestoTotal) || 0;
+    p.montoDescuento = presupuesto * 0.07;
+    p.montoLibre = presupuesto - p.montoDescuento;
+    const dM = document.getElementById(`descM_${p.id}`);
+    const lM = document.getElementById(`libreM_${p.id}`);
+    if(dM) dM.innerText = `-$${p.montoDescuento.toLocaleString()}`;
+    if(lM) lM.innerText = `$${p.montoLibre.toLocaleString()}`;
+}
+window.onload = () => {
+    loadMaster();
+    window.addEventListener('online', () => {
+        processSyncQueue();
+        console.log("Socio, estamos online. Sincronizando alertas y datos...");
+    });
+    if (navigator.onLine) {
+        setTimeout(processSyncQueue, 5000);
+        setTimeout(initNotifications, 2000); 
+    }
+    startAlertMonitor(); // Iniciar monitoreo de alertas reales
+};
+
 </script>
+<div id="voxiLoader"><div class="spinner"></div><span id="voxiLoaderText">Subiendo...</span></div>
 </body>
 </html>
 
