@@ -433,13 +433,6 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
 <script>
-function formatVoxiNumber(val) {
-if (!val) return '';
-let num = val.toString().replace(/[^\d.]/g, "");
-let parts = num.split('.');
-parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-return parts.join('.');
-}
 const firebaseConfig = {
 apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
 authDomain: "voxiapp-6672e.firebaseapp.com",
@@ -452,6 +445,14 @@ measurementId: "G-77F6483313"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const SYNC_ID = "voxi_main_db"; // ID único para este usuario
+function formatVoxiNumber(val) {
+if (val === null || val === undefined || val === '') return '';
+let s = val.toString().replace(/[^0-9.]/g, '');
+if (s === '') return '';
+let parts = s.split('.');
+parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+return '$' + parts.join('.');
+}
 let voxiData = { props: [], milis: [], grals: [], files: [] };
 let currentPropIndex = null;
 let activePropId = null;
@@ -654,7 +655,7 @@ select.innerHTML = '<option value="">-- ELIGE UNA PROPIEDAD --</option>';
 voxiData.props.forEach(p => {
 const opt = document.createElement('option');
 opt.value = p.id;
-opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${formatVoxiNumber(p.precio) || '0'}`;
+opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - ${formatVoxiNumber(p.precio) || '$0'}`;
 if(activePropId == p.id) opt.selected = true;
 select.appendChild(opt);
 });
@@ -691,8 +692,8 @@ ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style
 <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
 </select></div>
 <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio)}" oninput="this.value=formatVoxiNumber(this.value); voxiData.props[${i}].precio=this.value; renderProps(); autoSave()" style="color:var(--success); font-weight:700;"></div>
-<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia)}" oninput="this.value=formatVoxiNumber(this.value); voxiData.props[${i}].ganancia=this.value; renderProps(); autoSave()" style="color:var(--primary); font-weight:700;"></div>
+<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio)}" oninput="let v=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=v; this.value=formatVoxiNumber(v); autoSave()" onblur="renderProps()" style="color:var(--success); font-weight:700;"></div>
+<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia)}" oninput="let v=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=v; this.value=formatVoxiNumber(v); autoSave()" onblur="renderProps()" style="color:var(--primary); font-weight:700;"></div>
 <div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;">
 Costo de Obra: $${(parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toLocaleString()}
 </div>
@@ -916,7 +917,7 @@ a.click();
 function openFlyerOptions(i) {
 currentPropIndex = i;
 const p = voxiData.props[i];
-document.getElementById('opt1-p').innerText = `🔥 ¡OPORTUNIDAD! ${p.titulo} - $${formatVoxiNumber(p.precio)}`;
+document.getElementById('opt1-p').innerText = `🔥 ¡OPORTUNIDAD! ${p.titulo} - ${formatVoxiNumber(p.precio)}`;
 document.getElementById('opt2-p').innerText = `📋 ${p.titulo} – ${p.area} m² – ${p.recamaras} rec.`;
 document.getElementById('opt3-p').innerText = `🏡 Tu hogar en ${p.ubicacion}`;
 document.getElementById('flyerStep1').style.display = 'block';
@@ -925,7 +926,7 @@ document.getElementById('flyerModal').style.display = 'flex';
 }
 function generateMessage(style, p) {
 const nombre = p.titulo || 'Propiedad';
-const precio = p.precio ? `$${formatVoxiNumber(p.precio)}` : 'precio especial';
+const precio = p.precio ? formatVoxiNumber(p.precio) : 'precio especial';
 const ubi = p.ubicacion || 'Hidalgo';
 const area = p.area || '0';
 const desc = p.desc || '';
