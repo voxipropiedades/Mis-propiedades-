@@ -913,6 +913,22 @@ const sumaDisplay = card.querySelector('.suma-medidas');
 if(sumaDisplay) sumaDisplay.innerText = '(Suma: ' + suma + ' m)';
 }
 }
+function setMiliEstado(index, newState) {
+    const mili = voxiData.milis[index];
+    if (newState === 'Apartado' && !mili.numApartado) {
+        let maxNum = 0;
+        voxiData.milis.forEach(m => {
+            if (m.numApartado && !isNaN(m.numApartado)) {
+                if (m.numApartado > maxNum) maxNum = m.numApartado;
+            }
+        });
+        mili.numApartado = maxNum + 1;
+    }
+    mili.estado = newState;
+    autoSave();
+    renderProspects();
+}
+
 function addItem(type) {
 if(type === 'props') {
 const newId = Date.now();
@@ -928,7 +944,7 @@ activePropId = newId;
 renderProps();
 } else if(type === 'milis') {
 const newId = Date.now();
-voxiData.milis.unshift({ id: newId, nombre: '', tel: '', status: 'Nuevo Cliente', lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
+voxiData.milis.unshift({ id: newId, nombre: '', tel: '', status: 'Nuevo Cliente', estado: 'Disponible', numApartado: null, lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
 activeProspectId = newId;
 renderProspects();
 } else if(type === 'grals') {
@@ -1112,7 +1128,7 @@ if(!p) {
 div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-users" style="font-size:3em; margin-bottom:10px; display:block;"></i> Selecciona un cliente arriba o añade uno nuevo.</div>';
 return;
 }
-const isMili = p.type === 'milis';
+const isMili = p.type === 'milis'; if(isMili && !p.estado) p.estado = 'Disponible';
 const accentColor = isMili ? '#2e7d32' : '#757575';
 const currentReqs = isMili ? REQS_M : REQS_E;
 if(!p.m) p.m = [];
@@ -1146,7 +1162,7 @@ if(p.status === 'Dio apartado' && !p.fechaApartado) {
 }
 card.innerHTML = `
 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1); activeProspectId=null; renderProspects(); autoSave();}"><i class="fas fa-trash"></i></button>
-<div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
+<div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'} ${isMili && p.estado === 'Apartado' && p.numApartado ? ' | APARTADO ' + p.numApartado : (isMili ? ' | ' + (p.estado || 'DISPONIBLE') : '')}</div>
 <div class="box-container">
 <div class="box full-box">
 <label style="color:${accentColor};">Tipo de Cliente (Militar / Efectivo)</label>
