@@ -1,4 +1,3 @@
-<!-- Voxi Version 38.4.1 [RE-DEPLOY FIX] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,8 +13,6 @@
 <!-- Firebase SDKs Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
 <style>
 :root {
 --primary: #b71c1c;
@@ -98,24 +95,6 @@ border: 2px dashed #bbb; cursor: pointer;
 .gallery-item { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 10px; overflow: hidden; position: relative; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 .gallery-item .del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor:pointer; }
-#voxiLoader {
-    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.8); color: white; padding: 20px 30px; border-radius: 15px;
-    z-index: 10000; flex-direction: column; align-items: center; gap: 10px;
-}
-#voxi-toast {
-    position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
-    background: #333; color: white; padding: 12px 25px; border-radius: 50px;
-    font-weight: 950; font-size: 0.9em; z-index: 15000; display: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: slideUpToast 0.3s ease-out;
-    border: 2px solid var(--accent);
-}
-@keyframes slideUpToast { from { bottom: -50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
-.spinner {
-    width: 30px; height: 30px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent);
-    border-radius: 50%; animation: spin 1s linear infinite;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 #editorArea { 
 border: 1px solid #ddd; padding: 20px; min-height: 400px; background: #fff; 
 border-radius: 12px; margin-top: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
@@ -248,8 +227,6 @@ oninput="voxiSearch(this.value)">
 <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
 </div>
 </div>
-<!-- MOTIVACIÓN -->
-<div id="assistant-motivation"></div>
 <!-- AGENDA DEL DÍA -->
 <div class="assist-card" onclick="toggleCollapse('assistant-agenda-wrapper')" style="cursor:pointer;">
 <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
@@ -485,125 +462,6 @@ measurementId: "G-77F6483313"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const storage = firebase.storage();
-const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
-
-// GESTIÓN DE NOTIFICACIONES REALES (PWA)
-async function initNotifications() {
-    if (!messaging) return;
-    
-    // Registrar Service Worker para notificaciones en segundo plano
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('firebase-messaging-sw.js')
-        .then(function(registration) {
-            console.log('FCM Service Worker registrado con éxito:', registration.scope);
-            messaging.useServiceWorker(registration);
-        }).catch(function(err) {
-            console.error('Error al registrar FCM Service Worker:', err);
-        });
-    }
-
-    try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-            console.log("Permiso de notificaciones concedido.");
-            // Generar token real del dispositivo
-            const token = await messaging.getToken({ 
-                vapidKey: 'BPH5S_v68N0vLpXm8N7xG_Xyv0-8jL9UeX0G_vL0V9U' // Key Pública de Firebase Console
-            });
-            
-            if (token) {
-                console.log("Token FCM generado:", token);
-                // Guardar en Firestore para vinculación real
-                db.collection("tokens").doc(SYNC_ID).set({ 
-                    token: token, 
-                    lastUpdate: new Date().toISOString(),
-                    platform: navigator.platform,
-                    status: 'active'
-                }, { merge: true });
-            }
-        } else {
-            console.warn("Permiso de notificaciones denegado.");
-        }
-    } catch (e) {
-        console.warn("Error en initNotifications:", e);
-    }
-
-    // Manejar mensajes recibidos cuando la app está abierta
-    messaging.onMessage((payload) => {
-        console.log('Mensaje FCM recibido (Foreground):', payload);
-        const title = payload.notification ? payload.notification.title : "ALERTA DE SISTEMA";
-        const body = payload.notification ? payload.notification.body : payload.data.message;
-        sendLocalPush(title, body);
-    });
-}
-
-const notifiedAlerts = new Set();
-let editingAlertId = null;
-
-function sendLocalPush(title, body) {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    
-    const alertKey = title + body + new Date().getHours() + new Date().getMinutes();
-    if (notifiedAlerts.has(alertKey)) return;
-    notifiedAlerts.add(alertKey);
-
-    const options = {
-        body: body,
-        icon: 'icon-192.png',
-        vibrate: [300, 100, 300, 100, 300], // Vibración fuerte
-        badge: 'icon-192.png',
-        requireInteraction: true,
-        tag: 'voxi-alert-real',
-        data: { arrival: Date.now() }
-    };
-
-    // Alerta sonora
-    try {
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-        audio.play().catch(() => {});
-    } catch(e) {}
-
-    // Actualizar badge del app si es soportado
-    if ('setAppBadge' in navigator) {
-        const count = (voxiData.manualAlerts || []).filter(a => !a.notified).length;
-        navigator.setAppBadge(count).catch(() => {});
-    }
-
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification(title, options);
-        });
-    } else {
-        new Notification(title, options);
-    }
-}
-
-// SISTEMA DE MONITOREO DE ALERTAS EN TIEMPO REAL
-function startAlertMonitor() {
-    setInterval(() => {
-        if (!voxiData.manualAlerts) return;
-        
-        const now = new Date();
-        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-        const today = now.toISOString().split('T')[0];
-
-        voxiData.manualAlerts.forEach((alert, idx) => {
-            // Verificar si la alerta es para hoy y la hora coincide
-            if (alert.time === currentTime && !alert.notified) {
-                sendLocalPush("ALERTA DE SEGUIMIENTO", alert.text);
-                alert.notified = true; // Evitar duplicados
-                autoSave();
-            }
-            
-            // Alertas Críticas (URGENTE) notifican cada vez que se abre si no han sido atendidas
-            if (alert.priority === '🔴 URGENTE' && !alert.notifiedInSession) {
-                sendLocalPush("ALERTA URGENTE", alert.text);
-                alert.notifiedInSession = true;
-            }
-        });
-    }, 60000); // Revisar cada minuto
-}
 const SYNC_ID = "voxi_main_db"; // ID único para este usuario
 let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {} };
 const GALLERY_FOLDERS = [
@@ -644,112 +502,28 @@ input.onchange = (e) => handlePhotoResult(e.target.files);
 input.click();
 closePhotoMenu();
 }
-function saveImageInState(data, type, index, idx) {
-    let targetObj = (type === 'main' || type === 'gallery' || type === 'doc') ? voxiData.props[index] : null;
-    if (type === 'main') {
-        if (idx === 0) targetObj.mainImg = data;
-        else targetObj.gallery.push(data);
-        renderProps();
-    } else if (type === 'gallery') {
-        if (!targetObj.mainImg) targetObj.mainImg = data;
-        else targetObj.gallery.push(data);
-        renderProps();
-    } else if (type === 'doc') {
-        targetObj.docImg = data;
-        renderProps();
-    } else if (type === 'folder') {
-        if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
-        voxiData.galleries[activeFolder].push(data);
-        renderFolderImages();
-    }
-    autoSave();
-}
-
 function handlePhotoResult(files) {
-    if (!files || files.length === 0) return;
-    const { index, type } = currentPhotoTarget;
-    if (index === null && type !== 'folder') return;
-    if (type !== 'folder') saveLocation(index, true);
-    Array.from(files).forEach((f, idx) => saveImageHibrido(f, type, index, idx));
+if (!files || files.length === 0) return;
+const { index, type } = currentPhotoTarget;
+if (type === 'main' || type === 'gallery') {
+saveLocation(index, true);
 }
-
-// MODO SINCRONIZACIÓN PROFESIONAL
-if (!voxiData.pendingUploads) voxiData.pendingUploads = [];
-
-async function processSyncQueue() {
-    if (!navigator.onLine || voxiData.pendingUploads.length === 0) return;
-    
-    console.log("Sincronizando imágenes pendientes:", voxiData.pendingUploads.length);
-    const item = voxiData.pendingUploads[0]; // Procesar de uno en uno para estabilidad
-    
-    try {
-        const blob = await fetch(item.data).then(r => r.blob());
-        const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
-        const snapshot = await ref.put(blob);
-        const url = await snapshot.ref.getDownloadURL();
-        
-        replaceBase64WithUrl(item.tempId, url);
-        voxiData.pendingUploads.shift();
-        
-        // Guardar progreso y seguir con el siguiente
-        saveMaster(false);
-        setTimeout(processSyncQueue, 500);
-    } catch (e) {
-        console.error("Error en sincronización, reintentando luego:", e);
-    }
+Array.from(files).forEach((f, idx) => {
+const maxW = (type === 'doc' ? 1000 : 800);
+processImg(f, maxW, (b) => {
+if (type === 'main') {
+if (idx === 0) voxiData.props[index].mainImg = b;
+else voxiData.props[index].gallery.push(b);
+} else if (type === 'gallery') {
+if (!voxiData.props[index].mainImg) voxiData.props[index].mainImg = b;
+else voxiData.props[index].gallery.push(b);
+} else if (type === 'doc') {
+voxiData.props[index].docImg = b;
 }
-
-function replaceBase64WithUrl(tempId, url) {
-    // Buscar en propiedades
-    voxiData.props.forEach(p => {
-        if (p.mainImg === tempId) p.mainImg = url;
-        if (p.docImg === tempId) p.docImg = url;
-        if (p.gallery) {
-            const idx = p.gallery.indexOf(tempId);
-            if (idx !== -1) p.gallery[idx] = url;
-        }
-    });
-    // Buscar en prospectos
-    ['prospects','leads','closed'].forEach(key => {
-        if (voxiData[key]) {
-            voxiData[key].forEach(p => {
-                if (p.gallery) {
-                    const idx = p.gallery.indexOf(tempId);
-                    if (idx !== -1) p.gallery[idx] = url;
-                }
-            });
-        }
-    });
-    // Buscar en carpetas/galerías
-    for (let folder in voxiData.galleries) {
-        const idx = voxiData.galleries[folder].indexOf(tempId);
-        if (idx !== -1) voxiData.galleries[folder][idx] = url;
-    }
-    
-    // Refrescar vistas activas
-    if (typeof renderProps === 'function') renderProps();
-    if (typeof renderFolderImages === 'function') renderFolderImages();
-    if (typeof renderProspects === 'function') renderProspects();
-}
-
-function saveImageHibrido(file, type, index, subIdx) {
-    processImg(file, 1000, (b64) => {
-        const tempId = "TEMP_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
-        
-        // 1. Guardar Base64 localmente con ID temporal
-        saveImageInState(tempId, type, index, subIdx);
-        
-        // 2. Agregar a cola de subida
-        voxiData.pendingUploads.push({
-            tempId: tempId,
-            data: b64, // El base64 real para subir
-            timestamp: Date.now()
-        });
-        
-        // 3. Persistir local y disparar sync
-        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-        processSyncQueue();
-    });
+renderProps();
+autoSave();
+});
+});
 }
 const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
 const REQS_E = ["INE (ambos lados)"];
@@ -831,66 +605,6 @@ autoSave();
 renderProps();
 window.open(url, '_blank');
 }
-async function uploadImage(file) {
-  const loader = document.getElementById('voxiLoader');
-  const loaderText = document.getElementById('voxiLoaderText');
-  if(loader) {
-    loader.style.display = 'flex';
-    if(loaderText) loaderText.innerText = "Subiendo...";
-  }
-
-  try {
-    console.log("Iniciando subida de archivo:", file.name, "Tamaño:", file.size);
-    
-    // Si el archivo es mayor a 1.5MB, lo comprimimos antes de subir
-    let fileToUpload = file;
-    if (file.size > 1500000) {
-        console.log("Archivo pesado detectado, comprimiendo...");
-        if(loaderText) loaderText.innerText = "Comprimiendo...";
-        fileToUpload = await compressImage(file, 1000);
-    }
-
-    const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
-    
-    // Usamos el evento de progreso para dar feedback
-    const uploadTask = ref.put(fileToUpload);
-    
-    uploadTask.on('state_changed', 
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            if(loaderText) loaderText.innerText = "Subiendo: " + Math.round(progress) + "%";
-        }
-    );
-
-    await uploadTask;
-    const url = await ref.getDownloadURL();
-    console.log("URL generada con éxito:", url);
-    
-    if(loader) loader.style.display = 'none';
-    return url;
-  } catch (error) {
-    console.error("Error crítico en subida:", error);
-    if(loader) loader.style.display = 'none';
-    alert("Error al subir: " + error.message);
-    return null;
-  }
-}
-
-// Función auxiliar para compresión rápida
-async function compressImage(file, maxW) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let w = img.width, h = img.height;
-            if(w > maxW){ h *= maxW/w; w = maxW; }
-            canvas.width = w; canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.7);
-        };
-        img.src = URL.createObjectURL(file);
-    });
-}
 function processImg(file, maxW, callback) {
 const reader = new FileReader();
 reader.onload = (e) => {
@@ -924,22 +638,6 @@ const sumaDisplay = card.querySelector('.suma-medidas');
 if(sumaDisplay) sumaDisplay.innerText = '(Suma: ' + suma + ' m)';
 }
 }
-function setMiliEstado(index, newState) {
-    const mili = voxiData.milis[index];
-    if (newState === 'Apartado' && !mili.numApartado) {
-        let maxNum = 0;
-        voxiData.milis.forEach(m => {
-            if (m.numApartado && !isNaN(m.numApartado)) {
-                if (m.numApartado > maxNum) maxNum = m.numApartado;
-            }
-        });
-        mili.numApartado = maxNum + 1;
-    }
-    mili.estado = newState;
-    autoSave();
-    renderProspects();
-}
-
 function addItem(type) {
 if(type === 'props') {
 const newId = Date.now();
@@ -955,7 +653,7 @@ activePropId = newId;
 renderProps();
 } else if(type === 'milis') {
 const newId = Date.now();
-voxiData.milis.unshift({ id: newId, nombre: '', tel: '', status: 'Nuevo Cliente', estado: 'Disponible', numApartado: null, lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
+voxiData.milis.unshift({ id: newId, nombre: '', tel: '', status: 'Nuevo Cliente', lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
 activeProspectId = newId;
 renderProspects();
 } else if(type === 'grals') {
@@ -1011,41 +709,13 @@ ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style
 <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
 </select></div>
 <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:700;"></div>
-<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--primary); font-weight:700;"></div>
+<div class="box"><label>Precio ($)</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;renderProps();autoSave()" style="color:var(--success); font-weight:700;"></div>
+<div class="box"><label>Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value;renderProps();autoSave()" style="color:var(--primary); font-weight:700;"></div>
 <div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;">
-Costo de Obra: ${formatVoxiNumber((parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toFixed(0))}
+Costo de Obra: $${(parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toLocaleString()}
 </div>
 <div class="section-label">📍 UBICACIONES GUARDADAS</div>
 <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
-
-<!-- MÓDULO CÁLCULO DE DISTANCIA (MODO BLINDADO) -->
-<div class="section-label" style="color:#1565c0; border-bottom-color:#1565c022;">📍 CÁLCULO DE DISTANCIA Y TIEMPO</div>
-<div class="box full-box" style="background:#f0f7ff; border:1px solid #cce3ff; padding:12px; border-radius:12px;">
-    <div style="display:flex; gap:8px; margin-bottom:10px;">
-        <div style="flex:1; position:relative;">
-            <label style="color:#1565c0; font-size:0.6em;">ORIGEN (PUNTO A) <i class="fas fa-location-arrow" style="cursor:pointer; color:#1565c0; margin-left:5px;" onclick="getCurrentLocationForRoute(${i})" title="Usar mi ubicación"></i></label>
-            <input type="text" id="routeA_${i}" value="${p.routeA || ''}" placeholder="Ej. Pachuca" oninput="voxiData.props[${i}].routeA=this.value;autoSave()" style="border-bottom:1px solid #ddd; font-size:0.85em; padding-right:20px;">
-        </div>
-        <div style="flex:1;">
-            <label style="color:#1565c0; font-size:0.6em;">DESTINO (PUNTO B)</label>
-            <input type="text" id="routeB_${i}" value="${p.routeB || p.ubicacion || ''}" placeholder="Destino" oninput="voxiData.props[${i}].routeB=this.value;autoSave()" style="border-bottom:1px solid #ddd; font-size:0.85em;">
-        </div>
-    </div>
-    <button class="btn" style="background:#1565c0; color:white; padding:10px; font-size:0.8em; height:auto;" onclick="calculateRoute(${i})">
-        <i class="fas fa-calculator"></i> CALCULAR RUTA
-    </button>
-    <div id="routeRes_${i}" style="margin-top:12px; background:white; padding:10px; border-radius:8px; border:1px solid #eee; text-align:center;">
-        <div style="font-size:1.1em; font-weight:900; color:#1565c0;">${p.routeDist || '--'} KM</div>
-        <div style="font-size:0.8em; color:#666;">TIEMPO EST.: <b>${p.routeTime || '--'} MIN</b></div>
-    </div>
-    <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:8px;">
-        <label style="font-size:0.6em; color:#888;">HISTORIAL DE RUTAS</label>
-        <div style="max-height:60px; overflow-y:auto; font-size:0.7em; color:#444;" id="routeHist_${i}">
-            ${(p.routeHist || []).slice().reverse().map(h => `<div style="margin-bottom:3px; border-bottom:1px solid #f0f0f0; padding:2px 0;">• ${h}</div>`).join('')}
-        </div>
-    </div>
-</div>
 <div class="box full-box"><label>HISTORIAL DE LINKS <i class="fas fa-location-arrow" style="cursor:pointer; color:#e53935; margin-left:10px; padding:5px;" onclick="saveLocation(${i})" title="Obtener GPS"></i> <i class="fas fa-search" style="cursor:pointer; color:#1e88e5; margin-left:12px; padding:5px;" onclick="searchInMaps(${i})" title="Buscar en Maps"></i>${p.maps ? ` <i class="fas fa-external-link-alt" style="cursor:pointer; color:var(--info); margin-left:15px; padding:5px;" onclick="openLatestMap(${i})" title="Ver Última Ubicación"></i>` : ''}</label><textarea oninput="voxiData.props[${i}].maps=this.value;autoSave()" style="width:100%; height:60px; font-size:0.75em; border:1px solid #ddd; border-radius:5px; padding:5px; resize:none;">${p.maps||''}</textarea></div>
 <div class="section-label">🗺️ MEDIDAS DEL TERRENO</div>
 <div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value;calcArea(${i});autoSave()"></div>
@@ -1139,7 +809,7 @@ if(!p) {
 div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-users" style="font-size:3em; margin-bottom:10px; display:block;"></i> Selecciona un cliente arriba o añade uno nuevo.</div>';
 return;
 }
-const isMili = p.type === 'milis'; if(isMili && !p.estado) p.estado = 'Disponible';
+const isMili = p.type === 'milis';
 const accentColor = isMili ? '#2e7d32' : '#757575';
 const currentReqs = isMili ? REQS_M : REQS_E;
 if(!p.m) p.m = [];
@@ -1154,26 +824,9 @@ const stColors = { 'Nuevo Cliente':'#eeeeee', 'Pláticas avanzadas':'#fff9c4', '
 const txtColors = { 'Nuevo Cliente':'#757575', 'Pláticas avanzadas':'#fbc02d', 'El cliente ya no quiso':'#d32f2f', 'Dio apartado':'#1976d2', 'Cerrado':'#2e7d32' };
 const sc = stColors[p.status] || '#f5f5f5';
 const tc = txtColors[p.status] || '#333';
-if(p.status === 'Dio apartado' && !p.fechaApartado) {
-    p.fechaApartado = new Date().toISOString();
-    p.fechaLimite = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
-    for(let i=1; i<=10; i++) {
-        const alertDate = new Date(new Date().getTime() + (i * 3) * 24 * 60 * 60 * 1000);
-        if(alertDate > new Date(p.fechaLimite)) break;
-        voxiData.manualAlerts.push({
-            id: Date.now() + Math.random(),
-            prospectId: p.id,
-            text: `Recordatorio seguimiento apartado: ${p.nombre}`,
-            date: alertDate.toISOString(),
-            priority: i > 8 ? 'ALTA' : 'MEDIA'
-        });
-    }
-    autoSave();
-}
 card.innerHTML = `
 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1); activeProspectId=null; renderProspects(); autoSave();}"><i class="fas fa-trash"></i></button>
-<div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'} ${isMili && p.estado === 'Apartado' && p.numApartado ? ' | APARTADO ' + p.numApartado : (isMili ? ' | ' + (p.estado || 'DISPONIBLE') : '')}</div>
+<div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
 <div class="box-container">
 <div class="box full-box">
 <label style="color:${accentColor};">Tipo de Cliente (Militar / Efectivo)</label>
@@ -1197,41 +850,14 @@ card.innerHTML = `
 </select>
 </div>
 <div class="box full-box"><label style="color:${accentColor};">📅 Fecha de Seguimiento</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
-<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📸 MULTIMEDIA Y UBICACIÓN</div>
-<div class="box full-box"><label>Imágenes del Cliente</label><div style="display:flex; gap:10px; overflow-x:auto; padding:10px 0;">${(p.gallery || []).map((img, imgIdx) => `<div style="position:relative; flex:0 0 80px;"><img src="${img}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><button onclick="removeProspectImage('${p.type}', ${p.originalIndex}, ${imgIdx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px;">×</button></div>`).join('')}<button onclick="addProspectImage('${p.type}', ${p.originalIndex})" style="flex:0 0 80px; height:80px; border:2px dashed #ccc; border-radius:8px; background:none; color:#999;"><i class="fas fa-plus"></i></button></div></div>
-<div class="box"><label>📍 Ubicación (GPS)</label><div style="display:flex; gap:5px;"><input type="text" placeholder="Lat, Lng" value="${p.lat && p.lng ? p.lat+','+p.lng : ''}" readonly style="font-size:0.8em; border-bottom:1px solid #ddd;"><button class="btn" onclick="getProspectLocation('${p.type}', ${p.originalIndex})" style="padding:5px; height:auto; background:${accentColor}; color:white;"><i class="fas fa-map-marker-alt"></i></button></div></div>
-<div class="box"><label>🗺️ Link Maps</label><div style="display:flex; gap:5px;"><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd; flex:1;"><button class="btn" onclick="if(voxiData.${p.type}[${p.originalIndex}].mapsLink) window.open(voxiData.${p.type}[${p.originalIndex}].mapsLink, '_blank')" style="padding:5px; height:auto; background:#4285F4; color:white;"><i class="fas fa-external-link-alt"></i></button></div></div>
-<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
-<div class="box"><label>CANTIDAD SOLICITADA</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>MONTO RECIBIDO (APARTADO)</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>ENGANCHE TOTAL</label><input type="text" value="${formatVoxiNumber(p.engancheTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].engancheTotal=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
-${isMili ? `
-<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
-<div class="box"><label>RANGO MILITAR</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
-<div class="box"><label>PRESUPUESTO TOTAL</label><input type="text" value="${formatVoxiNumber(p.presupuestoTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.milis[${p.originalIndex}].presupuestoTotal=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div id="coMilis_${p.id}" style="grid-column:span 2; padding:5px 0;">
-${(p.coMilis || []).map((co, coIdx) => `
-<div style="display:flex; gap:5px; margin-top:5px; align-items:center; background:#f9f9f9; padding:5px; border-radius:8px;">
-<select style="flex:1; font-size:0.8em; padding:4px;" onchange="voxiData.milis[${p.originalIndex}].coMilis[${coIdx}].rango=this.value;autoSave()">
-${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${co.rango===r?'selected':''}>${r}</option>`).join('')}
-</select>
-<input type="text" placeholder="Monto" value="${formatVoxiNumber(co.amount) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.milis[${p.originalIndex}].coMilis[${coIdx}].amount=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="width:100px; font-size:0.8em; border-bottom:1px solid #ccc;">
-<button onclick="voxiData.milis[${p.originalIndex}].coMilis.splice(${coIdx},1); renderProspects(); autoSave()" style="background:none; border:none; color:red; font-weight:900;">✕</button>
-</div>
-`).join('')}
-<button class="btn" style="background:#eee; color:#333; font-size:0.7em; margin-top:8px; width:100%; border:1px dashed #ccc;" onclick="if(!voxiData.milis[${p.originalIndex}].coMilis) voxiData.milis[${p.originalIndex}].coMilis=[]; voxiData.milis[${p.originalIndex}].coMilis.push({rango:'Cabo', amount:''}); renderProspects(); autoSave()">+ AÑADIR OTRO MILITAR (CRÉDITO MANCOMUNADO)</button>
-</div>
-<div class="box full-box" style="background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; padding:8px; margin-top:5px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><div style="font-size:0.6em; color:#2e7d32;">🔻 DESCUENTO 7%</div><div id="descM_${p.id}" style="font-weight:900; color:#d32f2f; font-size:0.9em;">-${formatVoxiNumber((p.montoDescuento || 0).toFixed(0))}</div></div><div style="text-align:right;"><div style="font-size:0.6em; color:#2e7d32;">💰 MONTO LIBRE VIVIENDA</div><div id="libreM_${p.id}" style="font-size:1.1em; font-weight:900; color:#1b5e20;">${formatVoxiNumber((p.montoLibre || 0).toFixed(0))}</div></div></div></div>
-` : ''}
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS CRÉDITO MILITAR</div>
-${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${ri + 1}. ${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
+${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
 ` : `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS EFECTIVO</div>
-${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r, ri) => {
+${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r) => {
 const realIdx = p.m.findIndex(d => d.n === r.n);
-return `<div class="check-item" style="grid-column:span 2;"><span>${ri + 1}. ${r.n}</span><select onchange="voxiData.grals[${p.originalIndex}].m[${realIdx}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`;
+return `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.grals[${p.originalIndex}].m[${realIdx}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`;
 }).join('')}
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💵 NOTAS DEL TRATO</div>
 <div class="box full-box" style="background:#fff;"><label style="color:${accentColor};">Detalles o Acuerdos</label><textarea rows="2" style="font-weight:700;" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()">${p.interes||''}</textarea></div>
@@ -1752,31 +1378,6 @@ if(icon) icon.className = 'fas fa-chevron-down';
 function renderAssistant() {
     const now = new Date();
     const db = voxiData || {};
-    
-    // 0. MOTIVACIÓN Y ESTRATEGIA (MODO SOCIO)
-    const hours = now.getHours();
-    let greeting = hours < 12 ? "¡Buenos días, Socio! ☕" : hours < 18 ? "¡Buenas tardes, Socio! 💪" : "¡Buenas noches, Socio! 🌙";
-    const quotes = [
-        "El éxito inmobiliario no es cuestión de suerte, es cuestión de seguimiento.",
-        "Cada 'no' te acerca más al próximo cierre en efectivo. ¡Dale con todo!",
-        "Tus clientes militares confían en tu criterio. Asegura su patrimonio.",
-        "La disciplina de hoy es la comisión de mañana. Revisa tus prospectos calientes.",
-        "No vendes casas, vendes hogares y seguridad. Haz que valga la pena."
-    ];
-    const quote = quotes[Math.floor(Math.random() * quotes.length)];
-    const strategy = "Estrategia: Hoy enfócate en los prospectos que 'Dieron apartado'. Son los cierres más próximos.";
-    
-    const motivDiv = document.getElementById('assistant-motivation');
-    if(motivDiv) {
-        motivDiv.innerHTML = `
-            <div style="background: linear-gradient(135deg, ${accentColor}, #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                <div style="font-weight:900; font-size:1.1em;">${greeting}</div>
-                <div style="font-size:0.85em; font-style:italic; margin-top:5px; opacity:0.9;">"${quote}"</div>
-                <div style="font-size:0.8em; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.2); font-weight:700;">🎯 ${strategy}</div>
-            </div>
-        `;
-    }
-
     const milis = Array.isArray(db.milis) ? db.milis : [];
     const grals = Array.isArray(db.grals) ? db.grals : [];
     const props = Array.isArray(db.props) ? db.props : [];
@@ -1862,10 +1463,6 @@ function renderAssistant() {
         let alertsHtml = '';
         
         function createAlert(level, text, action, tel = null) {
-            // Activar notificación real al renderizar alertas críticas nuevas
-            if (level === 'Rojo' || level === 'Amarillo') {
-                sendLocalPush("ALERTA DE SEGUIMIENTO", text);
-            }
             const colors = { 'Rojo': ['#ffebee', '#d32f2f'], 'Amarillo': ['#fff9c4', '#fbc02d'], 'Azul': ['#e3f2fd', '#1e88e5'] };
             const [bg, border] = colors[level] || colors['Azul'];
             let btns = `<button class="wa-mini" style="background:${border};" onclick="event.stopPropagation(); ${action}">IR</button>`;
@@ -1916,7 +1513,6 @@ function renderAssistant() {
 
         let manualAlertsHtml = '';
         sortedAlerts.forEach((ma) => {
-            if(!ma.id) ma.id = Date.now() + Math.random(); 
             const colors = { '🔴 URGENTE': '#ffebee', '🟠 HOY': '#fff3e0', '🟡 MAÑANA': '#fffde7', '🔵 SEMANA': '#e3f2fd', '⚪ PENDIENTE': '#f5f5f5' };
             const borders = { '🔴 URGENTE': '#d32f2f', '🟠 HOY': '#ef6c00', '🟡 MAÑANA': '#fbc02d', '🔵 SEMANA': '#1976d2', '⚪ PENDIENTE': '#9e9e9e' };
             const bg = colors[ma.priority] || '#f5f5f5';
@@ -1925,41 +1521,17 @@ function renderAssistant() {
             // Encontrar índice original para borrar correctamente
             const originalIdx = voxiData.manualAlerts.findIndex(x => x === ma);
 
-            if (editingAlertId == ma.id) {
-                // MODO EDICIÓN
-                manualAlertsHtml += `
-                    <div style="background:${bg}; border:2px solid ${border}; padding:10px; border-radius:12px; margin-bottom:8px;" onclick="event.stopPropagation();">
-                        <textarea id="edit-text-${ma.id}" style="width:100%; border:1px solid #ddd; border-radius:8px; padding:8px; font-size:0.85em; font-family:inherit; margin-bottom:8px; outline:none; background:white;">${ma.text}</textarea>
-                        <div style="display:flex; gap:5px; align-items:center;">
-                            <input type="time" id="edit-time-${ma.id}" value="${ma.time !== '--:--' ? ma.time : ''}" style="padding:6px; border-radius:8px; border:1px solid #ddd; font-size:0.75em; flex:1;">
-                            <button onclick="saveEditAlert(${originalIdx}, '${ma.id}')" style="background:#2e7d32; color:white; border:none; border-radius:8px; padding:8px 12px; font-size:0.75em; font-weight:bold;">
-                                <i class="fas fa-check"></i> GUARDAR
-                            </button>
-                            <button onclick="editingAlertId=null; renderAssistant();" style="background:#757575; color:white; border:none; border-radius:8px; padding:8px 12px; font-size:0.75em; font-weight:bold;">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
+            manualAlertsHtml += `
+                <div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.82em; font-weight:700; color:#333; flex:1;">
+                        <div style="font-size:0.65em; color:${border}; font-weight:950; margin-bottom:2px;">${ma.priority} [${ma.time || 'S/H'}]</div>
+                        ${ma.text}
                     </div>
-                `;
-            } else {
-                // VISTA NORMAL
-                manualAlertsHtml += `
-                    <div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <div style="font-size:0.82em; font-weight:700; color:#333; flex:1;">
-                            <div style="font-size:0.65em; color:${border}; font-weight:950; margin-bottom:2px;">${ma.priority} [${ma.time || 'S/H'}]</div>
-                            ${ma.text}
-                        </div>
-                        <div style="display:flex; gap:5px;">
-                            <button class="wa-mini" style="background:#ffa000; width:30px;" onclick="event.stopPropagation(); editingAlertId='${ma.id}'; renderAssistant();">
-                                <i class="fas fa-pencil-alt"></i>
-                            </button>
-                            <button class="wa-mini" style="background:#e57373; width:30px;" onclick="event.stopPropagation(); voxiData.manualAlerts.splice(${originalIdx},1); renderAssistant(); autoSave();">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
+                    <button class="wa-mini" style="background:#e57373; width:30px; margin-left:8px;" onclick="event.stopPropagation(); voxiData.manualAlerts.splice(${originalIdx},1); renderAssistant(); autoSave();">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
         });
 
         const noteArea = `
@@ -2001,33 +1573,15 @@ function saveManualAlert() {
     }
     if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
     voxiData.manualAlerts.push({ 
-        id: Date.now(),
         text, 
         time: time || '--:--', 
         priority: priority || '⚪ PENDIENTE',
         date: new Date().toISOString(),
         type: 'Recordatorio Manual' 
     });
-
-    // Notificación Push inmediata al guardar manualmente si es prioritario
-    if (priority.includes('URGENTE') || priority.includes('HOY')) {
-        sendLocalPush("NUEVA ALERTA MANUAL", text + (time ? " a las " + time : ""));
-    }
-
     renderAssistant();
     autoSave();
     document.getElementById('new-manual-alert').value = '';
-}
-function saveEditAlert(index, id) {
-    const newText = document.getElementById(`edit-text-${id}`).value;
-    const newTime = document.getElementById(`edit-time-${id}`).value;
-    if (newText) {
-        voxiData.manualAlerts[index].text = newText;
-        voxiData.manualAlerts[index].time = newTime || '--:--';
-        editingAlertId = null;
-        renderAssistant();
-        autoSave();
-    }
 }
 function goToRecord(tab, id, prospectId = null, propId = null) {
 if(prospectId) activeProspectId = prospectId;
@@ -2045,63 +1599,50 @@ setTimeout(() => el.style.boxShadow = '', 3000);
 }
 let saveTimeout;
 function autoSave() {
-    const status = document.getElementById('auto-save-status');
-    if(status) status.style.display = 'block';
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-        saveMaster(false);
-        setTimeout(() => { if(status) status.style.display = 'none'; }, 800);
-    }, 2000);
-}
-function showVoxiToast(msg) {
-    const t = document.getElementById('voxi-toast');
-    if(!t) return;
-    t.innerText = msg;
-    t.style.display = 'block';
-    setTimeout(() => { t.style.display = 'none'; }, 3000);
+const status = document.getElementById('auto-save-status');
+status.style.display = 'block';
+clearTimeout(saveTimeout);
+saveTimeout = setTimeout(() => {
+saveMaster(false);
+setTimeout(() => { status.style.display = 'none'; }, 800);
+}, 1500);
 }
 function saveMaster(showMsg) {
-    const startTime = Date.now();
-    voxiData.props.forEach(p => {
-        const text = (p.desc || "").toUpperCase();
-        const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
-        const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
-        if (keywordsMilitar.some(k => text.includes(k))) {
-            p.estatus = "CRÉDITO MILITAR";
-        } else if (keywordsEfectivo.some(k => text.includes(k))) {
-            p.estatus = "CLIENTE EFECTIVO";
-        }
-    });
-    localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-    if(showMsg) showVoxiToast('💾 Guardando en nube...');
-    const cStatus = document.getElementById('cloud-status');
-    if(cStatus) {
-        cStatus.style.display = 'block';
-        cStatus.innerHTML = '⌛ Sincronizando...';
-    }
-
-    const dataToSync = JSON.parse(JSON.stringify(voxiData));
-    if (dataToSync.pendingUploads) {
-        dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
-    }
-
-    firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
-    .then(() => { 
-        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-        if(cStatus) {
-            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
-            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
-        }
-        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
-    })
-    .catch(err => {
-        console.error("Cloud Save Error", err);
-        if(showMsg) showVoxiToast('❌ Error al guardar en nube');
-        if(cStatus) {
-            cStatus.innerHTML = '❌ Error de red';
-            cStatus.style.color = 'red';
-        }
-    });
+voxiData.props.forEach(p => {
+const text = (p.desc || "").toUpperCase();
+const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
+const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
+if (keywordsMilitar.some(k => text.includes(k))) {
+p.estatus = "CRÉDITO MILITAR";
+} else if (keywordsEfectivo.some(k => text.includes(k))) {
+p.estatus = "CLIENTE EFECTIVO";
+}
+});
+localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+const cStatus = document.getElementById('cloud-status');
+if(cStatus) {
+cStatus.style.display = 'block';
+cStatus.innerHTML = '⌛ Guardando...';
+}
+db.collection("data").doc(SYNC_ID).set(voxiData)
+.then(() => { 
+console.log("Cloud Save Success");
+if(cStatus) {
+cStatus.innerHTML = '☁️ Nube Actualizada';
+setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+}
+if(showMsg) {
+const uniqueID = "ID-" + Date.now();
+alert("✅ Registro guardado con éxito.\n📂 Ubicación: Propiedades/Ventas\n🆔 Folio: " + uniqueID);
+}
+})
+.catch(err => {
+console.error("Cloud Save Error", err);
+if(cStatus) {
+cStatus.innerHTML = '⚠️ Error en Nube';
+cStatus.style.color = 'red';
+}
+});
 }
 function renderFolderGallery() {
     const div = document.getElementById('folderGallery'); if(!div) return;
@@ -2149,7 +1690,13 @@ function triggerFolderUpload(type) {
     input.onchange = (e) => {
         const files = e.target.files;
         if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
-        Array.from(files).forEach(f => saveImageHibrido(f, 'folder', null, null));
+        Array.from(files).forEach(f => {
+            processImg(f, 800, (b) => {
+                voxiData.galleries[activeFolder].push(b);
+                renderFolderImages();
+                autoSave();
+            });
+        });
     };
     input.click();
 }
@@ -2172,9 +1719,7 @@ const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db')
 if(s) { 
 voxiData = JSON.parse(s); 
 if(!voxiData.galleries) voxiData.galleries = {};
-if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
 renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
-setTimeout(processSyncQueue, 3000);
 }
 db.collection("data").doc(SYNC_ID).get().then(doc => {
 if(doc.exists) {
@@ -2230,136 +1775,8 @@ location.reload();
 reader.readAsText(input.files[0]);
 }
 async function doOCR(i) { if(!i.files[0])return; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('editor').innerText=r.data.text; await w.terminate(); }
-
-async function calculateRoute(i) {
-    const p = voxiData.props[i];
-    const origin = document.getElementById(`routeA_${i}`).value || '';
-    const dest = document.getElementById(`routeB_${i}`).value || '';
-    if(!origin || !dest) { alert("Ingresa origen y destino"); return; }
-    
-    const btn = event.currentTarget;
-    const oldText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CALCULANDO...';
-    btn.disabled = true;
-
-    // Activar Google Maps Real
-    const mapUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=driving`;
-    window.open(mapUrl, '_blank');
-
-    // Simulación de guardado para el historial mientras se obtiene el dato real
-    setTimeout(() => {
-        const dist = (Math.random() * 15 + 2).toFixed(1); // Mantenemos simulación local por si no hay API Key
-        const time = Math.round(dist * 1.8 + 3);
-        p.routeDist = dist;
-        p.routeTime = time;
-        p.routeA = origin;
-        p.routeB = dest;
-        if(!p.routeHist) p.routeHist = [];
-        p.routeHist.push(`${origin} ➔ ${dest}: ${dist}km | ${time}min`);
-        renderProps();
-        autoSave();
-        btn.disabled = false;
-        btn.innerHTML = oldText;
-    }, 1200);
-}
-
-function getCurrentLocationForRoute(i) {
-    if (!navigator.geolocation) { alert("Geolocalización no soportada."); return; }
-    const btn = event.currentTarget;
-    const oldHtml = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:10px;"></i>';
-    navigator.geolocation.getCurrentPosition(pos => {
-        const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
-        document.getElementById(`routeA_${i}`).value = coords;
-        voxiData.props[i].routeA = coords;
-        autoSave();
-        btn.innerHTML = '<i class="fas fa-check" style="font-size:10px;"></i>';
-        setTimeout(() => btn.innerHTML = oldHtml, 2000);
-    }, err => {
-        alert("Error: " + err.message);
-        btn.innerHTML = '<i class="fas fa-times" style="font-size:10px;"></i>';
-        setTimeout(() => btn.innerHTML = oldHtml, 2000);
-    }, { enableHighAccuracy: true });
-}
-
-function addProspectImage(type, idx) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = e => {
-        const file = e.target.files[0];
-        if (file) saveImageHibrido(file, type, idx, null);
-    };
-    input.click();
-}
-function removeProspectImage(type, idx, imgIdx) {
-    if (confirm('¿Eliminar imagen?')) {
-        voxiData[type][idx].gallery.splice(imgIdx, 1);
-        renderProspects();
-        autoSave();
-    }
-}
-function formatVoxiNumber(val) {
-    if (val === null || val === undefined || val === '') return '';
-    let isNeg = val.toString().includes('-');
-    let num = val.toString().replace(/[^0-9.]/g, '');
-    let parts = num.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return (isNeg ? '-' : '') + '$' + parts.join('.');
-}
-
-function getProspectLocation(type, idx) {
-    if (!navigator.geolocation) { showVoxiToast("⚠️ GPS no soportado"); return; }
-    showVoxiToast("🛰️ Obteniendo ubicación...");
-    navigator.geolocation.getCurrentPosition(pos => {
-        const p = voxiData[type][idx];
-        p.lat = pos.coords.latitude.toFixed(6);
-        p.lng = pos.coords.longitude.toFixed(6);
-        p.mapsLink = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
-        showVoxiToast("📍 Ubicación guardada");
-        renderProspects();
-        autoSave();
-    }, err => showVoxiToast("❌ Error GPS: " + err.message), { enableHighAccuracy: true });
-}
-function updateFinancials(type, idx) {
-    const p = voxiData[type][idx];
-    const total = parseFloat(p.engancheTotal) || 0;
-    const recibido = parseFloat(p.montoRecibido) || 0;
-    p.saldoPendiente = total - recibido;
-    const div = document.getElementById(`saldo_${p.id}`);
-    if(div) div.innerText = formatVoxiNumber(p.saldoPendiente.toFixed(0));
-}
-function updateMilitaryBudget(idx) {
-    const p = voxiData.milis[idx];
-    let total = parseFloat(p.presupuestoTotal) || 0;
-    if(p.coMilis) {
-        p.coMilis.forEach(co => {
-            total += (parseFloat(co.amount) || 0);
-        });
-    }
-    p.montoDescuento = total * 0.07;
-    p.montoLibre = total - p.montoDescuento;
-    const dM = document.getElementById(`descM_${p.id}`);
-    const lM = document.getElementById(`libreM_${p.id}`);
-    if(dM) dM.innerText = "-" + formatVoxiNumber(p.montoDescuento.toFixed(0));
-    if(lM) lM.innerText = formatVoxiNumber(p.montoLibre.toFixed(0));
-}
-window.onload = () => {
-    loadMaster();
-    window.addEventListener('online', () => {
-        processSyncQueue();
-        console.log("Socio, estamos online. Sincronizando alertas y datos...");
-    });
-    if (navigator.onLine) {
-        setTimeout(processSyncQueue, 5000);
-        setTimeout(initNotifications, 2000); 
-    }
-    startAlertMonitor(); // Iniciar monitoreo de alertas reales
-};
-
+window.onload = loadMaster;
 </script>
-<div id="voxiLoader"><div class="spinner"></div><span id="voxiLoaderText">Subiendo...</span></div>
-<div id="voxi-toast"></div>
 </body>
 </html>
 
