@@ -102,6 +102,14 @@ border: 2px dashed #bbb; cursor: pointer;
     background: rgba(0,0,0,0.8); color: white; padding: 20px 30px; border-radius: 15px;
     z-index: 10000; flex-direction: column; align-items: center; gap: 10px;
 }
+#voxi-toast {
+    position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
+    background: #333; color: white; padding: 12px 25px; border-radius: 50px;
+    font-weight: 950; font-size: 0.9em; z-index: 15000; display: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: slideUpToast 0.3s ease-out;
+    border: 2px solid var(--accent);
+}
+@keyframes slideUpToast { from { bottom: -50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
 .spinner {
     width: 30px; height: 30px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent);
     border-radius: 50%; animation: spin 1s linear infinite;
@@ -239,6 +247,8 @@ oninput="voxiSearch(this.value)">
 <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
 </div>
 </div>
+<!-- MOTIVACIÓN -->
+<div id="assistant-motivation"></div>
 <!-- AGENDA DEL DÍA -->
 <div class="assist-card" onclick="toggleCollapse('assistant-agenda-wrapper')" style="cursor:pointer;">
 <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
@@ -1000,10 +1010,10 @@ ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style
 <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
 </select></div>
 <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-<div class="box"><label>Precio ($)</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;renderProps();autoSave()" style="color:var(--success); font-weight:700;"></div>
-<div class="box"><label>Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value;renderProps();autoSave()" style="color:var(--primary); font-weight:700;"></div>
+<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:700;"></div>
+<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--primary); font-weight:700;"></div>
 <div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;">
-Costo de Obra: $${(parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toLocaleString()}
+Costo de Obra: ${formatVoxiNumber((parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toFixed(0))}
 </div>
 <div class="section-label">📍 UBICACIONES GUARDADAS</div>
 <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
@@ -1189,21 +1199,33 @@ card.innerHTML = `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📸 MULTIMEDIA Y UBICACIÓN</div>
 <div class="box full-box"><label>Imágenes del Cliente</label><div style="display:flex; gap:10px; overflow-x:auto; padding:10px 0;">${(p.gallery || []).map((img, imgIdx) => `<div style="position:relative; flex:0 0 80px;"><img src="${img}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><button onclick="removeProspectImage('${p.type}', ${p.originalIndex}, ${imgIdx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px;">×</button></div>`).join('')}<button onclick="addProspectImage('${p.type}', ${p.originalIndex})" style="flex:0 0 80px; height:80px; border:2px dashed #ccc; border-radius:8px; background:none; color:#999;"><i class="fas fa-plus"></i></button></div></div>
 <div class="box"><label>📍 Ubicación (GPS)</label><div style="display:flex; gap:5px;"><input type="text" placeholder="Lat, Lng" value="${p.lat && p.lng ? p.lat+','+p.lng : ''}" readonly style="font-size:0.8em; border-bottom:1px solid #ddd;"><button class="btn" onclick="getProspectLocation('${p.type}', ${p.originalIndex})" style="padding:5px; height:auto; background:${accentColor}; color:white;"><i class="fas fa-map-marker-alt"></i></button></div></div>
-<div class="box"><label>🗺️ Link Maps</label><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>🗺️ Link Maps</label><div style="display:flex; gap:5px;"><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd; flex:1;"><button class="btn" onclick="if(voxiData.${p.type}[${p.originalIndex}].mapsLink) window.open(voxiData.${p.type}[${p.originalIndex}].mapsLink, '_blank')" style="padding:5px; height:auto; background:#4285F4; color:white;"><i class="fas fa-external-link-alt"></i></button></div></div>
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
-<div class="box"><label>Cantidad Solicitada</label><input type="number" value="${p.montoSolicitado || ''}" oninput="voxiData.${p.type}[${p.originalIndex}].montoSolicitado=this.value; updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>Monto Recibido (Apartado)</label><input type="number" value="${p.montoRecibido || ''}" oninput="voxiData.${p.type}[${p.originalIndex}].montoRecibido=this.value; updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>Enganche Total</label><input type="number" value="${p.engancheTotal || ''}" oninput="voxiData.${p.type}[${p.originalIndex}].engancheTotal=this.value; updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">$${(p.saldoPendiente || 0).toLocaleString()}</div></div>
+<div class="box"><label>CANTIDAD SOLICITADA</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>MONTO RECIBIDO (APARTADO)</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>ENGANCHE TOTAL</label><input type="text" value="${formatVoxiNumber(p.engancheTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].engancheTotal=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
-<div class="box"><label>Rango Militar</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
-<div class="box"><label>Presupuesto Total</label><input type="number" value="${p.presupuestoTotal || ''}" oninput="voxiData.milis[${p.originalIndex}].presupuestoTotal=this.value; updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box full-box" style="background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; padding:8px; margin-top:5px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><div style="font-size:0.6em; color:#2e7d32;">🔻 DESCUENTO 7%</div><div id="descM_${p.id}" style="font-weight:900; color:#d32f2f; font-size:0.9em;">-$${(p.montoDescuento || 0).toLocaleString()}</div></div><div style="text-align:right;"><div style="font-size:0.6em; color:#2e7d32;">💰 MONTO LIBRE VIVIENDA</div><div id="libreM_${p.id}" style="font-size:1.1em; font-weight:900; color:#1b5e20;">$${(p.montoLibre || 0).toLocaleString()}</div></div></div></div>
+<div class="box"><label>RANGO MILITAR</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
+<div class="box"><label>PRESUPUESTO TOTAL</label><input type="text" value="${formatVoxiNumber(p.presupuestoTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.milis[${p.originalIndex}].presupuestoTotal=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div id="coMilis_${p.id}" style="grid-column:span 2; padding:5px 0;">
+${(p.coMilis || []).map((co, coIdx) => `
+<div style="display:flex; gap:5px; margin-top:5px; align-items:center; background:#f9f9f9; padding:5px; border-radius:8px;">
+<select style="flex:1; font-size:0.8em; padding:4px;" onchange="voxiData.milis[${p.originalIndex}].coMilis[${coIdx}].rango=this.value;autoSave()">
+${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${co.rango===r?'selected':''}>${r}</option>`).join('')}
+</select>
+<input type="text" placeholder="Monto" value="${formatVoxiNumber(co.amount) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.milis[${p.originalIndex}].coMilis[${coIdx}].amount=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="width:100px; font-size:0.8em; border-bottom:1px solid #ccc;">
+<button onclick="voxiData.milis[${p.originalIndex}].coMilis.splice(${coIdx},1); renderProspects(); autoSave()" style="background:none; border:none; color:red; font-weight:900;">✕</button>
+</div>
+`).join('')}
+<button class="btn" style="background:#eee; color:#333; font-size:0.7em; margin-top:8px; width:100%; border:1px dashed #ccc;" onclick="if(!voxiData.milis[${p.originalIndex}].coMilis) voxiData.milis[${p.originalIndex}].coMilis=[]; voxiData.milis[${p.originalIndex}].coMilis.push({rango:'Cabo', amount:''}); renderProspects(); autoSave()">+ AÑADIR OTRO MILITAR (CRÉDITO MANCOMUNADO)</button>
+</div>
+<div class="box full-box" style="background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; padding:8px; margin-top:5px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><div style="font-size:0.6em; color:#2e7d32;">🔻 DESCUENTO 7%</div><div id="descM_${p.id}" style="font-weight:900; color:#d32f2f; font-size:0.9em;">-${formatVoxiNumber((p.montoDescuento || 0).toFixed(0))}</div></div><div style="text-align:right;"><div style="font-size:0.6em; color:#2e7d32;">💰 MONTO LIBRE VIVIENDA</div><div id="libreM_${p.id}" style="font-size:1.1em; font-weight:900; color:#1b5e20;">${formatVoxiNumber((p.montoLibre || 0).toFixed(0))}</div></div></div></div>
 ` : ''}
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS CRÉDITO MILITAR</div>
-${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
+${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${ri + 1}. ${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
 ` : `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS EFECTIVO</div>
 ${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r) => {
@@ -1729,6 +1751,31 @@ if(icon) icon.className = 'fas fa-chevron-down';
 function renderAssistant() {
     const now = new Date();
     const db = voxiData || {};
+    
+    // 0. MOTIVACIÓN Y ESTRATEGIA (MODO SOCIO)
+    const hours = now.getHours();
+    let greeting = hours < 12 ? "¡Buenos días, Socio! ☕" : hours < 18 ? "¡Buenas tardes, Socio! 💪" : "¡Buenas noches, Socio! 🌙";
+    const quotes = [
+        "El éxito inmobiliario no es cuestión de suerte, es cuestión de seguimiento.",
+        "Cada 'no' te acerca más al próximo cierre en efectivo. ¡Dale con todo!",
+        "Tus clientes militares confían en tu criterio. Asegura su patrimonio.",
+        "La disciplina de hoy es la comisión de mañana. Revisa tus prospectos calientes.",
+        "No vendes casas, vendes hogares y seguridad. Haz que valga la pena."
+    ];
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+    const strategy = "Estrategia: Hoy enfócate en los prospectos que 'Dieron apartado'. Son los cierres más próximos.";
+    
+    const motivDiv = document.getElementById('assistant-motivation');
+    if(motivDiv) {
+        motivDiv.innerHTML = `
+            <div style="background: linear-gradient(135deg, ${accentColor}, #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="font-weight:900; font-size:1.1em;">${greeting}</div>
+                <div style="font-size:0.85em; font-style:italic; margin-top:5px; opacity:0.9;">"${quote}"</div>
+                <div style="font-size:0.8em; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.2); font-weight:700;">🎯 ${strategy}</div>
+            </div>
+        `;
+    }
+
     const milis = Array.isArray(db.milis) ? db.milis : [];
     const grals = Array.isArray(db.grals) ? db.grals : [];
     const props = Array.isArray(db.props) ? db.props : [];
@@ -1997,57 +2044,63 @@ setTimeout(() => el.style.boxShadow = '', 3000);
 }
 let saveTimeout;
 function autoSave() {
-const status = document.getElementById('auto-save-status');
-status.style.display = 'block';
-clearTimeout(saveTimeout);
-saveTimeout = setTimeout(() => {
-saveMaster(false);
-setTimeout(() => { status.style.display = 'none'; }, 800);
-}, 1500);
+    const status = document.getElementById('auto-save-status');
+    if(status) status.style.display = 'block';
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveMaster(false);
+        setTimeout(() => { if(status) status.style.display = 'none'; }, 800);
+    }, 2000);
+}
+function showVoxiToast(msg) {
+    const t = document.getElementById('voxi-toast');
+    if(!t) return;
+    t.innerText = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 function saveMaster(showMsg) {
-voxiData.props.forEach(p => {
-const text = (p.desc || "").toUpperCase();
-const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
-const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
-if (keywordsMilitar.some(k => text.includes(k))) {
-p.estatus = "CRÉDITO MILITAR";
-} else if (keywordsEfectivo.some(k => text.includes(k))) {
-p.estatus = "CLIENTE EFECTIVO";
-}
-});
-localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-const cStatus = document.getElementById('cloud-status');
-if(cStatus) {
-cStatus.style.display = 'block';
-cStatus.innerHTML = '⌛ Guardando...';
-}
+    const startTime = Date.now();
+    voxiData.props.forEach(p => {
+        const text = (p.desc || "").toUpperCase();
+        const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
+        const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
+        if (keywordsMilitar.some(k => text.includes(k))) {
+            p.estatus = "CRÉDITO MILITAR";
+        } else if (keywordsEfectivo.some(k => text.includes(k))) {
+            p.estatus = "CLIENTE EFECTIVO";
+        }
+    });
+    localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+    if(showMsg) showVoxiToast('💾 Guardando en nube...');
+    const cStatus = document.getElementById('cloud-status');
+    if(cStatus) {
+        cStatus.style.display = 'block';
+        cStatus.innerHTML = '⌛ Sincronizando...';
+    }
 
-// MODO PROFESIONAL: Limpiar base64 pesados antes de subir a Firestore para no exceder 1MB
-const dataToSync = JSON.parse(JSON.stringify(voxiData));
-if (dataToSync.pendingUploads) {
-    dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
-}
+    const dataToSync = JSON.parse(JSON.stringify(voxiData));
+    if (dataToSync.pendingUploads) {
+        dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
+    }
 
-db.collection("data").doc(SYNC_ID).set(dataToSync)
-.then(() => { 
-console.log("Cloud Save Success");
-if(cStatus) {
-cStatus.innerHTML = '☁️ Nube Actualizada';
-setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
-}
-if(showMsg) {
-const uniqueID = "ID-" + Date.now();
-alert("✅ Registro guardado con éxito.\n📂 Ubicación: Propiedades/Ventas\n🆔 Folio: " + uniqueID);
-}
-})
-.catch(err => {
-console.error("Cloud Save Error", err);
-if(cStatus) {
-cStatus.innerHTML = '⚠️ Error en Nube';
-cStatus.style.color = 'red';
-}
-});
+    firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
+    .then(() => { 
+        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        if(cStatus) {
+            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
+            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+        }
+        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
+    })
+    .catch(err => {
+        console.error("Cloud Save Error", err);
+        if(showMsg) showVoxiToast('❌ Error al guardar en nube');
+        if(cStatus) {
+            cStatus.innerHTML = '❌ Error de red';
+            cStatus.style.color = 'red';
+        }
+    });
 }
 function renderFolderGallery() {
     const div = document.getElementById('folderGallery'); if(!div) return;
@@ -2245,16 +2298,27 @@ function removeProspectImage(type, idx, imgIdx) {
         autoSave();
     }
 }
+function formatVoxiNumber(val) {
+    if (val === null || val === undefined || val === '') return '';
+    let isNeg = val.toString().includes('-');
+    let num = val.toString().replace(/[^0-9.]/g, '');
+    let parts = num.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (isNeg ? '-' : '') + '$' + parts.join('.');
+}
+
 function getProspectLocation(type, idx) {
-    if (!navigator.geolocation) { alert("Geolocalización no soportada."); return; }
+    if (!navigator.geolocation) { showVoxiToast("⚠️ GPS no soportado"); return; }
+    showVoxiToast("🛰️ Obteniendo ubicación...");
     navigator.geolocation.getCurrentPosition(pos => {
         const p = voxiData[type][idx];
         p.lat = pos.coords.latitude.toFixed(6);
         p.lng = pos.coords.longitude.toFixed(6);
-        p.mapsLink = `https://www.google.com/maps?q=${p.lat},${p.lng}`;
+        p.mapsLink = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+        showVoxiToast("📍 Ubicación guardada");
         renderProspects();
         autoSave();
-    }, err => alert("Error: " + err.message), { enableHighAccuracy: true });
+    }, err => showVoxiToast("❌ Error GPS: " + err.message), { enableHighAccuracy: true });
 }
 function updateFinancials(type, idx) {
     const p = voxiData[type][idx];
@@ -2262,17 +2326,22 @@ function updateFinancials(type, idx) {
     const recibido = parseFloat(p.montoRecibido) || 0;
     p.saldoPendiente = total - recibido;
     const div = document.getElementById(`saldo_${p.id}`);
-    if(div) div.innerText = `$${p.saldoPendiente.toLocaleString()}`;
+    if(div) div.innerText = formatVoxiNumber(p.saldoPendiente.toFixed(0));
 }
 function updateMilitaryBudget(idx) {
     const p = voxiData.milis[idx];
-    const presupuesto = parseFloat(p.presupuestoTotal) || 0;
-    p.montoDescuento = presupuesto * 0.07;
-    p.montoLibre = presupuesto - p.montoDescuento;
+    let total = parseFloat(p.presupuestoTotal) || 0;
+    if(p.coMilis) {
+        p.coMilis.forEach(co => {
+            total += (parseFloat(co.amount) || 0);
+        });
+    }
+    p.montoDescuento = total * 0.07;
+    p.montoLibre = total - p.montoDescuento;
     const dM = document.getElementById(`descM_${p.id}`);
     const lM = document.getElementById(`libreM_${p.id}`);
-    if(dM) dM.innerText = `-$${p.montoDescuento.toLocaleString()}`;
-    if(lM) lM.innerText = `$${p.montoLibre.toLocaleString()}`;
+    if(dM) dM.innerText = "-" + formatVoxiNumber(p.montoDescuento.toFixed(0));
+    if(lM) lM.innerText = formatVoxiNumber(p.montoLibre.toFixed(0));
 }
 window.onload = () => {
     loadMaster();
@@ -2289,6 +2358,7 @@ window.onload = () => {
 
 </script>
 <div id="voxiLoader"><div class="spinner"></div><span id="voxiLoaderText">Subiendo...</span></div>
+<div id="voxi-toast"></div>
 </body>
 </html>
 
