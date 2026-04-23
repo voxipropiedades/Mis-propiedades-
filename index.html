@@ -200,7 +200,6 @@ body { background: white; padding: 0 !important; }
 <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
 <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
 <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')"><i class="fas fa-users"></i> PROSPECTOS</button>
-<button class="tab-btn" id="btn-galeria" onclick="openTab('galeria')"><i class="fas fa-images"></i> GALERÍA</button>
 <button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> CONTRATOS</button>
 <button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> ARCHIVOS</button>
 </div>
@@ -290,23 +289,6 @@ oninput="voxiSearch(this.value)">
 <div id="prospectList"></div>
 </div>
 <!-- ============ TAB: CONTRATOS ============ -->
-<!-- ============ TAB: GALERÍA ============ -->
-<div id="galeria" class="tab-content">
-    <div class="card" style="border-top:4px solid var(--primary);">
-        <div style="font-weight:900; color:var(--primary); margin-bottom:15px; font-size:1.1em;"><i class="fas fa-images"></i> GALERÍA DE VENTAS</div>
-        <div id="folderGallery" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;"></div>
-        <div id="activeFolderView" style="display:none;">
-            <button class="btn" style="background:#eee; color:#333; margin-bottom:15px;" onclick="closeFolder()"><i class="fas fa-arrow-left"></i> VOLVER</button>
-            <div id="folderTitle" style="font-weight:900; margin-bottom:15px; color:var(--primary);"></div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-                <button class="btn" style="background:var(--primary); color:white;" onclick="triggerFolderUpload('camera')"><i class="fas fa-camera"></i> CÁMARA</button>
-                <button class="btn" style="background:var(--info); color:white;" onclick="triggerFolderUpload('gallery')"><i class="fas fa-images"></i> GALERÍA</button>
-            </div>
-            <div id="folderImages" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
-        </div>
-    </div>
-</div>
-
 <div id="papeleo" class="tab-content">
 <div class="card">
 <h2 style="margin:0 0 10px;"><i class="fas fa-file-signature"></i> Oficina de Papeleo</h2>
@@ -451,6 +433,13 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
 <script>
+function formatVoxiNumber(val) {
+if (!val) return '';
+let num = val.toString().replace(/[^\d.]/g, "");
+let parts = num.split('.');
+parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+return parts.join('.');
+}
 const firebaseConfig = {
 apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
 authDomain: "voxiapp-6672e.firebaseapp.com",
@@ -463,13 +452,7 @@ measurementId: "G-77F6483313"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const SYNC_ID = "voxi_main_db"; // ID único para este usuario
-let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {} };
-const GALLERY_FOLDERS = [
-    '🏠 Fachadas', '📐 Planos (1 piso)', '🏢 Planos (2 pisos)', '🚿 Baños',
-    '🚪 Herrería', '🚪 Madera', '🚪 Baño', '🍽️ Cocina',
-    '🪟 Ventanas', '🌿 Jardín', '🧺 Lavadero', '💡 Iluminación'
-];
-let activeFolder = null;
+let voxiData = { props: [], milis: [], grals: [], files: [] };
 let currentPropIndex = null;
 let activePropId = null;
 let currentWANumber = '';
@@ -540,7 +523,6 @@ document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
 document.getElementById(id).classList.add('active-tab');
 document.getElementById('btn-' + id).classList.add('active');
 if(id === 'prospectos') renderProspects();
-if(id === 'galeria') renderFolderGallery();
 if(id === 'inventario') renderProps();
 if(id === 'papeleo') {
 const select = document.getElementById('papeleoProspecto');
@@ -672,7 +654,7 @@ select.innerHTML = '<option value="">-- ELIGE UNA PROPIEDAD --</option>';
 voxiData.props.forEach(p => {
 const opt = document.createElement('option');
 opt.value = p.id;
-opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${p.precio || '0'}`;
+opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${formatVoxiNumber(p.precio) || '0'}`;
 if(activePropId == p.id) opt.selected = true;
 select.appendChild(opt);
 });
@@ -709,8 +691,8 @@ ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style
 <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
 </select></div>
 <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-<div class="box"><label>Precio ($)</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;renderProps();autoSave()" style="color:var(--success); font-weight:700;"></div>
-<div class="box"><label>Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value;renderProps();autoSave()" style="color:var(--primary); font-weight:700;"></div>
+<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio)}" oninput="this.value=formatVoxiNumber(this.value); voxiData.props[${i}].precio=this.value; renderProps(); autoSave()" style="color:var(--success); font-weight:700;"></div>
+<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia)}" oninput="this.value=formatVoxiNumber(this.value); voxiData.props[${i}].ganancia=this.value; renderProps(); autoSave()" style="color:var(--primary); font-weight:700;"></div>
 <div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;">
 Costo de Obra: $${(parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toLocaleString()}
 </div>
@@ -934,7 +916,7 @@ a.click();
 function openFlyerOptions(i) {
 currentPropIndex = i;
 const p = voxiData.props[i];
-document.getElementById('opt1-p').innerText = `🔥 ¡OPORTUNIDAD! ${p.titulo} - $${p.precio}`;
+document.getElementById('opt1-p').innerText = `🔥 ¡OPORTUNIDAD! ${p.titulo} - $${formatVoxiNumber(p.precio)}`;
 document.getElementById('opt2-p').innerText = `📋 ${p.titulo} – ${p.area} m² – ${p.recamaras} rec.`;
 document.getElementById('opt3-p').innerText = `🏡 Tu hogar en ${p.ubicacion}`;
 document.getElementById('flyerStep1').style.display = 'block';
@@ -943,7 +925,7 @@ document.getElementById('flyerModal').style.display = 'flex';
 }
 function generateMessage(style, p) {
 const nombre = p.titulo || 'Propiedad';
-const precio = p.precio ? `$${p.precio}` : 'precio especial';
+const precio = p.precio ? `$${formatVoxiNumber(p.precio)}` : 'precio especial';
 const ubi = p.ubicacion || 'Hidalgo';
 const area = p.area || '0';
 const desc = p.desc || '';
@@ -1185,183 +1167,72 @@ autoSave();
 alert('✅ Archivo guardado correctamente en dispositivo y nube.');
 }
 function voxiSearch(q) {
-    const resDiv = document.getElementById('search-results');
-    if (!resDiv) return;
-
-    // LIMPIEZA INICIAL
-    if (!q || q.trim().length < 2) {
-        resDiv.style.display = 'none';
-        resDiv.innerHTML = '';
-        return;
-    }
-
-    try {
-        // 1. CAPA DE DATOS PROTEGIDA (BLINDAJE LOCAL)
-        // Si voxiData o sus ramas no existen, inicializar temporalmente para evitar crash
-        const db = voxiData || {};
-        const milis = Array.isArray(db.milis) ? db.milis : [];
-        const grals = Array.isArray(db.grals) ? db.grals : [];
-        const props = Array.isArray(db.props) ? db.props : [];
-        const files = Array.isArray(db.files) ? db.files : [];
-        const allProspects = [...milis, ...grals];
-
-        const query = q.toLowerCase().trim();
-        const words = query.split(/\s+/).filter(w => w.length > 0);
-        let results = [];
-
-        // 2. LÓGICA DE BÚSQUEDA (DESACOPLADA)
-        
-        // Búsqueda en Clientes (Prospectos)
-        allProspects.forEach(p => {
-            const searchBody = `${p.nombre || ''} ${p.status || ''} ${p.telefono || ''} ${p.notas || ''}`.toLowerCase();
-            if (words.every(w => searchBody.includes(w))) {
-                results.push({
-                    cat: 'CLIENTE',
-                    title: p.nombre || 'Sin nombre',
-                    desc: `${p.status || 'Sin status'} | 📞 ${p.telefono || 'S/T'}`,
-                    icon: 'fa-user-tie',
-                    action: `goToRecord('prospectos','','${p.id}')`
-                });
-            }
-        });
-
-        // Búsqueda en Propiedades (Inventario)
-        props.forEach(p => {
-            const searchBody = `${p.titulo || ''} ${p.tipo || ''} ${p.ubicacion || ''} ${p.precio || ''} ${p.notas || ''}`.toLowerCase();
-            if (words.every(w => searchBody.includes(w))) {
-                results.push({
-                    cat: 'PROPIEDAD',
-                    title: p.titulo || p.tipo || 'Sin título',
-                    desc: `💰 $${p.precio || '0'} | 📍 ${p.ubicacion || 'Sin ubicación'}`,
-                    icon: 'fa-house-user',
-                    action: `goToRecord('inventario','','null','${p.id}')`
-                });
-            }
-        });
-
-        // Búsqueda de Deudas y Papeleo (Inteligente)
-        if (query.match(/(debe|pago|deuda|cobro|apartado|deudor)/)) {
-            allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
-                results.push({
-                    cat: 'DEUDA/COBRO',
-                    title: `Pendiente: ${p.nombre}`,
-                    desc: `Cliente con apartado. Revisar pagos pendientes.`,
-                    icon: 'fa-file-invoice-dollar',
-                    action: `goToRecord('prospectos','','${p.id}')`
-                });
-            });
-        }
-
-        if (query.match(/(contrato|papeleo|firma|expediente|documento|militar)/)) {
-            allProspects.forEach(p => {
-                const isMilitar = milis.some(m => m.id === p.id);
-                const hasMissingDoc = p.m && Array.isArray(p.m) && p.m.some(doc => doc.s === 'f');
-                if (hasMissingDoc || p.status === 'En escrituración') {
-                    results.push({
-                        cat: 'DOCUMENTACIÓN',
-                        title: `${isMilitar ? 'Militar' : 'Prospecto'}: ${p.nombre}`,
-                        desc: `Faltan documentos o en proceso de firma.`,
-                        icon: 'fa-paste',
-                        action: `goToRecord('prospectos','','${p.id}')`
-                    });
-                }
-            });
-        }
-
-        // Búsqueda en Archivos
-        files.forEach(f => {
-            if (f.name && f.name.toLowerCase().includes(query)) {
-                results.push({
-                    cat: 'ARCHIVO',
-                    title: f.name,
-                    desc: `📁 Documento guardado en nube.`,
-                    icon: 'fa-cloud-download-alt',
-                    action: `openTab('archivos')`
-                });
-            }
-        });
-
-        // 3. CAPA DE RENDERIZADO (BLINDADO)
-        resDiv.style.display = 'block';
-        if (results.length === 0) {
-            resDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#999; font-size:0.8em;">
-                <i class="fas fa-search-minus" style="font-size:2em; display:block; margin-bottom:10px; opacity:0.3;"></i>
-                No hay coincidencias locales para "${q}"
-            </div>`;
-        } else {
-            // Limitar a los mejores 15 resultados para evitar lentitud
-            const topResults = results.slice(0, 15);
-            resDiv.innerHTML = `
-                <div style="font-weight:950; font-size:0.65em; color:var(--primary); margin-bottom:12px; display:flex; justify-content:space-between;">
-                    <span>RESULTADOS ENCONTRADOS (${results.length})</span>
-                    <i class="fas fa-bolt"></i>
-                </div>
-                ${topResults.map(r => `
-                <div class="card" style="margin:0 0 10px 0; padding:12px; display:flex; align-items:center; gap:12px; cursor:pointer; border:1px solid #eee; border-left:4px solid var(--primary);" onclick="${r.action}">
-                    <div style="width:35px; height:35px; background:#f0f2f5; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--primary);">
-                        <i class="fas ${r.icon}"></i>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-size:0.55em; font-weight:950; color:#aaa; margin-bottom:2px;">${r.cat}</div>
-                        <div style="font-size:0.85em; font-weight:800; color:#333; line-height:1.2;">${r.title}</div>
-                        <div style="font-size:0.7em; color:#666; margin-top:2px;">${r.desc}</div>
-                    </div>
-                    <i class="fas fa-chevron-right" style="font-size:0.7em; color:#ccc;"></i>
-                </div>
-                `).join('')}
-                ${results.length > 15 ? `<div style="text-align:center; font-size:0.7em; color:#999; padding:5px;">+${results.length - 15} más... sea más específico</div>` : ''}
-            `;
-        }
-
-    } catch (e) {
-        console.error("Search Error:", e);
-        resDiv.innerHTML = `<div style="color:red; font-size:0.7em; padding:10px;">Error en motor de búsqueda. Reiniciando...</div>`;
-    }
+const resDiv = document.getElementById('search-results');
+if(!q || q.length < 2) {
+resDiv.style.display = 'none';
+return;
+}
+resDiv.style.display = 'block';
+resDiv.innerHTML = '<div style="font-weight:900; font-size:0.75em; color:var(--primary); margin-bottom:8px;">🔍 RESULTADOS DE BÚSQUEDA</div>';
+let found = [];
+const lowerQ = q.toLowerCase();
+if(lowerQ.includes('debe') || lowerQ.includes('pagar') || lowerQ.includes('deudor')) {
+const deudores = [
+...voxiData.milis.filter(p => p.status === 'Dio apartado'),
+...voxiData.grals.filter(p => p.status === 'Dio apartado')
+];
+deudores.forEach(p => found.push({ t: `Deudor: ${p.nombre}`, d: 'Estado: Dio apartado', link: `goToRecord('prospectos','','${p.id}')` }));
+}
+if(lowerQ.includes('militar') && lowerQ.includes('incompleto')) {
+voxiData.milis.forEach(p => {
+const missing = p.m.filter(req => req.s === 'f').length;
+if(missing > 0) found.push({ t: `Militar: ${p.nombre}`, d: `Faltan ${missing} documentos`, link: `goToRecord('prospectos','','${p.id}')` });
+});
+}
+voxiData.props.forEach(p => {
+if((p.titulo||'').toLowerCase().includes(lowerQ) || (p.ubicacion||'').toLowerCase().includes(lowerQ) || (p.tipo||'').toLowerCase().includes(lowerQ)) {
+found.push({ t: `Casa/Terreno: ${p.titulo || p.tipo}`, d: `$${p.precio} - ${p.ubicacion}`, link: `goToRecord('inventario','','null','${p.id}')` });
+}
+});
+const allP = [...voxiData.milis, ...voxiData.grals];
+allP.forEach(p => {
+if((p.nombre||'').toLowerCase().includes(lowerQ)) {
+found.push({ t: `Cliente: ${p.nombre}`, d: `Status: ${p.status}`, link: `goToRecord('prospectos','','${p.id}')` });
+}
+});
+voxiData.files.forEach(f => {
+if(f.name.toLowerCase().includes(lowerQ)) {
+found.push({ t: `Archivo: ${f.name}`, d: `Fecha: ${new Date(f.date).toLocaleDateString()}`, link: `openTab('archivos')` });
+}
+});
+if(found.length === 0) {
+resDiv.innerHTML += '<div style="color:#888; font-size:0.85em;">No encontré coincidencias exactas. Pruebe otra palabra.</div>';
+} else {
+found.forEach(f => {
+resDiv.innerHTML += `
+<div class="task-item" style="padding:10px; margin-bottom:5px; background:white; border:1px solid #eee; border-radius:10px;" onclick="${f.link}">
+<div class="task-info">
+<b style="font-size:0.9em; display:block;">${f.t}</b>
+<span style="font-size:0.75em; color:#666;">${f.d}</span>
+</div>
+<i class="fas fa-chevron-right" style="color:#ccc; font-size:0.8em;"></i>
+</div>`;
+});
+}
 }
 function startVoiceSearch() {
-    const mic = document.querySelector('.fa-microphone');
-    if (!('webkitSpeechRecognition' in window)) {
-        alert("Tu navegador no soporta búsqueda por voz nativa. Intenta usar Chrome o Safari.");
-        return;
-    }
-
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = 'es-MX';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-        if(mic) mic.style.color = 'red';
-        if(mic) mic.classList.add('fa-pulse');
-    };
-
-    recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        const input = document.getElementById('smartSearch');
-        input.value = text;
-        voxiSearch(text);
-        if(mic) {
-            mic.style.color = 'var(--primary)';
-            mic.classList.remove('fa-pulse');
-        }
-    };
-
-    recognition.onerror = (event) => {
-        console.error("Voice Error:", event.error);
-        if(mic) {
-            mic.style.color = 'var(--primary)';
-            mic.classList.remove('fa-pulse');
-        }
-    };
-
-    recognition.onend = () => {
-        if(mic) {
-            mic.style.color = 'var(--primary)';
-            mic.classList.remove('fa-pulse');
-        }
-    };
-
-    recognition.start();
+if (!('webkitSpeechRecognition' in window)) {
+alert("Tu navegador no soporta búsqueda por voz.");
+return;
+}
+const recognition = new webkitSpeechRecognition();
+recognition.lang = 'es-MX';
+recognition.onresult = (event) => {
+const text = event.results[0][0].transcript;
+document.getElementById('smartSearch').value = text;
+voxiSearch(text);
+};
+recognition.start();
 }
 function toggleCollapse(id) {
 const el = document.getElementById(id);
@@ -1376,212 +1247,94 @@ if(icon) icon.className = 'fas fa-chevron-down';
 }
 }
 function renderAssistant() {
-    const now = new Date();
-    const db = voxiData || {};
-    const milis = Array.isArray(db.milis) ? db.milis : [];
-    const grals = Array.isArray(db.grals) ? db.grals : [];
-    const props = Array.isArray(db.props) ? db.props : [];
-    
-    const allProspects = [...milis, ...grals].sort((a,b) => b.id - a.id);
-    
-    const cold = allProspects.filter(p => p.status === 'Nuevo Cliente').length;
-    const closing = allProspects.filter(p => p.status === 'Dio apartado').length;
-    const totalProps = props.length;
-    const inTalks = allProspects.filter(p => p.status === 'Pláticas avanzadas').length;
-
-    // Métricas
-    if(document.getElementById('stat-cold')) document.getElementById('stat-cold').innerText = cold;
-    if(document.getElementById('stat-closing')) document.getElementById('stat-closing').innerText = closing;
-    if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = totalProps;
-    if(document.getElementById('stat-payments')) document.getElementById('stat-payments').innerText = inTalks;
-
-    // Frase del Socio
-    const quotes = [
-        "ESTRATEGIA: Un cliente que pregunta por el precio dos veces está listo para una oferta de cierre.",
-        "TIP EXPERTO: No vendas metros cuadrados, vende el patrimonio de su familia. Eso no tiene precio.",
-        "CIERRE: Si el cliente duda, ofrécele una visita hoy mismo. La emoción se enfría en 24 horas.",
-        "NEGOCIACIÓN: Nunca bajes el precio sin pedir algo a cambio (firma inmediata o mayor apartado).",
-        "VISIÓN: El mejor momento para captar una propiedad fue ayer; el segundo mejor es HOY.",
-        "INTELIGENCIA: Revisa tus preventas. Si la obra avanza, el precio DEBE subir para proteger tu ganancia."
-    ];
-    const qElem = document.getElementById('assistant-quote');
-    if(qElem) qElem.innerText = `"${quotes[now.getDay() % quotes.length]}"`;
-
-    // AGENDA INTELIGENTE
-    const agendaDiv = document.getElementById('assistant-agenda');
-    if(agendaDiv) {
-        agendaDiv.innerHTML = '';
-        let agendaItems = [];
-        if(closing > 0) agendaItems.push({ text: `CIERRE: ${closing} trámites de apartado hoy.`, priority: true, action: "openTab('prospectos')" });
-        if(inTalks > 0) agendaItems.push({ text: `NEGOCIACIÓN: ${inTalks} clientes calientes. Llama ahora.`, priority: true, action: "openTab('prospectos')" });
-        agendaItems.push({ text: `Actualizar precios de propiedades en preventa.`, priority: true, action: "openTab('inventario')" });
-        agendaItems.forEach((item, idx) => {
-            agendaDiv.innerHTML += `<div class="agenda-item ${item.priority ? 'priority' : 'normal'}" onclick="event.stopPropagation(); ${item.action}">
-                <div class="agenda-num">${idx+1}</div>
-                <span>${item.priority ? '🔴 ' : '🔵 '} ${item.text}</span>
-            </div>`;
-        });
-    }
-
-    // SUGERENCIAS PROACTIVAS
-    const sugDiv = document.getElementById('assistant-suggestions');
-    if(sugDiv) {
-        sugDiv.innerHTML = '';
-        // Facebook & WA sempre fijos
-        const fixedSugs = [
-            { title: 'Publicar hoy en Facebook', desc: 'Atrae nuevos prospectos publicando preventas.', icon: 'fab fa-facebook', color: '#3b5998', bg: '#f0f2f5', link: 'https://www.facebook.com' },
-            { title: 'Ver WhatsApp Business', desc: 'Responde a tus clientes y cierra ventas.', icon: 'fab fa-whatsapp', color: '#25d366', bg: '#e8f5e9', link: 'https://web.whatsapp.com' }
-        ];
-        fixedSugs.forEach(s => {
-            sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid ${s.color}; background:${s.bg};" onclick="event.stopPropagation(); window.open('${s.link}', '_blank')">
-                <div class="task-info">
-                    <b style="color:${s.color};"><i class="${s.icon}"></i> ${s.title}</b>
-                    <div style="font-size:0.85em;">${s.desc}</div>
-                </div>
-            </div>`;
-        });
-
-        // Alerta de Margen (Detección Inteligente)
-        props.forEach(p => {
-            const precio = parseFloat((p.precio||'0').toString().replace(/,/g,''));
-            const ganancia = parseFloat((p.ganancia||'0').toString().replace(/,/g,''));
-            if(precio > 0 && (ganancia / precio) < 0.15 && p.estatus !== 'Vendido') {
-                sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid #ff9800; background:#fffbf0;" onclick="event.stopPropagation(); goToRecord('inventario','','null','${p.id}')">
-                    <div class="task-info">
-                        <b style="color:#e65100;">⚠️ REVISAR MARGEN</b>
-                        <div style="font-size:0.85em;">Ganancia en ${p.titulo || p.tipo} baja (<15%).</div>
-                    </div>
-                </div>`;
-            }
-        });
-    }
-
-    // ALERTAS CRÍTICAS (AUTOMÁTICAS BASADAS EN DATOS)
-    const alertDiv = document.getElementById('assistant-alerts');
-    if(alertDiv) {
-        alertDiv.innerHTML = '';
-        let alertsHtml = '';
-        
-        function createAlert(level, text, action, tel = null) {
-            const colors = { 'Rojo': ['#ffebee', '#d32f2f'], 'Amarillo': ['#fff9c4', '#fbc02d'], 'Azul': ['#e3f2fd', '#1e88e5'] };
-            const [bg, border] = colors[level] || colors['Azul'];
-            let btns = `<button class="wa-mini" style="background:${border};" onclick="event.stopPropagation(); ${action}">IR</button>`;
-            if (tel) {
-                btns = `<div style="display:flex; gap:5px;">
-                    <button class="wa-mini" style="background:#2e7d32; width:36px;" onclick="event.stopPropagation(); window.open('tel:${tel}')"><i class="fas fa-phone"></i></button>
-                    <button class="wa-mini" style="background:#25d366; width:36px;" onclick="event.stopPropagation(); window.open('https://wa.me/52${tel}')"><i class="fab fa-whatsapp"></i></button>
-                    ${btns}
-                </div>`;
-            }
-            return `<div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-size:0.82em; font-weight:700; color:#333; padding-right:8px;">${text}</div>
-                ${btns}
-            </div>`;
-        }
-
-        // 1. Detección de Recordatorios para Mañana (Seguimiento)
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-        allProspects.forEach(p => {
-            if (p.proximaCita === tomorrowStr) {
-                alertsHtml += createAlert('Azul', `📅 SEGUIMIENTO MAÑANA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
-            }
-        });
-
-        // 2. Pagos Pendientes (Vencimiento Cercano o Dio Apartado sin fecha)
-        allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
-            const label = p.fechaVencimiento ? `VENCE ${p.fechaVencimiento}` : 'PAGO PENDIENTE';
-            alertsHtml += createAlert('Amarillo', `💰 ${label}: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
-        });
-
-        // 3. Tareas Manuales Asignadas (Notas con "URGENTE" o "PENDIENTE")
-        allProspects.forEach(p => {
-            const nota = (p.notas || '').toUpperCase();
-            if (nota.includes('URGENTE') || nota.includes('PENDIENTE')) {
-                alertsHtml += createAlert('Rojo', `⚠️ TAREA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
-            }
-        });
-
-        // 4. CRM de Recordatorios Inteligentes con Prioridades
-        if (!voxiData.manualAlerts) voxiData.manualAlerts = [];
-        
-        // Ordenar por prioridad: Urgente > Hoy > Mañana > Semana > Pendiente
-        const priorityOrder = { '🔴 URGENTE': 1, '🟠 HOY': 2, '🟡 MAÑANA': 3, '🔵 SEMANA': 4, '⚪ PENDIENTE': 5 };
-        const sortedAlerts = [...voxiData.manualAlerts].sort((a, b) => (priorityOrder[a.priority] || 99) - (priorityOrder[b.priority] || 99));
-
-        let manualAlertsHtml = '';
-        sortedAlerts.forEach((ma) => {
-            const colors = { '🔴 URGENTE': '#ffebee', '🟠 HOY': '#fff3e0', '🟡 MAÑANA': '#fffde7', '🔵 SEMANA': '#e3f2fd', '⚪ PENDIENTE': '#f5f5f5' };
-            const borders = { '🔴 URGENTE': '#d32f2f', '🟠 HOY': '#ef6c00', '🟡 MAÑANA': '#fbc02d', '🔵 SEMANA': '#1976d2', '⚪ PENDIENTE': '#9e9e9e' };
-            const bg = colors[ma.priority] || '#f5f5f5';
-            const border = borders[ma.priority] || '#9e9e9e';
-            
-            // Encontrar índice original para borrar correctamente
-            const originalIdx = voxiData.manualAlerts.findIndex(x => x === ma);
-
-            manualAlertsHtml += `
-                <div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="font-size:0.82em; font-weight:700; color:#333; flex:1;">
-                        <div style="font-size:0.65em; color:${border}; font-weight:950; margin-bottom:2px;">${ma.priority} [${ma.time || 'S/H'}]</div>
-                        ${ma.text}
-                    </div>
-                    <button class="wa-mini" style="background:#e57373; width:30px; margin-left:8px;" onclick="event.stopPropagation(); voxiData.manualAlerts.splice(${originalIdx},1); renderAssistant(); autoSave();">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-        });
-
-        const noteArea = `
-            ${manualAlertsHtml}
-            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:15px;" onclick="event.stopPropagation();">
-                <div style="font-size:0.65em; font-weight:900; color:#aaa; margin-bottom:8px; text-transform:uppercase;">📝 NUEVO RECORDATORIO (CRM)</div>
-                <textarea id="new-manual-alert" 
-                    style="width:100%; border:1px solid #ddd; border-radius:12px; padding:12px; font-size:0.85em; min-height:60px; font-family:inherit; outline:none; background:#fcfcfc; margin-bottom:8px;"
-                    placeholder="Escribe tu pendiente aquí..."
-                    onclick="event.stopPropagation();"></textarea>
-                
-                <div style="display:flex; gap:5px; flex-wrap:wrap; align-items:center;" onclick="event.stopPropagation();">
-                    <select id="alert-priority" style="padding:8px; border-radius:8px; border:1px solid #ddd; font-size:0.75em; font-weight:bold; flex:1;" onclick="event.stopPropagation();">
-                        <option value="🔴 URGENTE">🔴 URGENTE</option>
-                        <option value="🟠 HOY">🟠 HOY</option>
-                        <option value="🟡 MAÑANA">🟡 MAÑANA</option>
-                        <option value="🔵 SEMANA">🔵 SEMANA</option>
-                        <option value="⚪ PENDIENTE" selected>⚪ PENDIENTE</option>
-                    </select>
-                    <input type="time" id="alert-time" style="padding:7px; border-radius:8px; border:1px solid #ddd; font-size:0.75em;" onclick="event.stopPropagation();">
-                    <button onclick="event.stopPropagation(); saveManualAlert();" style="background:var(--primary); color:white; border:none; border-radius:12px; padding:10px 15px; font-size:0.85em; font-weight:900; cursor:pointer;">
-                        <i class="fas fa-save"></i> GUARDAR
-                    </button>
-                </div>
-            </div>
-        `;
-        alertsHtml += noteArea;
-
-        alertDiv.innerHTML = alertsHtml || '<div style="text-align:center; color:#888; font-size:0.85em; padding:20px;"><i class="fas fa-check-circle" style="color:var(--success); font-size:1.5em; display:block; margin-bottom:5px;"></i> Todo bajo control, socio.</div>';
-    }
+const now = new Date();
+const allProspects = [
+...voxiData.milis.map((m, i) => ({ ...m, type: 'milis', idx: i })),
+...voxiData.grals.map((g, i) => ({ ...g, type: 'grals', idx: i }))
+].sort((a,b) => b.id - a.id);
+const cold = allProspects.filter(p => p.status === 'Nuevo Cliente').length;
+const closing = allProspects.filter(p => p.status === 'Dio apartado').length;
+const totalProps = voxiData.props.length;
+const inTalks = allProspects.filter(p => p.status === 'Pláticas avanzadas').length;
+document.getElementById('stat-cold').innerText = cold;
+document.getElementById('stat-closing').innerText = closing;
+document.getElementById('stat-props').innerText = totalProps;
+document.getElementById('stat-payments').innerText = inTalks;
+const quotes = [
+"ESTRATEGIA: Un cliente que pregunta por el precio dos veces está listo para una oferta de cierre.",
+"TIP EXPERTO: No vendas metros cuadrados, vende el patrimonio de su familia. Eso no tiene precio.",
+"CIERRE: Si el cliente duda, ofrécele una visita hoy mismo. La emoción se enfría en 24 horas.",
+"NEGOCIACIÓN: Nunca bajes el precio sin pedir algo a cambio (firma inmediata o mayor apartado).",
+"VISIÓN: El mejor momento para captar una propiedad fue ayer; el segundo mejor es HOY.",
+"INTELIGENCIA: Revisa tus preventas. Si la obra avanza, el precio DEBE subir para proteger tu ganancia."
+];
+const qElem = document.getElementById('assistant-quote');
+if(qElem) qElem.innerText = `"${quotes[now.getDay() % quotes.length]}"`;
+const agendaDiv = document.getElementById('assistant-agenda');
+agendaDiv.innerHTML = '';
+let agendaItems = [];
+if(closing > 0) agendaItems.push({ text: `CIERRE: ${closing} trámites de apartado hoy.`, priority: true, action: "openTab('prospectos')" });
+if(inTalks > 0) agendaItems.push({ text: `NEGOCIACIÓN: ${inTalks} clientes calientes. Llama ahora.`, priority: true, action: "openTab('prospectos')" });
+agendaItems.push({ text: `Actualizar precios de propiedades en preventa.`, priority: true, action: "openTab('inventario')" });
+agendaItems.push({ text: `Tomar o actualizar fotos de tus propiedades.`, priority: false, action: "openTab('inventario')" });
+agendaItems.forEach((item, idx) => {
+agendaDiv.innerHTML += `<div class="agenda-item ${item.priority ? 'priority' : 'normal'}" onclick="event.stopPropagation(); ${item.action}">
+<div class="agenda-num">${idx+1}</div>
+<span>${item.priority ? '🔴 ' : '🔵 '} ${item.text}</span>
+</div>`;
+});
+const sugDiv = document.getElementById('assistant-suggestions');
+sugDiv.innerHTML = '';
+sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid #3b5998; background:#f0f2f5;" onclick="event.stopPropagation(); window.open('https://www.facebook.com', '_blank')">
+<div class="task-info">
+<b style="color:#3b5998;"><i class="fab fa-facebook"></i> Publicar hoy en Facebook</b>
+<div style="font-size:0.85em;">Atrae nuevos prospectos publicando tus preventas.</div>
+</div>
+</div>`;
+sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid #25d366; background:#e8f5e9;" onclick="event.stopPropagation(); window.open('https://web.whatsapp.com', '_blank')">
+<div class="task-info">
+<b style="color:#25d366;"><i class="fab fa-whatsapp"></i> Ver WhatsApp</b>
+<div style="font-size:0.85em;">Responde a tus clientes y cierra ventas pendientes.</div>
+</div>
+</div>`;
+voxiData.props.forEach(p => {
+const precio = parseFloat((p.precio||'0').replace(/,/g,''));
+const ganancia = parseFloat((p.ganancia||'0').replace(/,/g,''));
+if(precio > 0 && (ganancia / precio) < 0.15 && p.estatus !== 'Vendido') {
+sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid #ff9800; background:#fffbf0;" onclick="event.stopPropagation(); goToRecord('inventario','','null','${p.id}')">
+<div class="task-info">
+<b style="color:#e65100;">⚠️ REVISAR MARGEN</b>
+<div style="font-size:0.85em;">Ganancia en ${p.titulo || p.tipo} baja (<15%).</div>
+</div>
+</div>`;
 }
-function saveManualAlert() {
-    const text = document.getElementById('new-manual-alert').value;
-    const time = document.getElementById('alert-time').value;
-    const priority = document.getElementById('alert-priority').value;
-    if(!text) {
-        alert("Por favor escribe la nota del recordatorio.");
-        return;
-    }
-    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
-    voxiData.manualAlerts.push({ 
-        text, 
-        time: time || '--:--', 
-        priority: priority || '⚪ PENDIENTE',
-        date: new Date().toISOString(),
-        type: 'Recordatorio Manual' 
-    });
-    renderAssistant();
-    autoSave();
-    document.getElementById('new-manual-alert').value = '';
+});
+const alertDiv = document.getElementById('assistant-alerts');
+alertDiv.innerHTML = '';
+let alertsHtml = '';
+function createAlert(level, text, action, tel = null) {
+const bg = { 'Rojo': '#ffebee', 'Amarillo': '#fff9c4', 'Azul': '#e3f2fd' }[level];
+const border = { 'Rojo': '#d32f2f', 'Amarillo': '#fbc02d', 'Azul': '#1e88e5' }[level];
+let btns = `<button class="wa-mini" style="background:${border};" onclick="event.stopPropagation(); ${action}">IR</button>`;
+if (tel) {
+btns = `<div style="display:flex; gap:5px;">
+<button class="wa-mini" style="background:#2e7d32; width:36px;" onclick="event.stopPropagation(); window.open('tel:${tel}')"><i class="fas fa-phone"></i></button>
+<button class="wa-mini" style="background:#25d366; width:36px;" onclick="event.stopPropagation(); window.open('https://wa.me/52${tel}')"><i class="fab fa-whatsapp"></i></button>
+${btns}
+</div>`;
+}
+return `<div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+<div style="font-size:0.82em; font-weight:700; color:#333; padding-right:8px;">${text}</div>
+${btns}
+</div>`;
+}
+voxiData.milis.forEach((p) => {
+const missing = p.m.filter(req => req.s === 'f').length;
+if (missing > 0 && p.status === 'Nuevo Cliente') {
+alertsHtml += createAlert('Rojo', `📄 Falta documentación: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`);
+}
+});
+alertDiv.innerHTML = alertsHtml || '<div style="text-align:center; color:#888; font-size:0.85em; padding:10px;">Sin alertas urgentes.</div>';
 }
 function goToRecord(tab, id, prospectId = null, propId = null) {
 if(prospectId) activeProspectId = prospectId;
@@ -1644,81 +1397,10 @@ cStatus.style.color = 'red';
 }
 });
 }
-function renderFolderGallery() {
-    const div = document.getElementById('folderGallery'); if(!div) return;
-    div.innerHTML = GALLERY_FOLDERS.map(f => `
-        <div class="card" style="margin:0; padding:15px; text-align:center; cursor:pointer; background:white; border:2px solid #eee;" onclick="openFolder('${f}')">
-            <div style="font-size:2em; margin-bottom:8px;">${f.split(' ')[0]}</div>
-            <div style="font-size:0.7em; font-weight:900; line-height:1.2;">${f.split(' ').slice(1).join(' ')}</div>
-            <div style="font-size:0.6em; color:#888; margin-top:5px;">${(voxiData.galleries[f] || []).length} fotos</div>
-        </div>
-    `).join('');
-}
-
-function openFolder(f) {
-    activeFolder = f;
-    document.getElementById('folderGallery').style.display = 'none';
-    document.getElementById('activeFolderView').style.display = 'block';
-    document.getElementById('folderTitle').innerText = f;
-    renderFolderImages();
-}
-
-function closeFolder() {
-    activeFolder = null;
-    document.getElementById('folderGallery').style.display = 'grid';
-    document.getElementById('activeFolderView').style.display = 'none';
-    renderFolderGallery();
-}
-
-function renderFolderImages() {
-    const div = document.getElementById('folderImages'); if(!div) return;
-    const images = voxiData.galleries[activeFolder] || [];
-    div.innerHTML = images.map((img, i) => `
-        <div class="gallery-item" style="position:relative; margin-bottom:10px;">
-            <img src="${img}" style="width:100%; border-radius:10px;" onclick="shareFolderImage('${img}')">
-            <button class="del" style="position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer;" onclick="deleteFolderImage(${i})">×</button>
-        </div>
-    `).join('');
-}
-
-function triggerFolderUpload(type) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    if(type === 'camera') input.setAttribute('capture', 'environment');
-    input.multiple = true;
-    input.onchange = (e) => {
-        const files = e.target.files;
-        if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
-        Array.from(files).forEach(f => {
-            processImg(f, 800, (b) => {
-                voxiData.galleries[activeFolder].push(b);
-                renderFolderImages();
-                autoSave();
-            });
-        });
-    };
-    input.click();
-}
-
-function deleteFolderImage(i) {
-    if(confirm('¿Eliminar esta imagen?')) {
-        voxiData.galleries[activeFolder].splice(i, 1);
-        renderFolderImages();
-        autoSave();
-    }
-}
-
-function shareFolderImage(img) {
-    const msg = `Hola, te comparto este diseño del catálogo de Constructor HR: ${activeFolder}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
-}
-
 async function loadMaster() {
 const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
 if(s) { 
 voxiData = JSON.parse(s); 
-if(!voxiData.galleries) voxiData.galleries = {};
 renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
 }
 db.collection("data").doc(SYNC_ID).get().then(doc => {
@@ -1779,4 +1461,3 @@ window.onload = loadMaster;
 </script>
 </body>
 </html>
-
