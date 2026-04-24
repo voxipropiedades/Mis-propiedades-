@@ -13,11 +13,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <!-- LocalForage para IndexedDB -->
 <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
-<!-- Firebase SDKs Compat -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
+<!-- Firebase desactivado - App 100% Offline -->
+
+
+
+
 <!-- Módulos de mejora -->
 <script src="alarmas_mejorado.js"></script>
 <script src="busqueda_inteligente.js"></script>
@@ -399,7 +399,7 @@ oninput="voxiSearch(this.value)">
 <div id="fileList"></div>
 <div style="background:#e8f5e9; border-left:4px solid var(--success); padding:10px; margin-top:20px; font-size:0.85em; color:#2e7d32; border-radius:8px;">
 <i class="fas fa-shield-alt"></i> <strong>Ubicación de Seguridad:</strong><br>
-Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (Firebase Firestore)</b> y en el <b>Almacenamiento Local</b> de tu celular. Esto garantiza que tus cierres estén respaldados siempre.
+Las fotos y documentos se guardan en el <b>Almacenamiento Local (IndexedDB)</b> de tu celular. La app funciona 100% offline sin depender de servidores externos.
 </div>
 </div>
 </div>
@@ -479,19 +479,7 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <button class="btn btn-save" onclick="saveMaster(true); executeCleanupAfterSave();"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
 <script>
-const firebaseConfig = {
-apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
-authDomain: "voxiapp-6672e.firebaseapp.com",
-projectId: "voxiapp-6672e",
-storageBucket: "voxiapp-6672e.firebasestorage.app",
-messagingSenderId: "332968241548",
-appId: "1:332968241548:web:7f35ebe2cd2443fb0732",
-measurementId: "G-77F6483313"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
-const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
+// Firebase desactivado
 
 // GESTIÓN DE NOTIFICACIONES REALES (PWA)
 async function initNotifications() {
@@ -499,142 +487,7 @@ async function initNotifications() {
     
     // Registrar Service Worker para notificaciones en segundo plano
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('firebase-messaging-sw.js')
-        .then(function(registration) {
-            console.log('FCM Service Worker registrado con éxito:', registration.scope);
-            messaging.useServiceWorker(registration);
-        }).catch(function(err) {
-            console.error('Error al registrar FCM Service Worker:', err);
-        });
-    }
-
-    try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-            console.log("Permiso de notificaciones concedido.");
-            // Generar token real del dispositivo
-            const token = await messaging.getToken({ 
-                vapidKey: 'BPH5S_v68N0vLpXm8N7xG_Xyv0-8jL9UeX0G_vL0V9U' // Key Pública de Firebase Console
-            });
-            
-            if (token) {
-                console.log("Token FCM generado:", token);
-                // Guardar en Firestore para vinculación real
-                db.collection("tokens").doc(SYNC_ID).set({ 
-                    token: token, 
-                    lastUpdate: new Date().toISOString(),
-                    platform: navigator.platform,
-                    status: 'active'
-                }, { merge: true });
-            }
-        } else {
-            console.warn("Permiso de notificaciones denegado.");
-        }
-    } catch (e) {
-        console.warn("Error en initNotifications:", e);
-    }
-
-    // Manejar mensajes recibidos cuando la app está abierta
-    messaging.onMessage((payload) => {
-        console.log('Mensaje FCM recibido (Foreground):', payload);
-        const title = payload.notification ? payload.notification.title : "ALERTA DE SISTEMA";
-        const body = payload.notification ? payload.notification.body : payload.data.message;
-        sendLocalPush(title, body);
-    });
-}
-
-const notifiedAlerts = new Set();
-let activeAlertAudios = [];
-let editingAlertId = null;
-
-function sendLocalPush(title, body) {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    
-    const alertKey = title + body + new Date().getHours() + new Date().getMinutes();
-    if (notifiedAlerts.has(alertKey)) return;
-    notifiedAlerts.add(alertKey);
-
-    const options = {
-        body: body,
-        icon: 'icon-192.png',
-        vibrate: [300, 100, 300, 100, 300], // Vibración fuerte
-        badge: 'icon-192.png',
-        requireInteraction: true,
-        tag: 'voxi-alert-real',
-        data: { arrival: Date.now() }
-    };
-
-    // Alerta sonora
-    try {
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-        activeAlertAudios.push(audio);
-        audio.onended = () => {
-            activeAlertAudios = activeAlertAudios.filter(a => a !== audio);
-        };
-        audio.play().catch(() => {});
-    } catch(e) {}
-
-    // Actualizar badge del app si es soportado
-    if ('setAppBadge' in navigator) {
-        const count = (voxiData.manualAlerts || []).filter(a => !a.notified).length;
-        navigator.setAppBadge(count).catch(() => {});
-    }
-
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification(title, options);
-        });
-    } else {
-        new Notification(title, options);
-    }
-}
-
-// SISTEMA DE MONITOREO DE ALERTAS EN TIEMPO REAL
-function startAlertMonitor() {
-    setInterval(() => {
-        if (!voxiData.manualAlerts) return;
         
-        const now = new Date();
-        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
-        voxiData.manualAlerts.forEach((alert) => {
-            // Verificar si la alerta es para hoy y la hora coincide
-            if (alert.time === currentTime && !alert.notified) {
-                sendLocalPush("ALERTA DE SEGUIMIENTO", alert.text);
-                alert.notified = true;
-                autoSave();
-            }
-            
-            if (alert.priority === '🔴 URGENTE' && !alert.notifiedInSession) {
-                sendLocalPush("ALERTA URGENTE", alert.text);
-                alert.notifiedInSession = true;
-            }
-        });
-    }, 60000);
-}
-// ===== SISTEMA DE ID UNICO POR DISPOSITIVO =====
-function getDeviceId() {
-    let id = localStorage.getItem("voxi_device_id");
-    if (!id) {
-        id = "voxi_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem("voxi_device_id", id);
-    }
-    return id;
-}
-const SYNC_ID = getDeviceId();
-
-// ===== INICIALIZACION DE DATOS CON TIMESTAMP =====
-let voxiData = { 
-    props: [], 
-    milis: [], 
-    grals: [], 
-    files: [], 
-    galleries: {},
-    manualAlerts: [],
-    pendingUploads: [],
-    updatedAt: Date.now(),
-    deviceId: SYNC_ID
-};
 // ===== MÉTRICAS DE RENDIMIENTO =====
 let performanceMetrics = {
     lastIndexedDBTime: 0,
@@ -826,38 +679,7 @@ async function loadMaster() {
     }
 }
 
-function manualSync() {
-    if(!confirm('¿Descargar datos de la Nube? Esto reemplazará lo que tienes en este dispositivo.')) return;
-    
-    syncInProgress = true; // Bloquear otras sincronizaciones
-    
-    const cStatus = document.getElementById('cloud-status');
-    if(cStatus) {
-        cStatus.style.display = 'block';
-        cStatus.innerHTML = '☁️ Descargando...';
-    }
-    
-    db.collection("data").doc(SYNC_ID).get().then(doc => {
-        if(doc.exists) {
-            voxiData = doc.data();
-            localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-            localforage.setItem('hr_v38_db', voxiData).catch(e => console.error('Error:', e));
-            
-            if(cStatus) {
-                cStatus.innerHTML = '✅ Sincronización Exitosa';
-                setTimeout(() => { cStatus.style.display = 'none'; location.reload(); }, 1500);
-            }
-        } else {
-            alert('❌ No se encontró respaldo en la nube para este ID.');
-            if(cStatus) cStatus.style.display = 'none';
-        }
-        syncInProgress = false;
-    }).catch(err => {
-        alert('❌ Error al conectar con la nube: ' + err.message);
-        if(cStatus) cStatus.style.display = 'none';
-        syncInProgress = false;
-    });
-}
+function manualSync() { alert("Sincronización desactivada. La app funciona 100% offline."); }
 }
 // Sincronización automática DESACTIVADA para evitar bloqueos al cargar
 function exportData() {
@@ -1026,8 +848,8 @@ window.onload = () => {
     
     // Sincronizar cuando hay conexión
     if (navigator.onLine) {
-        setTimeout(initNotifications, 2000);
-        setTimeout(processSyncQueue, 5000);
+        
+        
     }
 };
 
