@@ -719,12 +719,12 @@ function showVoxiToast(msg) {
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 async function saveMaster(showMsg) {
-    // Guardar localmente AHORA
+    // Guardar SOLO localmente - INSTANTANEO
     voxiData.updatedAt = Date.now();
     voxiData.deviceId = SYNC_ID;
     
     localforage.setItem('hr_v38_db', voxiData).catch(e => {
-        console.error('Error:', e);
+        console.error('Error guardando:', e);
     });
     
     localStorage.setItem('hr_v38_db_meta', JSON.stringify({ 
@@ -732,21 +732,7 @@ async function saveMaster(showMsg) {
         deviceId: SYNC_ID 
     }));
     
-    if(showMsg) showVoxiToast('✅ Guardado localmente');
-    
-    // Sincronizar con Firebase SOLO si hay conexión (no bloqueante)
-    if (navigator.onLine) {
-        setTimeout(() => {
-            const dataToSync = JSON.parse(JSON.stringify(voxiData));
-            firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync, { merge: true })
-            .then(() => {
-                console.log('✅ Sincronizado con nube');
-            })
-            .catch(err => {
-                console.error('Error sincronizando:', err);
-            });
-        }, 500);
-    }
+    if(showMsg) showVoxiToast('✅ Guardado');
 }
 
 function renderFolderGallery() {
@@ -872,24 +858,8 @@ function manualSync() {
         syncInProgress = false;
     });
 }
-db.collection("data").doc(SYNC_ID).get().then(async doc => {
-if(doc.exists) {
-voxiData = doc.data();
-localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-try {
-    await localforage.setItem('hr_v38_db', voxiData);
-} catch(e) {
-    console.error('Error guardando en IndexedDB:', e);
 }
-alert('✅ Sincronización Exitosa. La página se recargará.');
-location.reload();
-} else {
-alert('❌ No se encontró respaldo en la nube para este ID.');
-}
-}).catch(err => {
-alert('❌ Error al conectar con la nube: ' + err.message);
-});
-}
+// Sincronización automática DESACTIVADA para evitar bloqueos al cargar
 function exportData() {
 const blob = new Blob([JSON.stringify(voxiData, null, 2)], { type: 'application/json' });
 const a = document.createElement('a');
