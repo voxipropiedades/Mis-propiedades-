@@ -539,6 +539,7 @@ async function initNotifications() {
 }
 
 const notifiedAlerts = new Set();
+let activeAlertAudios = [];
 let editingAlertId = null;
 
 function sendLocalPush(title, body) {
@@ -561,6 +562,10 @@ function sendLocalPush(title, body) {
     // Alerta sonora
     try {
         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        activeAlertAudios.push(audio);
+        audio.onended = () => {
+            activeAlertAudios = activeAlertAudios.filter(a => a !== audio);
+        };
         audio.play().catch(() => {});
     } catch(e) {}
 
@@ -586,23 +591,21 @@ function startAlertMonitor() {
         
         const now = new Date();
         const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-        const today = now.toISOString().split('T')[0];
 
-        voxiData.manualAlerts.forEach((alert, idx) => {
+        voxiData.manualAlerts.forEach((alert) => {
             // Verificar si la alerta es para hoy y la hora coincide
             if (alert.time === currentTime && !alert.notified) {
                 sendLocalPush("ALERTA DE SEGUIMIENTO", alert.text);
-                alert.notified = true; // Evitar duplicados
+                alert.notified = true;
                 autoSave();
             }
             
-            // Alertas Críticas (URGENTE) notifican cada vez que se abre si no han sido atendidas
             if (alert.priority === '🔴 URGENTE' && !alert.notifiedInSession) {
                 sendLocalPush("ALERTA URGENTE", alert.text);
                 alert.notifiedInSession = true;
             }
         });
-    }, 60000); // Revisar cada minuto
+    }, 60000);
 }
 const SYNC_ID = "voxi_main_db"; // ID único para este usuario
 let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {} };
@@ -1212,9 +1215,9 @@ card.innerHTML = `
 <div class="box"><label>🗺️ Link Maps</label><div style="display:flex; gap:5px;"><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd; flex:1;"><button class="btn" onclick="if(voxiData.${p.type}[${p.originalIndex}].mapsLink) window.open(voxiData.${p.type}[${p.originalIndex}].mapsLink, '_blank')" style="padding:5px; height:auto; background:#4285F4; color:white;"><i class="fas fa-external-link-alt"></i></button></div></div>
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
 <div class="box"><label>CANTIDAD SOLICITADA</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>MONTO RECIBIDO (APARTADO)</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>ENGANCHE TOTAL</label><input type="text" value="${formatVoxiNumber(p.engancheTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].engancheTotal=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
+<div class="box"><label>ENGANCHE MENSUAL</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+	<div class="box"><label>PLAZO DE PAGO</label><select onchange="voxiData.${p.type}[${p.originalIndex}].plazoPago=this.value; updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd; width:100%; background:transparent; font-weight:700; outline:none; font-family:inherit; font-size:0.95em;"><option value="15" ${p.plazoPago=='15'?'selected':''}>15 DÍAS</option><option value="30" ${p.plazoPago=='30' || !p.plazoPago ?'selected':''}>30 DÍAS (1 MES)</option><option value="60" ${p.plazoPago=='60'?'selected':''}>60 DÍAS (2 MESES)</option></select></div>
+	<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#2e7d32;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
 <div class="box"><label>RANGO MILITAR</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
@@ -1962,7 +1965,7 @@ function renderAssistant() {
                             <button class="wa-mini" style="background:#ffa000; width:30px;" onclick="event.stopPropagation(); editingAlertId='${ma.id}'; renderAssistant();">
                                 <i class="fas fa-pencil-alt"></i>
                             </button>
-                            <button class="wa-mini" style="background:#e57373; width:30px;" onclick="event.stopPropagation(); voxiData.manualAlerts.splice(${originalIdx},1); renderAssistant(); autoSave();">
+                            <button class="wa-mini" style="background:#e57373; width:30px;" onclick="event.stopPropagation(); stopAllAlertSounds(); const realIdx = voxiData.manualAlerts.findIndex(a => a.id === ${ma.id}); if(realIdx !== -1) { voxiData.manualAlerts.splice(realIdx,1); renderAssistant(); autoSave(); }">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -2027,13 +2030,23 @@ function saveManualAlert() {
     autoSave();
     document.getElementById('new-manual-alert').value = '';
 }
+function stopAllAlertSounds() {
+    activeAlertAudios.forEach(audio => {
+        try { audio.pause(); audio.currentTime = 0; } catch(e) {}
+    });
+    activeAlertAudios = [];
+}
 function saveEditAlert(index, id) {
     const newText = document.getElementById(`edit-text-${id}`).value;
     const newTime = document.getElementById(`edit-time-${id}`).value;
-    if (newText) {
-        voxiData.manualAlerts[index].text = newText;
-        voxiData.manualAlerts[index].time = newTime || '--:--';
+    const realIdx = voxiData.manualAlerts.findIndex(a => a.id == id);
+    if (newText && realIdx !== -1) {
+        voxiData.manualAlerts[realIdx].text = newText;
+        voxiData.manualAlerts[realIdx].time = newTime || '--:--';
+        voxiData.manualAlerts[realIdx].notified = false; // Reset para que vuelva a sonar si se cambia la hora
+        voxiData.manualAlerts[realIdx].notifiedInSession = false;
         editingAlertId = null;
+        stopAllAlertSounds();
         renderAssistant();
         autoSave();
     }
@@ -2334,11 +2347,19 @@ function getProspectLocation(type, idx) {
 }
 function updateFinancials(type, idx) {
     const p = voxiData[type][idx];
-    const total = parseFloat((p.engancheTotal||'').toString().replace(/,/g,'')) || 0;
-    const recibido = parseFloat((p.montoRecibido||'').toString().replace(/,/g,'')) || 0;
-    p.saldoPendiente = total - recibido;
+    const solicitado = parseFloat((p.montoSolicitado||'').toString().replace(/[^0-9.]/g,'')) || 0;
+    const enganche = parseFloat((p.montoRecibido||'').toString().replace(/[^0-9.]/g,'')) || 0;
+    
+    // Nueva fórmula: SALDO PENDIENTE = CANTIDAD SOLICITADA - ENGANCHE APLICADO
+    let saldo = solicitado - enganche;
+    if (saldo < 0) saldo = 0; 
+    
+    p.saldoPendiente = saldo;
     const div = document.getElementById(`saldo_${p.id}`);
-    if(div) div.innerText = formatVoxiNumber(p.saldoPendiente.toFixed(0));
+    if(div) {
+        div.innerText = formatVoxiNumber(p.saldoPendiente.toFixed(0));
+        div.style.color = (enganche > 0 && saldo > 0) ? "#fbc02d" : "#2e7d32";
+    }
 }
 function updateMilitaryBudget(idx) {
     const p = voxiData.milis[idx];
