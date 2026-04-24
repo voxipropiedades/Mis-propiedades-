@@ -11,16 +11,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<!-- LocalForage para IndexedDB -->
-<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 <!-- Firebase SDKs Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
-<!-- Módulos de mejora -->
-<script src="alarmas_mejorado.js"></script>
-<script src="busqueda_inteligente.js"></script>
 <style>
 :root {
 --primary: #b71c1c;
@@ -612,29 +607,8 @@ function startAlertMonitor() {
         });
     }, 60000);
 }
-// ===== SISTEMA DE ID UNICO POR DISPOSITIVO =====
-function getDeviceId() {
-    let id = localStorage.getItem("voxi_device_id");
-    if (!id) {
-        id = "voxi_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem("voxi_device_id", id);
-    }
-    return id;
-}
-const SYNC_ID = getDeviceId();
-
-// ===== INICIALIZACION DE DATOS CON TIMESTAMP =====
-let voxiData = { 
-    props: [], 
-    milis: [], 
-    grals: [], 
-    files: [], 
-    galleries: {},
-    manualAlerts: [],
-    pendingUploads: [],
-    updatedAt: Date.now(),
-    deviceId: SYNC_ID
-};
+const SYNC_ID = "voxi_main_db"; // ID único para este usuario
+let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {} };
     const GALLERY_FOLDERS = [
         '🏠 Fachadas',
         '📐 Planos arquitectónicos (1 piso)',
@@ -785,18 +759,7 @@ function saveImageHibrido(file, type, index, subIdx) {
         });
         
         // 3. Persistir local y disparar sync
-        // Actualizar timestamp antes de guardar
-    voxiData.updatedAt = Date.now();
-    voxiData.deviceId = SYNC_ID;
-    
-    // Guardar en IndexedDB (sin límite de tamaño)
-    try {
-        await localforage.setItem('hr_v38_db', voxiData);
-        // Mantener respaldo en localStorage para compatibilidad
-        localStorage.setItem('hr_v38_db_meta', JSON.stringify({ updatedAt: voxiData.updatedAt, deviceId: SYNC_ID }));
-    } catch(e) {
-        console.error('Error guardando en IndexedDB:', e);
-    }
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
         processSyncQueue();
     });
 }
@@ -2109,8 +2072,6 @@ function autoSave() {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
         saveMaster(false);
-        // Reconstruir índice de búsqueda después de guardar
-        if (typeof buildSearchIndex === 'function') buildSearchIndex();
         setTimeout(() => { if(status) status.style.display = 'none'; }, 800);
     }, 2000);
 }
@@ -2121,7 +2082,7 @@ function showVoxiToast(msg) {
     t.style.display = 'block';
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
-async function saveMaster(showMsg) {
+function saveMaster(showMsg) {
     const startTime = Date.now();
     voxiData.props.forEach(p => {
         const text = (p.desc || "").toUpperCase();
@@ -2133,18 +2094,7 @@ async function saveMaster(showMsg) {
             p.estatus = "CLIENTE EFECTIVO";
         }
     });
-    // Actualizar timestamp antes de guardar
-    voxiData.updatedAt = Date.now();
-    voxiData.deviceId = SYNC_ID;
-    
-    // Guardar en IndexedDB (sin límite de tamaño)
-    try {
-        await localforage.setItem('hr_v38_db', voxiData);
-        // Mantener respaldo en localStorage para compatibilidad
-        localStorage.setItem('hr_v38_db_meta', JSON.stringify({ updatedAt: voxiData.updatedAt, deviceId: SYNC_ID }));
-    } catch(e) {
-        console.error('Error guardando en IndexedDB:', e);
-    }
+    localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
     if(showMsg) showVoxiToast('💾 Guardando en nube...');
     const cStatus = document.getElementById('cloud-status');
     if(cStatus) {
@@ -2240,23 +2190,7 @@ function shareFolderImage(img) {
 }
 
 async function loadMaster() {
-// Intentar cargar de IndexedDB primero
-let s = null;
-try {
-    s = await localforage.getItem('hr_v38_db');
-} catch(e) {
-    console.warn('Error cargando de IndexedDB:', e);
-}
-
-// Si no hay en IndexedDB, intentar localStorage (compatibilidad)
-if (!s) {
-    s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
-}
-
-// Si s es un objeto (de IndexedDB), convertir a string si es necesario
-if (s && typeof s === 'object') {
-    s = JSON.stringify(s);
-}
+const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
 if(s) { 
 voxiData = JSON.parse(s); 
 if(!voxiData.galleries) voxiData.galleries = {};
@@ -2264,18 +2198,13 @@ if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
 renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
 setTimeout(processSyncQueue, 3000);
 }
-db.collection("data").doc(SYNC_ID).get().then(async doc => {
+db.collection("data").doc(SYNC_ID).get().then(doc => {
 if(doc.exists) {
 const cloudData = doc.data();
 if(!s) {
 voxiData = cloudData;
 renderProps(); renderProspects(); renderFiles(); renderAssistant();
 localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-try {
-    await localforage.setItem('hr_v38_db', voxiData);
-} catch(e) {
-    console.error('Error guardando en IndexedDB:', e);
-}
 } else {
 console.log("Datos locales presentes, ignorando carga automática de nube.");
 }
@@ -2289,15 +2218,10 @@ if(cStatus) {
 cStatus.style.display = 'block';
 cStatus.innerHTML = '☁️ Descargando...';
 }
-db.collection("data").doc(SYNC_ID).get().then(async doc => {
+db.collection("data").doc(SYNC_ID).get().then(doc => {
 if(doc.exists) {
 voxiData = doc.data();
 localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-try {
-    await localforage.setItem('hr_v38_db', voxiData);
-} catch(e) {
-    console.error('Error guardando en IndexedDB:', e);
-}
 alert('✅ Sincronización Exitosa. La página se recargará.');
 location.reload();
 } else {
@@ -2470,13 +2394,7 @@ window.onload = () => {
         setTimeout(processSyncQueue, 5000);
         setTimeout(initNotifications, 2000); 
     }
-    // Inicializar sistemas mejorados
-    if (typeof initSmartSearch === 'function') initSmartSearch();
-    if (typeof startAdvancedAlarmMonitor === 'function') {
-        startAdvancedAlarmMonitor();
-    } else {
-        startAlertMonitor(); // Fallback a sistema antiguo si no carga el módulo
-    }
+    startAlertMonitor(); // Iniciar monitoreo de alertas reales
 };
 
 </script>
