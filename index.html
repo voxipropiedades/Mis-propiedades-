@@ -641,6 +641,14 @@ let performanceMetrics = {
     lastFirebaseTime: 0,
     lastTotalTime: 0
 };
+// ===== CONTROL DE SINCRONIZACIÓN CRÍTICO =====
+let isSyncing = false;
+let saveTimeout = null;
+let lastSaveTime = 0;
+const SAVE_DEBOUNCE = 2000; // 2 segundos entre guardados
+const MIN_SYNC_INTERVAL = 10000; // Mínimo 10 segundos entre sincronizaciones
+let lastSyncTime = 0;
+
 
 function logPerformanceMetrics(operation, indexedDBTime, firebaseTime) {
     performanceMetrics.lastIndexedDBTime = indexedDBTime;
@@ -739,48 +747,16 @@ let lastSyncTime = 0;
 let syncInProgress = false;
 
 async function processSyncQueue() {
-    // Evitar sincronizaciones concurrentes
-    if (syncInProgress) return;
+    if (isSyncing) return;
+    if (!navigator.onLine) return;
     
-    // Evitar sincronizaciones muy frecuentes (máximo cada 5 segundos)
     const now = Date.now();
-    if (now - lastSyncTime < 5000) return;
+    if (now - lastSyncTime < MIN_SYNC_INTERVAL) return;
     
-    syncInProgress = true;
     lastSyncTime = now;
-    
-    try {
-        if (!navigator.onLine) {
-            console.log("📡 Sin conexión. Sincronización pospuesta.");
-            syncInProgress = false;
-            return;
-        }
-        
-        // Sincronizar pendientes
-        if (voxiData.pendingUploads && voxiData.pendingUploads.length > 0) {
-            console.log(`📤 Sincronizando ${voxiData.pendingUploads.length} elementos pendientes...`);
-            
-            // Procesar pendientes sin bloquear
-            for (let item of voxiData.pendingUploads) {
-                try {
-                    // Lógica de sincronización aquí
-                    console.log(`✅ Sincronizado: ${item.tempId}`);
-                } catch (e) {
-                    console.error("Error sincronizando item:", e);
-                }
-            }
-            
-            // Limpiar pendientes solo después de sincronizar exitosamente
-            voxiData.pendingUploads = [];
-        }
-        
-        console.log("✅ Sincronización completada.");
-    } catch (e) {
-        console.error("Error en processSyncQueue:", e);
-    } finally {
-        syncInProgress = false;
-    }
+    syncToFirebaseAsync();
 }
+
 
 // Ejecutar sincronización solo cuando hay conexión
 window.addEventListener('online', () => {
@@ -2163,29 +2139,96 @@ setTimeout(() => el.style.boxShadow = '', 3000);
 }
 let saveTimeout;
 function autoSave() {
+    // Evitar múltiples guardados simultáneos
+    if (isSyncing) return;
+    
+    const now = Date.now();
+    if (now - lastSaveTime < SAVE_DEBOUNCE) {
+        clearTimeout(saveTimeout);
+    }
+    
+    lastSaveTime = now;
+    
     const status = document.getElementById('auto-save-status');
     if(status) status.style.display = 'block';
+    
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
-        // Ejecutar guardado sin esperar (no-blocking)
-        saveMaster(false);
-        // Reconstruir índice sin bloquear
-        if (typeof buildSearchIndex === 'function') {
-            setTimeout(() => buildSearchIndex(), 50);
+        // Guardar localmente SIN esperar
+        saveLocalOnly();
+        
+        // Sincronizar con nube de forma asíncrona (no bloqueante)
+        if (navigator.onLine && (now - lastSyncTime) > MIN_SYNC_INTERVAL) {
+            lastSyncTime = now;
+            syncToFirebaseAsync();
         }
-// ===== LIMPIEZA AUTOMÁTICA DE FORMULARIOS =====
-function clearAllFormFields() {
-    // Limpiar todos los inputs, selects y textareas
-    document.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], select, textarea').forEach(field => {
-        if (!field.readOnly && !field.disabled) {
-            field.value = '';
-        }
-    });
-    // Resetear índices
-    currentPropIndex = null;
-    activeProspectId = null;
-    activePropId = null;
+        
+        setTimeout(() => { if(status) status.style.display = 'none'; }, 500);
+    }, SAVE_DEBOUNCE);
 }
+
+function saveLocalOnly() {
+    // Guardar SOLO en IndexedDB - RÁPIDO Y NO BLOQUEANTE
+    voxiData.updatedAt = Date.now();
+    voxiData.deviceId = SYNC_ID;
+    
+    // Fire and forget - no esperar respuesta
+    localforage.setItem('hr_v38_db', voxiData).catch(e => {
+        console.error('Error guardando en IndexedDB:', e);
+    });
+    
+    // Respaldo en localStorage
+    try {
+        localStorage.setItem('hr_v38_db_meta', JSON.stringify({ 
+            updatedAt: voxiData.updatedAt, 
+            deviceId: SYNC_ID 
+        }));
+    } catch(e) {
+        console.warn('localStorage lleno, ignorando respaldo');
+    }
+}
+
+function syncToFirebaseAsync() {
+    // Sincronización asíncrona SIN BLOQUEAR
+    if (isSyncing) return;
+    
+    isSyncing = true;
+    
+    setTimeout(() => {
+        const dataToSync = JSON.parse(JSON.stringify(voxiData));
+        if (dataToSync.pendingUploads) {
+            dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ 
+                tempId: item.tempId, 
+                timestamp: item.timestamp 
+            }));
+        }
+        
+        const cStatus = document.getElementById('cloud-status');
+        if(cStatus) {
+            cStatus.style.display = 'block';
+            cStatus.innerHTML = '⌛ Sincronizando...';
+        }
+        
+        firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync, { merge: true })
+        .then(() => { 
+            if(cStatus) {
+                cStatus.innerHTML = '☁️ Sincronizado';
+                setTimeout(() => { cStatus.style.display = 'none'; }, 1000);
+            }
+            isSyncing = false;
+        })
+        .catch(err => {
+            console.error("Error sincronizando:", err);
+            if(cStatus) {
+                cStatus.innerHTML = '❌ Error de red';
+                cStatus.style.color = 'red';
+                setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+            }
+            isSyncing = false;
+        });
+    }, 100); // Ejecutar en siguiente tick
+}
+
 
 // Ejecutar limpieza después de guardar exitoso
 function executeCleanupAfterSave() {
@@ -2230,68 +2273,17 @@ function showVoxiToast(msg) {
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 async function saveMaster(showMsg) {
-    const perfStart = Date.now();
-    // Ejecutar en background sin bloquear la UI
-    if (showMsg) showVoxiToast('💾 Guardando en nube...');
+    // Guardar local inmediatamente
+    saveLocalOnly();
     
-    // Procesar de forma no-bloqueante
-    setTimeout(async () => {
-        const startTime = Date.now();
-    voxiData.props.forEach(p => {
-        const text = (p.desc || "").toUpperCase();
-        const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
-        const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
-        if (keywordsMilitar.some(k => text.includes(k))) {
-            p.estatus = "CRÉDITO MILITAR";
-        } else if (keywordsEfectivo.some(k => text.includes(k))) {
-            p.estatus = "CLIENTE EFECTIVO";
-        }
-    });
-    // Actualizar timestamp antes de guardar
-    voxiData.updatedAt = Date.now();
-    voxiData.deviceId = SYNC_ID;
+    if(showMsg) showVoxiToast('💾 Guardando...');
     
-    // Guardar en IndexedDB (sin límite de tamaño)
-    try {
-        await localforage.setItem('hr_v38_db', voxiData);
-        // Mantener respaldo en localStorage para compatibilidad
-        localStorage.setItem('hr_v38_db_meta', JSON.stringify({ updatedAt: voxiData.updatedAt, deviceId: SYNC_ID }));
-    } catch(e) {
-        console.error('Error guardando en IndexedDB:', e);
+    // Sincronizar con nube de forma asíncrona
+    if (navigator.onLine) {
+        syncToFirebaseAsync();
     }
-    if(showMsg) showVoxiToast('💾 Guardando en nube...');
-    const cStatus = document.getElementById('cloud-status');
-    if(cStatus) {
-        cStatus.style.display = 'block';
-        cStatus.innerHTML = '⌛ Sincronizando...';
-    }
-
-    const dataToSync = JSON.parse(JSON.stringify(voxiData));
-    if (dataToSync.pendingUploads) {
-        dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
-    }
-
-    const firebaseStart = Date.now();
-    firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
-    .then(() => { 
-        const firebaseTime = Date.now() - firebaseStart;
-        logPerformanceMetrics('Guardado', indexedDBTime, firebaseTime);
-        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-        if(cStatus) {
-            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
-            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
-        }
-        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
-    })
-    .catch(err => {
-        console.error("Cloud Save Error", err);
-        if(showMsg) showVoxiToast('❌ Error al guardar en nube');
-        if(cStatus) {
-            cStatus.innerHTML = '❌ Error de red';
-            cStatus.style.color = 'red';
-        }
-    });
 }
+
 function renderFolderGallery() {
     const div = document.getElementById('folderGallery'); if(!div) return;
     div.innerHTML = GALLERY_FOLDERS.map(f => `
@@ -2357,17 +2349,17 @@ function shareFolderImage(img) {
 }
 
 async function loadMaster() {
-    // Cargar de IndexedDB sin bloquear
+    // Cargar de IndexedDB
     let s = null;
     try {
         s = await localforage.getItem('hr_v38_db');
     } catch(e) {
-        console.warn('IndexedDB load error:', e);
+        console.warn('Error cargando IndexedDB:', e);
     }
     
     // Fallback a localStorage
     if (!s) {
-        s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db');
+        s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db');
     }
     
     if (s && typeof s === 'object') {
@@ -2380,23 +2372,23 @@ async function loadMaster() {
         if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
         if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
         renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
-        setTimeout(processSyncQueue, 2000); // No bloquear
     }
     
-    // Cargar de Firebase sin bloquear
-    db.collection("data").doc(SYNC_ID).get().then(async doc => {
-        if(doc.exists && !s) {
-            const cloudData = doc.data();
-            voxiData = cloudData;
-            renderProps(); renderProspects(); renderFiles(); renderAssistant();
-            try {
+    // Cargar de Firebase solo si no hay datos locales
+    if (!s && navigator.onLine) {
+        try {
+            const doc = await db.collection("data").doc(SYNC_ID).get();
+            if(doc.exists) {
+                voxiData = doc.data();
+                renderProps(); renderProspects(); renderFiles(); renderAssistant();
                 await localforage.setItem('hr_v38_db', voxiData);
-            } catch(e) {
-                console.error('Error guardando en IndexedDB:', e);
             }
+        } catch(err) {
+            console.error('Error cargando de Firebase:', err);
         }
-    }).catch(err => console.error('Firebase load error:', err));
+    }
 }
+
 function manualSync() {
     if(!confirm('¿Descargar datos de la Nube? Esto reemplazará lo que tienes en este dispositivo.')) return;
     
@@ -2603,19 +2595,18 @@ function updateCostoObra(i) {
 window.onload = () => {
     loadMaster();
     
-    // Escuchar cambios de conexión
+    // Escuchar conexión
     window.addEventListener('online', () => {
-        console.log("✅ Conexión restaurada. Sincronizando...");
-        setTimeout(processSyncQueue, 2000);
+        console.log("✅ Conexión restaurada");
+        setTimeout(() => syncToFirebaseAsync(), 1000);
     });
     
-    // Sincronización inicial solo si hay conexión
+    // Sincronización inicial si hay conexión
     if (navigator.onLine) {
-        setTimeout(processSyncQueue, 3000);
         setTimeout(initNotifications, 2000); 
     }
     
-    // Inicializar sistemas mejorados
+    // Inicializar módulos mejorados
     if (typeof initSmartSearch === 'function') initSmartSearch();
     if (typeof startAdvancedAlarmMonitor === 'function') {
         startAdvancedAlarmMonitor();
@@ -2623,6 +2614,7 @@ window.onload = () => {
         startAlertMonitor();
     }
 };
+
 
 </script>
 <div id="voxiLoader"><div class="spinner"></div><span id="voxiLoaderText">Subiendo...</span></div>
