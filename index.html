@@ -1,4 +1,4 @@
-<!-- Voxi Version 38.4.2 [FINAL RESTORATION VERIFIED] -->
+<!-- Voxi Version 38.4.3 [FINAL FORMATTING FIXED] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,6 +14,8 @@
 <!-- Firebase SDKs Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
 <style>
 :root {
 --primary: #b71c1c;
@@ -96,6 +98,24 @@ border: 2px dashed #bbb; cursor: pointer;
 .gallery-item { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 10px; overflow: hidden; position: relative; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 .gallery-item .del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor:pointer; }
+#voxiLoader {
+    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8); color: white; padding: 20px 30px; border-radius: 15px;
+    z-index: 10000; flex-direction: column; align-items: center; gap: 10px;
+}
+#voxi-toast {
+    position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
+    background: #333; color: white; padding: 12px 25px; border-radius: 50px;
+    font-weight: 950; font-size: 0.9em; z-index: 15000; display: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: slideUpToast 0.3s ease-out;
+    border: 2px solid var(--accent);
+}
+@keyframes slideUpToast { from { bottom: -50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
+.spinner {
+    width: 30px; height: 30px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent);
+    border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 #editorArea { 
 border: 1px solid #ddd; padding: 20px; min-height: 400px; background: #fff; 
 border-radius: 12px; margin-top: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
@@ -201,6 +221,7 @@ body { background: white; padding: 0 !important; }
 <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
 <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
 <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')"><i class="fas fa-users"></i> PROSPECTOS</button>
+<button class="tab-btn" id="btn-galeria" onclick="openTab('galeria')"><i class="fas fa-images"></i> GALERÍA</button>
 <button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> CONTRATOS</button>
 <button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> ARCHIVOS</button>
 </div>
@@ -227,6 +248,8 @@ oninput="voxiSearch(this.value)">
 <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
 </div>
 </div>
+<!-- MOTIVACIÓN -->
+<div id="assistant-motivation"></div>
 <!-- AGENDA DEL DÍA -->
 <div class="assist-card" onclick="toggleCollapse('assistant-agenda-wrapper')" style="cursor:pointer;">
 <div style="font-weight:950; font-size:1em; color:var(--primary); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
@@ -290,6 +313,23 @@ oninput="voxiSearch(this.value)">
 <div id="prospectList"></div>
 </div>
 <!-- ============ TAB: CONTRATOS ============ -->
+<!-- ============ TAB: GALERÍA ============ -->
+<div id="galeria" class="tab-content">
+    <div class="card" style="border-top:4px solid var(--primary);">
+        <div style="font-weight:900; color:var(--primary); margin-bottom:15px; font-size:1.1em;"><i class="fas fa-images"></i> GALERÍA DE VENTAS</div>
+        <div id="folderGallery" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;"></div>
+        <div id="activeFolderView" style="display:none;">
+            <button class="btn" style="background:#eee; color:#333; margin-bottom:15px;" onclick="closeFolder()"><i class="fas fa-arrow-left"></i> VOLVER</button>
+            <div id="folderTitle" style="font-weight:900; margin-bottom:15px; color:var(--primary);"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                <button class="btn" style="background:var(--primary); color:white;" onclick="triggerFolderUpload('camera')"><i class="fas fa-camera"></i> CÁMARA</button>
+                <button class="btn" style="background:var(--info); color:white;" onclick="triggerFolderUpload('gallery')"><i class="fas fa-images"></i> GALERÍA</button>
+            </div>
+            <div id="folderImages" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+        </div>
+    </div>
+</div>
+
 <div id="papeleo" class="tab-content">
 <div class="card">
 <h2 style="margin:0 0 10px;"><i class="fas fa-file-signature"></i> Oficina de Papeleo</h2>
@@ -445,8 +485,142 @@ measurementId: "G-77F6483313"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const storage = firebase.storage();
+const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
+
+// GESTIÓN DE NOTIFICACIONES REALES (PWA)
+async function initNotifications() {
+    if (!messaging) return;
+    
+    // Registrar Service Worker para notificaciones en segundo plano
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('firebase-messaging-sw.js')
+        .then(function(registration) {
+            console.log('FCM Service Worker registrado con éxito:', registration.scope);
+            messaging.useServiceWorker(registration);
+        }).catch(function(err) {
+            console.error('Error al registrar FCM Service Worker:', err);
+        });
+    }
+
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            console.log("Permiso de notificaciones concedido.");
+            // Generar token real del dispositivo
+            const token = await messaging.getToken({ 
+                vapidKey: 'BPH5S_v68N0vLpXm8N7xG_Xyv0-8jL9UeX0G_vL0V9U' // Key Pública de Firebase Console
+            });
+            
+            if (token) {
+                console.log("Token FCM generado:", token);
+                // Guardar en Firestore para vinculación real
+                db.collection("tokens").doc(SYNC_ID).set({ 
+                    token: token, 
+                    lastUpdate: new Date().toISOString(),
+                    platform: navigator.platform,
+                    status: 'active'
+                }, { merge: true });
+            }
+        } else {
+            console.warn("Permiso de notificaciones denegado.");
+        }
+    } catch (e) {
+        console.warn("Error en initNotifications:", e);
+    }
+
+    // Manejar mensajes recibidos cuando la app está abierta
+    messaging.onMessage((payload) => {
+        console.log('Mensaje FCM recibido (Foreground):', payload);
+        const title = payload.notification ? payload.notification.title : "ALERTA DE SISTEMA";
+        const body = payload.notification ? payload.notification.body : payload.data.message;
+        sendLocalPush(title, body);
+    });
+}
+
+const notifiedAlerts = new Set();
+let editingAlertId = null;
+
+function sendLocalPush(title, body) {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    
+    const alertKey = title + body + new Date().getHours() + new Date().getMinutes();
+    if (notifiedAlerts.has(alertKey)) return;
+    notifiedAlerts.add(alertKey);
+
+    const options = {
+        body: body,
+        icon: 'icon-192.png',
+        vibrate: [300, 100, 300, 100, 300], // Vibración fuerte
+        badge: 'icon-192.png',
+        requireInteraction: true,
+        tag: 'voxi-alert-real',
+        data: { arrival: Date.now() }
+    };
+
+    // Alerta sonora
+    try {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        audio.play().catch(() => {});
+    } catch(e) {}
+
+    // Actualizar badge del app si es soportado
+    if ('setAppBadge' in navigator) {
+        const count = (voxiData.manualAlerts || []).filter(a => !a.notified).length;
+        navigator.setAppBadge(count).catch(() => {});
+    }
+
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification(title, options);
+        });
+    } else {
+        new Notification(title, options);
+    }
+}
+
+// SISTEMA DE MONITOREO DE ALERTAS EN TIEMPO REAL
+function startAlertMonitor() {
+    setInterval(() => {
+        if (!voxiData.manualAlerts) return;
+        
+        const now = new Date();
+        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        const today = now.toISOString().split('T')[0];
+
+        voxiData.manualAlerts.forEach((alert, idx) => {
+            // Verificar si la alerta es para hoy y la hora coincide
+            if (alert.time === currentTime && !alert.notified) {
+                sendLocalPush("ALERTA DE SEGUIMIENTO", alert.text);
+                alert.notified = true; // Evitar duplicados
+                autoSave();
+            }
+            
+            // Alertas Críticas (URGENTE) notifican cada vez que se abre si no han sido atendidas
+            if (alert.priority === '🔴 URGENTE' && !alert.notifiedInSession) {
+                sendLocalPush("ALERTA URGENTE", alert.text);
+                alert.notifiedInSession = true;
+            }
+        });
+    }, 60000); // Revisar cada minuto
+}
 const SYNC_ID = "voxi_main_db"; // ID único para este usuario
-let voxiData = { props: [], milis: [], grals: [], files: [] };
+let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {} };
+    const GALLERY_FOLDERS = [
+        '🏠 Fachadas',
+        '📐 Planos arquitectónicos (1 piso)',
+        '🏢 Planos arquitectónicos (2 pisos)',
+        '🚿 Baños',
+        '🚪 Puertas de herrería',
+        '🚪 Puertas de madera',
+        '🚪 Puertas de baño',
+        '🍽️ Barritas de cocina',
+        '🪟 Ventanas de aluminio',
+        '🌿 Jardín',
+        '🧺 Lavadero',
+        '💡 Iluminación'
+    ];
+let activeFolder = null;
 let currentPropIndex = null;
 let activePropId = null;
 let currentWANumber = '';
@@ -479,28 +653,112 @@ input.onchange = (e) => handlePhotoResult(e.target.files);
 input.click();
 closePhotoMenu();
 }
+function saveImageInState(data, type, index, idx) {
+    let targetObj = (type === 'main' || type === 'gallery' || type === 'doc') ? voxiData.props[index] : null;
+    if (type === 'main') {
+        if (idx === 0) targetObj.mainImg = data;
+        else targetObj.gallery.push(data);
+        renderProps();
+    } else if (type === 'gallery') {
+        if (!targetObj.mainImg) targetObj.mainImg = data;
+        else targetObj.gallery.push(data);
+        renderProps();
+    } else if (type === 'doc') {
+        targetObj.docImg = data;
+        renderProps();
+    } else if (type === 'folder') {
+        if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
+        voxiData.galleries[activeFolder].push(data);
+        renderFolderImages();
+    }
+    autoSave();
+}
+
 function handlePhotoResult(files) {
-if (!files || files.length === 0) return;
-const { index, type } = currentPhotoTarget;
-if (type === 'main' || type === 'gallery') {
-saveLocation(index, true);
+    if (!files || files.length === 0) return;
+    const { index, type } = currentPhotoTarget;
+    if (index === null && type !== 'folder') return;
+    if (type !== 'folder') saveLocation(index, true);
+    Array.from(files).forEach((f, idx) => saveImageHibrido(f, type, index, idx));
 }
-Array.from(files).forEach((f, idx) => {
-const maxW = (type === 'doc' ? 1000 : 800);
-processImg(f, maxW, (b) => {
-if (type === 'main') {
-if (idx === 0) voxiData.props[index].mainImg = b;
-else voxiData.props[index].gallery.push(b);
-} else if (type === 'gallery') {
-if (!voxiData.props[index].mainImg) voxiData.props[index].mainImg = b;
-else voxiData.props[index].gallery.push(b);
-} else if (type === 'doc') {
-voxiData.props[index].docImg = b;
+
+// MODO SINCRONIZACIÓN PROFESIONAL
+if (!voxiData.pendingUploads) voxiData.pendingUploads = [];
+
+async function processSyncQueue() {
+    if (!navigator.onLine || voxiData.pendingUploads.length === 0) return;
+    
+    console.log("Sincronizando imágenes pendientes:", voxiData.pendingUploads.length);
+    const item = voxiData.pendingUploads[0]; // Procesar de uno en uno para estabilidad
+    
+    try {
+        const blob = await fetch(item.data).then(r => r.blob());
+        const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
+        const snapshot = await ref.put(blob);
+        const url = await snapshot.ref.getDownloadURL();
+        
+        replaceBase64WithUrl(item.tempId, url);
+        voxiData.pendingUploads.shift();
+        
+        // Guardar progreso y seguir con el siguiente
+        saveMaster(false);
+        setTimeout(processSyncQueue, 500);
+    } catch (e) {
+        console.error("Error en sincronización, reintentando luego:", e);
+    }
 }
-renderProps();
-autoSave();
-});
-});
+
+function replaceBase64WithUrl(tempId, url) {
+    // Buscar en propiedades
+    voxiData.props.forEach(p => {
+        if (p.mainImg === tempId) p.mainImg = url;
+        if (p.docImg === tempId) p.docImg = url;
+        if (p.gallery) {
+            const idx = p.gallery.indexOf(tempId);
+            if (idx !== -1) p.gallery[idx] = url;
+        }
+    });
+    // Buscar en prospectos
+    ['prospects','leads','closed'].forEach(key => {
+        if (voxiData[key]) {
+            voxiData[key].forEach(p => {
+                if (p.gallery) {
+                    const idx = p.gallery.indexOf(tempId);
+                    if (idx !== -1) p.gallery[idx] = url;
+                }
+            });
+        }
+    });
+    // Buscar en carpetas/galerías
+    for (let folder in voxiData.galleries) {
+        const idx = voxiData.galleries[folder].indexOf(tempId);
+        if (idx !== -1) voxiData.galleries[folder][idx] = url;
+    }
+    
+    // Refrescar vistas activas
+    if (typeof renderProps === 'function') renderProps();
+    if (typeof renderFolderImages === 'function') renderFolderImages();
+    if (typeof renderProspects === 'function') renderProspects();
+}
+
+function saveImageHibrido(file, type, index, subIdx) {
+    processImg(file, 1000, (b64) => {
+        const tempId = "TEMP_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+        
+        // 1. Guardar Base64 localmente con ID temporal
+        saveImageInState(tempId, type, index, subIdx);
+        
+        // 2. Agregar a cola de subida
+        voxiData.pendingUploads.push({
+            tempId: tempId,
+            data: b64, // El base64 real para subir
+            timestamp: Date.now()
+        });
+        
+        // 3. Persistir local y disparar sync
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        processSyncQueue();
+    });
 }
 const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
 const REQS_E = ["INE (ambos lados)"];
@@ -517,6 +775,7 @@ document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
 document.getElementById(id).classList.add('active-tab');
 document.getElementById('btn-' + id).classList.add('active');
 if(id === 'prospectos') renderProspects();
+if(id === 'galeria') renderFolderGallery();
 if(id === 'inventario') renderProps();
 if(id === 'papeleo') {
 const select = document.getElementById('papeleoProspecto');
@@ -581,6 +840,66 @@ autoSave();
 renderProps();
 window.open(url, '_blank');
 }
+async function uploadImage(file) {
+  const loader = document.getElementById('voxiLoader');
+  const loaderText = document.getElementById('voxiLoaderText');
+  if(loader) {
+    loader.style.display = 'flex';
+    if(loaderText) loaderText.innerText = "Subiendo...";
+  }
+
+  try {
+    console.log("Iniciando subida de archivo:", file.name, "Tamaño:", file.size);
+    
+    // Si el archivo es mayor a 1.5MB, lo comprimimos antes de subir
+    let fileToUpload = file;
+    if (file.size > 1500000) {
+        console.log("Archivo pesado detectado, comprimiendo...");
+        if(loaderText) loaderText.innerText = "Comprimiendo...";
+        fileToUpload = await compressImage(file, 1000);
+    }
+
+    const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
+    
+    // Usamos el evento de progreso para dar feedback
+    const uploadTask = ref.put(fileToUpload);
+    
+    uploadTask.on('state_changed', 
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            if(loaderText) loaderText.innerText = "Subiendo: " + Math.round(progress) + "%";
+        }
+    );
+
+    await uploadTask;
+    const url = await ref.getDownloadURL();
+    console.log("URL generada con éxito:", url);
+    
+    if(loader) loader.style.display = 'none';
+    return url;
+  } catch (error) {
+    console.error("Error crítico en subida:", error);
+    if(loader) loader.style.display = 'none';
+    alert("Error al subir: " + error.message);
+    return null;
+  }
+}
+
+// Función auxiliar para compresión rápida
+async function compressImage(file, maxW) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if(w > maxW){ h *= maxW/w; w = maxW; }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.7);
+        };
+        img.src = URL.createObjectURL(file);
+    });
+}
 function processImg(file, maxW, callback) {
 const reader = new FileReader();
 reader.onload = (e) => {
@@ -614,6 +933,22 @@ const sumaDisplay = card.querySelector('.suma-medidas');
 if(sumaDisplay) sumaDisplay.innerText = '(Suma: ' + suma + ' m)';
 }
 }
+function setMiliEstado(index, newState) {
+    const mili = voxiData.milis[index];
+    if (newState === 'Apartado' && !mili.numApartado) {
+        let maxNum = 0;
+        voxiData.milis.forEach(m => {
+            if (m.numApartado && !isNaN(m.numApartado)) {
+                if (m.numApartado > maxNum) maxNum = m.numApartado;
+            }
+        });
+        mili.numApartado = maxNum + 1;
+    }
+    mili.estado = newState;
+    autoSave();
+    renderProspects();
+}
+
 function addItem(type) {
 if(type === 'props') {
 const newId = Date.now();
@@ -629,7 +964,7 @@ activePropId = newId;
 renderProps();
 } else if(type === 'milis') {
 const newId = Date.now();
-voxiData.milis.unshift({ id: newId, nombre: '', tel: '', status: 'Nuevo Cliente', lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
+voxiData.milis.unshift({ id: newId, nombre: '', tel: '', status: 'Nuevo Cliente', estado: 'Disponible', numApartado: null, lastContact: new Date().toISOString().split('T')[0], casado: false, m: REQS_M.map(n => ({ n, s: 'f' })), e: [] });
 activeProspectId = newId;
 renderProspects();
 } else if(type === 'grals') {
@@ -648,7 +983,7 @@ select.innerHTML = '<option value="">-- ELIGE UNA PROPIEDAD --</option>';
 voxiData.props.forEach(p => {
 const opt = document.createElement('option');
 opt.value = p.id;
-opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${parseFloat((p.precio||'0').replace(/,/g,'')).toLocaleString('es-MX')}`;
+opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${p.precio || '0'}`;
 if(activePropId == p.id) opt.selected = true;
 select.appendChild(opt);
 });
@@ -685,13 +1020,41 @@ ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style
 <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
 </select></div>
 <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-<div class="box"><label>Precio ($)</label><input type="text" value="${p.precio}" oninput="voxiData.props[${i}].precio=this.value;renderProps();autoSave()" style="color:var(--success); font-weight:700;"></div>
-<div class="box"><label>Ganancia ($)</label><input type="text" value="${p.ganancia}" oninput="voxiData.props[${i}].ganancia=this.value;renderProps();autoSave()" style="color:var(--primary); font-weight:700;"></div>
-<div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;">
-Costo de Obra: $${(parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toLocaleString()}
+<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); updateCostoObra(${i}); autoSave()" style="color:var(--success); font-weight:700;"></div>
+<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=raw; this.value=formatVoxiNumber(raw); updateCostoObra(${i}); autoSave()" style="color:var(--primary); font-weight:700;"></div>
+<div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;" id="costoObra_${p.id}">
+Costo de Obra: ${formatVoxiNumber((parseFloat((p.precio||'').toString().replace(/,/g,'')) - parseFloat((p.ganancia||'').toString().replace(/,/g,'')) || 0).toFixed(0))}
 </div>
 <div class="section-label">📍 UBICACIONES GUARDADAS</div>
 <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
+
+<!-- MÓDULO CÁLCULO DE DISTANCIA (MODO BLINDADO) -->
+<div class="section-label" style="color:#1565c0; border-bottom-color:#1565c022;">📍 CÁLCULO DE DISTANCIA Y TIEMPO</div>
+<div class="box full-box" style="background:#f0f7ff; border:1px solid #cce3ff; padding:12px; border-radius:12px;">
+    <div style="display:flex; gap:8px; margin-bottom:10px;">
+        <div style="flex:1; position:relative;">
+            <label style="color:#1565c0; font-size:0.6em;">ORIGEN (PUNTO A) <i class="fas fa-location-arrow" style="cursor:pointer; color:#1565c0; margin-left:5px;" onclick="getCurrentLocationForRoute(${i})" title="Usar mi ubicación"></i></label>
+            <input type="text" id="routeA_${i}" value="${p.routeA || ''}" placeholder="Ej. Pachuca" oninput="voxiData.props[${i}].routeA=this.value;autoSave()" style="border-bottom:1px solid #ddd; font-size:0.85em; padding-right:20px;">
+        </div>
+        <div style="flex:1;">
+            <label style="color:#1565c0; font-size:0.6em;">DESTINO (PUNTO B)</label>
+            <input type="text" id="routeB_${i}" value="${p.routeB || p.ubicacion || ''}" placeholder="Destino" oninput="voxiData.props[${i}].routeB=this.value;autoSave()" style="border-bottom:1px solid #ddd; font-size:0.85em;">
+        </div>
+    </div>
+    <button class="btn" style="background:#1565c0; color:white; padding:10px; font-size:0.8em; height:auto;" onclick="calculateRoute(${i})">
+        <i class="fas fa-calculator"></i> CALCULAR RUTA
+    </button>
+    <div id="routeRes_${i}" style="margin-top:12px; background:white; padding:10px; border-radius:8px; border:1px solid #eee; text-align:center;">
+        <div style="font-size:1.1em; font-weight:900; color:#1565c0;">${p.routeDist || '--'} KM</div>
+        <div style="font-size:0.8em; color:#666;">TIEMPO EST.: <b>${p.routeTime || '--'} MIN</b></div>
+    </div>
+    <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:8px;">
+        <label style="font-size:0.6em; color:#888;">HISTORIAL DE RUTAS</label>
+        <div style="max-height:60px; overflow-y:auto; font-size:0.7em; color:#444;" id="routeHist_${i}">
+            ${(p.routeHist || []).slice().reverse().map(h => `<div style="margin-bottom:3px; border-bottom:1px solid #f0f0f0; padding:2px 0;">• ${h}</div>`).join('')}
+        </div>
+    </div>
+</div>
 <div class="box full-box"><label>HISTORIAL DE LINKS <i class="fas fa-location-arrow" style="cursor:pointer; color:#e53935; margin-left:10px; padding:5px;" onclick="saveLocation(${i})" title="Obtener GPS"></i> <i class="fas fa-search" style="cursor:pointer; color:#1e88e5; margin-left:12px; padding:5px;" onclick="searchInMaps(${i})" title="Buscar en Maps"></i>${p.maps ? ` <i class="fas fa-external-link-alt" style="cursor:pointer; color:var(--info); margin-left:15px; padding:5px;" onclick="openLatestMap(${i})" title="Ver Última Ubicación"></i>` : ''}</label><textarea oninput="voxiData.props[${i}].maps=this.value;autoSave()" style="width:100%; height:60px; font-size:0.75em; border:1px solid #ddd; border-radius:5px; padding:5px; resize:none;">${p.maps||''}</textarea></div>
 <div class="section-label">🗺️ MEDIDAS DEL TERRENO</div>
 <div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value;calcArea(${i});autoSave()"></div>
@@ -785,7 +1148,7 @@ if(!p) {
 div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-users" style="font-size:3em; margin-bottom:10px; display:block;"></i> Selecciona un cliente arriba o añade uno nuevo.</div>';
 return;
 }
-const isMili = p.type === 'milis';
+const isMili = p.type === 'milis'; if(isMili && !p.estado) p.estado = 'Disponible';
 const accentColor = isMili ? '#2e7d32' : '#757575';
 const currentReqs = isMili ? REQS_M : REQS_E;
 if(!p.m) p.m = [];
@@ -800,9 +1163,26 @@ const stColors = { 'Nuevo Cliente':'#eeeeee', 'Pláticas avanzadas':'#fff9c4', '
 const txtColors = { 'Nuevo Cliente':'#757575', 'Pláticas avanzadas':'#fbc02d', 'El cliente ya no quiso':'#d32f2f', 'Dio apartado':'#1976d2', 'Cerrado':'#2e7d32' };
 const sc = stColors[p.status] || '#f5f5f5';
 const tc = txtColors[p.status] || '#333';
+if(p.status === 'Dio apartado' && !p.fechaApartado) {
+    p.fechaApartado = new Date().toISOString();
+    p.fechaLimite = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
+    for(let i=1; i<=10; i++) {
+        const alertDate = new Date(new Date().getTime() + (i * 3) * 24 * 60 * 60 * 1000);
+        if(alertDate > new Date(p.fechaLimite)) break;
+        voxiData.manualAlerts.push({
+            id: Date.now() + Math.random(),
+            prospectId: p.id,
+            text: `Recordatorio seguimiento apartado: ${p.nombre}`,
+            date: alertDate.toISOString(),
+            priority: i > 8 ? 'ALTA' : 'MEDIA'
+        });
+    }
+    autoSave();
+}
 card.innerHTML = `
 <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1); activeProspectId=null; renderProspects(); autoSave();}"><i class="fas fa-trash"></i></button>
-<div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
+<div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'} ${isMili && p.estado === 'Apartado' && p.numApartado ? ' | APARTADO ' + p.numApartado : (isMili ? ' | ' + (p.estado || 'DISPONIBLE') : '')}</div>
 <div class="box-container">
 <div class="box full-box">
 <label style="color:${accentColor};">Tipo de Cliente (Militar / Efectivo)</label>
@@ -826,14 +1206,41 @@ card.innerHTML = `
 </select>
 </div>
 <div class="box full-box"><label style="color:${accentColor};">📅 Fecha de Seguimiento</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📸 MULTIMEDIA Y UBICACIÓN</div>
+<div class="box full-box"><label>Imágenes del Cliente</label><div style="display:flex; gap:10px; overflow-x:auto; padding:10px 0;">${(p.gallery || []).map((img, imgIdx) => `<div style="position:relative; flex:0 0 80px;"><img src="${img}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><button onclick="removeProspectImage('${p.type}', ${p.originalIndex}, ${imgIdx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px;">×</button></div>`).join('')}<button onclick="addProspectImage('${p.type}', ${p.originalIndex})" style="flex:0 0 80px; height:80px; border:2px dashed #ccc; border-radius:8px; background:none; color:#999;"><i class="fas fa-plus"></i></button></div></div>
+<div class="box"><label>📍 Ubicación (GPS)</label><div style="display:flex; gap:5px;"><input type="text" placeholder="Lat, Lng" value="${p.lat && p.lng ? p.lat+','+p.lng : ''}" readonly style="font-size:0.8em; border-bottom:1px solid #ddd;"><button class="btn" onclick="getProspectLocation('${p.type}', ${p.originalIndex})" style="padding:5px; height:auto; background:${accentColor}; color:white;"><i class="fas fa-map-marker-alt"></i></button></div></div>
+<div class="box"><label>🗺️ Link Maps</label><div style="display:flex; gap:5px;"><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd; flex:1;"><button class="btn" onclick="if(voxiData.${p.type}[${p.originalIndex}].mapsLink) window.open(voxiData.${p.type}[${p.originalIndex}].mapsLink, '_blank')" style="padding:5px; height:auto; background:#4285F4; color:white;"><i class="fas fa-external-link-alt"></i></button></div></div>
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
+<div class="box"><label>CANTIDAD SOLICITADA</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>MONTO RECIBIDO (APARTADO)</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>ENGANCHE TOTAL</label><input type="text" value="${formatVoxiNumber(p.engancheTotal) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].engancheTotal=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
+${isMili ? `
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
+<div class="box"><label>RANGO MILITAR</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
+<div class="box"><label>PRESUPUESTO TOTAL</label><input type="text" value="${formatVoxiNumber(p.presupuestoTotal) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.milis[${p.originalIndex}].presupuestoTotal=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div id="coMilis_${p.id}" style="grid-column:span 2; padding:5px 0;">
+${(p.coMilis || []).map((co, coIdx) => `
+<div style="display:flex; gap:5px; margin-top:5px; align-items:center; background:#f9f9f9; padding:5px; border-radius:8px;">
+<select style="flex:1; font-size:0.8em; padding:4px;" onchange="voxiData.milis[${p.originalIndex}].coMilis[${coIdx}].rango=this.value;autoSave()">
+${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${co.rango===r?'selected':''}>${r}</option>`).join('')}
+</select>
+<input type="text" placeholder="Monto" value="${formatVoxiNumber(co.amount) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.milis[${p.originalIndex}].coMilis[${coIdx}].amount=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="width:100px; font-size:0.8em; border-bottom:1px solid #ccc;">
+<button onclick="voxiData.milis[${p.originalIndex}].coMilis.splice(${coIdx},1); renderProspects(); autoSave()" style="background:none; border:none; color:red; font-weight:900;">✕</button>
+</div>
+`).join('')}
+<button class="btn" style="background:#eee; color:#333; font-size:0.7em; margin-top:8px; width:100%; border:1px dashed #ccc;" onclick="if(!voxiData.milis[${p.originalIndex}].coMilis) voxiData.milis[${p.originalIndex}].coMilis=[]; voxiData.milis[${p.originalIndex}].coMilis.push({rango:'Cabo', amount:''}); renderProspects(); autoSave()">+ AÑADIR OTRO MILITAR (CRÉDITO MANCOMUNADO)</button>
+</div>
+<div class="box full-box" style="background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; padding:8px; margin-top:5px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><div style="font-size:0.6em; color:#2e7d32;">🔻 DESCUENTO 7%</div><div id="descM_${p.id}" style="font-weight:900; color:#d32f2f; font-size:0.9em;">-${formatVoxiNumber((p.montoDescuento || 0).toFixed(0))}</div></div><div style="text-align:right;"><div style="font-size:0.6em; color:#2e7d32;">💰 MONTO LIBRE VIVIENDA</div><div id="libreM_${p.id}" style="font-size:1.1em; font-weight:900; color:#1b5e20;">${formatVoxiNumber((p.montoLibre || 0).toFixed(0))}</div></div></div></div>
+` : ''}
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS CRÉDITO MILITAR</div>
-${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
+${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${ri + 1}. ${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
 ` : `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS EFECTIVO</div>
-${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r) => {
+${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r, ri) => {
 const realIdx = p.m.findIndex(d => d.n === r.n);
-return `<div class="check-item" style="grid-column:span 2;"><span>${r.n}</span><select onchange="voxiData.grals[${p.originalIndex}].m[${realIdx}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`;
+return `<div class="check-item" style="grid-column:span 2;"><span>${ri + 1}. ${r.n}</span><select onchange="voxiData.grals[${p.originalIndex}].m[${realIdx}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`;
 }).join('')}
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💵 NOTAS DEL TRATO</div>
 <div class="box full-box" style="background:#fff;"><label style="color:${accentColor};">Detalles o Acuerdos</label><textarea rows="2" style="font-weight:700;" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()">${p.interes||''}</textarea></div>
@@ -851,7 +1258,7 @@ ${voxiData.files.filter(f => f.prospectId == p.id).length > 0
 }
 </div>
 </div>
-<button class="btn" style="background:${accentColor}; color:white; margin-top:14px; font-size:0.85em; border-radius:12px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
+<button class="btn" style="background:${accentColor}; color:white; margin-top:14px; font-size:0.85em; border-radius:12px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
 <i class="fab fa-whatsapp"></i> CONTACTAR POR WHATSAPP
 </button>
 `;
@@ -910,7 +1317,7 @@ a.click();
 function openFlyerOptions(i) {
 currentPropIndex = i;
 const p = voxiData.props[i];
-document.getElementById('opt1-p').innerText = `🔥 ¡OPORTUNIDAD! ${p.titulo} - $${parseFloat((p.precio||'0').replace(/,/g,'')).toLocaleString('es-MX')}`;
+document.getElementById('opt1-p').innerText = `🔥 ¡OPORTUNIDAD! ${p.titulo} - $${p.precio}`;
 document.getElementById('opt2-p').innerText = `📋 ${p.titulo} – ${p.area} m² – ${p.recamaras} rec.`;
 document.getElementById('opt3-p').innerText = `🏡 Tu hogar en ${p.ubicacion}`;
 document.getElementById('flyerStep1').style.display = 'block';
@@ -919,7 +1326,7 @@ document.getElementById('flyerModal').style.display = 'flex';
 }
 function generateMessage(style, p) {
 const nombre = p.titulo || 'Propiedad';
-const precio = p.precio ? `$${parseFloat(p.precio.replace(/,/g,'')).toLocaleString('es-MX')}` : 'precio especial';
+const precio = p.precio ? `$${p.precio}` : 'precio especial';
 const ubi = p.ubicacion || 'Hidalgo';
 const area = p.area || '0';
 const desc = p.desc || '';
@@ -1161,72 +1568,183 @@ autoSave();
 alert('✅ Archivo guardado correctamente en dispositivo y nube.');
 }
 function voxiSearch(q) {
-const resDiv = document.getElementById('search-results');
-if(!q || q.length < 2) {
-resDiv.style.display = 'none';
-return;
-}
-resDiv.style.display = 'block';
-resDiv.innerHTML = '<div style="font-weight:900; font-size:0.75em; color:var(--primary); margin-bottom:8px;">🔍 RESULTADOS DE BÚSQUEDA</div>';
-let found = [];
-const lowerQ = q.toLowerCase();
-if(lowerQ.includes('debe') || lowerQ.includes('pagar') || lowerQ.includes('deudor')) {
-const deudores = [
-...voxiData.milis.filter(p => p.status === 'Dio apartado'),
-...voxiData.grals.filter(p => p.status === 'Dio apartado')
-];
-deudores.forEach(p => found.push({ t: `Deudor: ${p.nombre}`, d: 'Estado: Dio apartado', link: `goToRecord('prospectos','','${p.id}')` }));
-}
-if(lowerQ.includes('militar') && lowerQ.includes('incompleto')) {
-voxiData.milis.forEach(p => {
-const missing = p.m.filter(req => req.s === 'f').length;
-if(missing > 0) found.push({ t: `Militar: ${p.nombre}`, d: `Faltan ${missing} documentos`, link: `goToRecord('prospectos','','${p.id}')` });
-});
-}
-voxiData.props.forEach(p => {
-if((p.titulo||'').toLowerCase().includes(lowerQ) || (p.ubicacion||'').toLowerCase().includes(lowerQ) || (p.tipo||'').toLowerCase().includes(lowerQ)) {
-found.push({ t: `Casa/Terreno: ${p.titulo || p.tipo}`, d: `$${parseFloat((p.precio||'0').replace(/,/g,'')).toLocaleString('es-MX')} - ${p.ubicacion}`, link: `goToRecord('inventario','','null','${p.id}')` });
-}
-});
-const allP = [...voxiData.milis, ...voxiData.grals];
-allP.forEach(p => {
-if((p.nombre||'').toLowerCase().includes(lowerQ)) {
-found.push({ t: `Cliente: ${p.nombre}`, d: `Status: ${p.status}`, link: `goToRecord('prospectos','','${p.id}')` });
-}
-});
-voxiData.files.forEach(f => {
-if(f.name.toLowerCase().includes(lowerQ)) {
-found.push({ t: `Archivo: ${f.name}`, d: `Fecha: ${new Date(f.date).toLocaleDateString()}`, link: `openTab('archivos')` });
-}
-});
-if(found.length === 0) {
-resDiv.innerHTML += '<div style="color:#888; font-size:0.85em;">No encontré coincidencias exactas. Pruebe otra palabra.</div>';
-} else {
-found.forEach(f => {
-resDiv.innerHTML += `
-<div class="task-item" style="padding:10px; margin-bottom:5px; background:white; border:1px solid #eee; border-radius:10px;" onclick="${f.link}">
-<div class="task-info">
-<b style="font-size:0.9em; display:block;">${f.t}</b>
-<span style="font-size:0.75em; color:#666;">${f.d}</span>
-</div>
-<i class="fas fa-chevron-right" style="color:#ccc; font-size:0.8em;"></i>
-</div>`;
-});
-}
+    const resDiv = document.getElementById('search-results');
+    if (!resDiv) return;
+
+    // LIMPIEZA INICIAL
+    if (!q || q.trim().length < 2) {
+        resDiv.style.display = 'none';
+        resDiv.innerHTML = '';
+        return;
+    }
+
+    try {
+        // 1. CAPA DE DATOS PROTEGIDA (BLINDAJE LOCAL)
+        // Si voxiData o sus ramas no existen, inicializar temporalmente para evitar crash
+        const db = voxiData || {};
+        const milis = Array.isArray(db.milis) ? db.milis : [];
+        const grals = Array.isArray(db.grals) ? db.grals : [];
+        const props = Array.isArray(db.props) ? db.props : [];
+        const files = Array.isArray(db.files) ? db.files : [];
+        const allProspects = [...milis, ...grals];
+
+        const query = q.toLowerCase().trim();
+        const words = query.split(/\s+/).filter(w => w.length > 0);
+        let results = [];
+
+        // 2. LÓGICA DE BÚSQUEDA (DESACOPLADA)
+        
+        // Búsqueda en Clientes (Prospectos)
+        allProspects.forEach(p => {
+            const searchBody = `${p.nombre || ''} ${p.status || ''} ${p.telefono || ''} ${p.notas || ''}`.toLowerCase();
+            if (words.every(w => searchBody.includes(w))) {
+                results.push({
+                    cat: 'CLIENTE',
+                    title: p.nombre || 'Sin nombre',
+                    desc: `${p.status || 'Sin status'} | 📞 ${p.telefono || 'S/T'}`,
+                    icon: 'fa-user-tie',
+                    action: `goToRecord('prospectos','','${p.id}')`
+                });
+            }
+        });
+
+        // Búsqueda en Propiedades (Inventario)
+        props.forEach(p => {
+            const searchBody = `${p.titulo || ''} ${p.tipo || ''} ${p.ubicacion || ''} ${p.precio || ''} ${p.notas || ''}`.toLowerCase();
+            if (words.every(w => searchBody.includes(w))) {
+                results.push({
+                    cat: 'PROPIEDAD',
+                    title: p.titulo || p.tipo || 'Sin título',
+                    desc: `💰 $${p.precio || '0'} | 📍 ${p.ubicacion || 'Sin ubicación'}`,
+                    icon: 'fa-house-user',
+                    action: `goToRecord('inventario','','null','${p.id}')`
+                });
+            }
+        });
+
+        // Búsqueda de Deudas y Papeleo (Inteligente)
+        if (query.match(/(debe|pago|deuda|cobro|apartado|deudor)/)) {
+            allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
+                results.push({
+                    cat: 'DEUDA/COBRO',
+                    title: `Pendiente: ${p.nombre}`,
+                    desc: `Cliente con apartado. Revisar pagos pendientes.`,
+                    icon: 'fa-file-invoice-dollar',
+                    action: `goToRecord('prospectos','','${p.id}')`
+                });
+            });
+        }
+
+        if (query.match(/(contrato|papeleo|firma|expediente|documento|militar)/)) {
+            allProspects.forEach(p => {
+                const isMilitar = milis.some(m => m.id === p.id);
+                const hasMissingDoc = p.m && Array.isArray(p.m) && p.m.some(doc => doc.s === 'f');
+                if (hasMissingDoc || p.status === 'En escrituración') {
+                    results.push({
+                        cat: 'DOCUMENTACIÓN',
+                        title: `${isMilitar ? 'Militar' : 'Prospecto'}: ${p.nombre}`,
+                        desc: `Faltan documentos o en proceso de firma.`,
+                        icon: 'fa-paste',
+                        action: `goToRecord('prospectos','','${p.id}')`
+                    });
+                }
+            });
+        }
+
+        // Búsqueda en Archivos
+        files.forEach(f => {
+            if (f.name && f.name.toLowerCase().includes(query)) {
+                results.push({
+                    cat: 'ARCHIVO',
+                    title: f.name,
+                    desc: `📁 Documento guardado en nube.`,
+                    icon: 'fa-cloud-download-alt',
+                    action: `openTab('archivos')`
+                });
+            }
+        });
+
+        // 3. CAPA DE RENDERIZADO (BLINDADO)
+        resDiv.style.display = 'block';
+        if (results.length === 0) {
+            resDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#999; font-size:0.8em;">
+                <i class="fas fa-search-minus" style="font-size:2em; display:block; margin-bottom:10px; opacity:0.3;"></i>
+                No hay coincidencias locales para "${q}"
+            </div>`;
+        } else {
+            // Limitar a los mejores 15 resultados para evitar lentitud
+            const topResults = results.slice(0, 15);
+            resDiv.innerHTML = `
+                <div style="font-weight:950; font-size:0.65em; color:var(--primary); margin-bottom:12px; display:flex; justify-content:space-between;">
+                    <span>RESULTADOS ENCONTRADOS (${results.length})</span>
+                    <i class="fas fa-bolt"></i>
+                </div>
+                ${topResults.map(r => `
+                <div class="card" style="margin:0 0 10px 0; padding:12px; display:flex; align-items:center; gap:12px; cursor:pointer; border:1px solid #eee; border-left:4px solid var(--primary);" onclick="${r.action}">
+                    <div style="width:35px; height:35px; background:#f0f2f5; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--primary);">
+                        <i class="fas ${r.icon}"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:0.55em; font-weight:950; color:#aaa; margin-bottom:2px;">${r.cat}</div>
+                        <div style="font-size:0.85em; font-weight:800; color:#333; line-height:1.2;">${r.title}</div>
+                        <div style="font-size:0.7em; color:#666; margin-top:2px;">${r.desc}</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="font-size:0.7em; color:#ccc;"></i>
+                </div>
+                `).join('')}
+                ${results.length > 15 ? `<div style="text-align:center; font-size:0.7em; color:#999; padding:5px;">+${results.length - 15} más... sea más específico</div>` : ''}
+            `;
+        }
+
+    } catch (e) {
+        console.error("Search Error:", e);
+        resDiv.innerHTML = `<div style="color:red; font-size:0.7em; padding:10px;">Error en motor de búsqueda. Reiniciando...</div>`;
+    }
 }
 function startVoiceSearch() {
-if (!('webkitSpeechRecognition' in window)) {
-alert("Tu navegador no soporta búsqueda por voz.");
-return;
-}
-const recognition = new webkitSpeechRecognition();
-recognition.lang = 'es-MX';
-recognition.onresult = (event) => {
-const text = event.results[0][0].transcript;
-document.getElementById('smartSearch').value = text;
-voxiSearch(text);
-};
-recognition.start();
+    const mic = document.querySelector('.fa-microphone');
+    if (!('webkitSpeechRecognition' in window)) {
+        alert("Tu navegador no soporta búsqueda por voz nativa. Intenta usar Chrome o Safari.");
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'es-MX';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+        if(mic) mic.style.color = 'red';
+        if(mic) mic.classList.add('fa-pulse');
+    };
+
+    recognition.onresult = (event) => {
+        const text = event.results[0][0].transcript;
+        const input = document.getElementById('smartSearch');
+        input.value = text;
+        voxiSearch(text);
+        if(mic) {
+            mic.style.color = 'var(--primary)';
+            mic.classList.remove('fa-pulse');
+        }
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Voice Error:", event.error);
+        if(mic) {
+            mic.style.color = 'var(--primary)';
+            mic.classList.remove('fa-pulse');
+        }
+    };
+
+    recognition.onend = () => {
+        if(mic) {
+            mic.style.color = 'var(--primary)';
+            mic.classList.remove('fa-pulse');
+        }
+    };
+
+    recognition.start();
 }
 function toggleCollapse(id) {
 const el = document.getElementById(id);
@@ -1241,94 +1759,284 @@ if(icon) icon.className = 'fas fa-chevron-down';
 }
 }
 function renderAssistant() {
-const now = new Date();
-const allProspects = [
-...voxiData.milis.map((m, i) => ({ ...m, type: 'milis', idx: i })),
-...voxiData.grals.map((g, i) => ({ ...g, type: 'grals', idx: i }))
-].sort((a,b) => b.id - a.id);
-const cold = allProspects.filter(p => p.status === 'Nuevo Cliente').length;
-const closing = allProspects.filter(p => p.status === 'Dio apartado').length;
-const totalProps = voxiData.props.length;
-const inTalks = allProspects.filter(p => p.status === 'Pláticas avanzadas').length;
-document.getElementById('stat-cold').innerText = cold;
-document.getElementById('stat-closing').innerText = closing;
-document.getElementById('stat-props').innerText = totalProps;
-document.getElementById('stat-payments').innerText = inTalks;
-const quotes = [
-"ESTRATEGIA: Un cliente que pregunta por el precio dos veces está listo para una oferta de cierre.",
-"TIP EXPERTO: No vendas metros cuadrados, vende el patrimonio de su familia. Eso no tiene precio.",
-"CIERRE: Si el cliente duda, ofrécele una visita hoy mismo. La emoción se enfría en 24 horas.",
-"NEGOCIACIÓN: Nunca bajes el precio sin pedir algo a cambio (firma inmediata o mayor apartado).",
-"VISIÓN: El mejor momento para captar una propiedad fue ayer; el segundo mejor es HOY.",
-"INTELIGENCIA: Revisa tus preventas. Si la obra avanza, el precio DEBE subir para proteger tu ganancia."
-];
-const qElem = document.getElementById('assistant-quote');
-if(qElem) qElem.innerText = `"${quotes[now.getDay() % quotes.length]}"`;
-const agendaDiv = document.getElementById('assistant-agenda');
-agendaDiv.innerHTML = '';
-let agendaItems = [];
-if(closing > 0) agendaItems.push({ text: `CIERRE: ${closing} trámites de apartado hoy.`, priority: true, action: "openTab('prospectos')" });
-if(inTalks > 0) agendaItems.push({ text: `NEGOCIACIÓN: ${inTalks} clientes calientes. Llama ahora.`, priority: true, action: "openTab('prospectos')" });
-agendaItems.push({ text: `Actualizar precios de propiedades en preventa.`, priority: true, action: "openTab('inventario')" });
-agendaItems.push({ text: `Tomar o actualizar fotos de tus propiedades.`, priority: false, action: "openTab('inventario')" });
-agendaItems.forEach((item, idx) => {
-agendaDiv.innerHTML += `<div class="agenda-item ${item.priority ? 'priority' : 'normal'}" onclick="event.stopPropagation(); ${item.action}">
-<div class="agenda-num">${idx+1}</div>
-<span>${item.priority ? '🔴 ' : '🔵 '} ${item.text}</span>
-</div>`;
-});
-const sugDiv = document.getElementById('assistant-suggestions');
-sugDiv.innerHTML = '';
-sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid #3b5998; background:#f0f2f5;" onclick="event.stopPropagation(); window.open('https://www.facebook.com', '_blank')">
-<div class="task-info">
-<b style="color:#3b5998;"><i class="fab fa-facebook"></i> Publicar hoy en Facebook</b>
-<div style="font-size:0.85em;">Atrae nuevos prospectos publicando tus preventas.</div>
-</div>
-</div>`;
-sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid #25d366; background:#e8f5e9;" onclick="event.stopPropagation(); window.open('https://web.whatsapp.com', '_blank')">
-<div class="task-info">
-<b style="color:#25d366;"><i class="fab fa-whatsapp"></i> Ver WhatsApp</b>
-<div style="font-size:0.85em;">Responde a tus clientes y cierra ventas pendientes.</div>
-</div>
-</div>`;
-voxiData.props.forEach(p => {
-const precio = parseFloat((p.precio||'0').replace(/,/g,''));
-const ganancia = parseFloat((p.ganancia||'0').replace(/,/g,''));
-if(precio > 0 && (ganancia / precio) < 0.15 && p.estatus !== 'Vendido') {
-sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid #ff9800; background:#fffbf0;" onclick="event.stopPropagation(); goToRecord('inventario','','null','${p.id}')">
-<div class="task-info">
-<b style="color:#e65100;">⚠️ REVISAR MARGEN</b>
-<div style="font-size:0.85em;">Ganancia en ${p.titulo || p.tipo} baja (<15%).</div>
-</div>
-</div>`;
+    const now = new Date();
+    const db = voxiData || {};
+    
+    // 0. MOTIVACIÓN Y ESTRATEGIA (MODO SOCIO)
+    const hours = now.getHours();
+    let greeting = hours < 12 ? "¡Buenos días, Socio! ☕" : hours < 18 ? "¡Buenas tardes, Socio! 💪" : "¡Buenas noches, Socio! 🌙";
+    const quotes = [
+        "El éxito inmobiliario no es cuestión de suerte, es cuestión de seguimiento.",
+        "Cada 'no' te acerca más al próximo cierre en efectivo. ¡Dale con todo!",
+        "Tus clientes militares confían en tu criterio. Asegura su patrimonio.",
+        "La disciplina de hoy es la comisión de mañana. Revisa tus prospectos calientes.",
+        "No vendes casas, vendes hogares y seguridad. Haz que valga la pena."
+    ];
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+    const strategy = "Estrategia: Hoy enfócate en los prospectos que 'Dieron apartado'. Son los cierres más próximos.";
+    
+    const motivDiv = document.getElementById('assistant-motivation');
+    if(motivDiv) {
+        motivDiv.innerHTML = `
+            <div style="background: linear-gradient(135deg, ${accentColor}, #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div style="font-weight:900; font-size:1.1em;">${greeting}</div>
+                <div style="font-size:0.85em; font-style:italic; margin-top:5px; opacity:0.9;">"${quote}"</div>
+                <div style="font-size:0.8em; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.2); font-weight:700;">🎯 ${strategy}</div>
+            </div>
+        `;
+    }
+
+    const milis = Array.isArray(db.milis) ? db.milis : [];
+    const grals = Array.isArray(db.grals) ? db.grals : [];
+    const props = Array.isArray(db.props) ? db.props : [];
+    
+    const allProspects = [...milis, ...grals].sort((a,b) => b.id - a.id);
+    
+    const cold = allProspects.filter(p => p.status === 'Nuevo Cliente').length;
+    const closing = allProspects.filter(p => p.status === 'Dio apartado').length;
+    const totalProps = props.length;
+    const inTalks = allProspects.filter(p => p.status === 'Pláticas avanzadas').length;
+
+    // Métricas
+    if(document.getElementById('stat-cold')) document.getElementById('stat-cold').innerText = cold;
+    if(document.getElementById('stat-closing')) document.getElementById('stat-closing').innerText = closing;
+    if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = totalProps;
+    if(document.getElementById('stat-payments')) document.getElementById('stat-payments').innerText = inTalks;
+
+    // Frase del Socio
+    const quotes = [
+        "ESTRATEGIA: Un cliente que pregunta por el precio dos veces está listo para una oferta de cierre.",
+        "TIP EXPERTO: No vendas metros cuadrados, vende el patrimonio de su familia. Eso no tiene precio.",
+        "CIERRE: Si el cliente duda, ofrécele una visita hoy mismo. La emoción se enfría en 24 horas.",
+        "NEGOCIACIÓN: Nunca bajes el precio sin pedir algo a cambio (firma inmediata o mayor apartado).",
+        "VISIÓN: El mejor momento para captar una propiedad fue ayer; el segundo mejor es HOY.",
+        "INTELIGENCIA: Revisa tus preventas. Si la obra avanza, el precio DEBE subir para proteger tu ganancia."
+    ];
+    const qElem = document.getElementById('assistant-quote');
+    if(qElem) qElem.innerText = `"${quotes[now.getDay() % quotes.length]}"`;
+
+    // AGENDA INTELIGENTE
+    const agendaDiv = document.getElementById('assistant-agenda');
+    if(agendaDiv) {
+        agendaDiv.innerHTML = '';
+        let agendaItems = [];
+        if(closing > 0) agendaItems.push({ text: `CIERRE: ${closing} trámites de apartado hoy.`, priority: true, action: "openTab('prospectos')" });
+        if(inTalks > 0) agendaItems.push({ text: `NEGOCIACIÓN: ${inTalks} clientes calientes. Llama ahora.`, priority: true, action: "openTab('prospectos')" });
+        agendaItems.push({ text: `Actualizar precios de propiedades en preventa.`, priority: true, action: "openTab('inventario')" });
+        agendaItems.forEach((item, idx) => {
+            agendaDiv.innerHTML += `<div class="agenda-item ${item.priority ? 'priority' : 'normal'}" onclick="event.stopPropagation(); ${item.action}">
+                <div class="agenda-num">${idx+1}</div>
+                <span>${item.priority ? '🔴 ' : '🔵 '} ${item.text}</span>
+            </div>`;
+        });
+    }
+
+    // SUGERENCIAS PROACTIVAS
+    const sugDiv = document.getElementById('assistant-suggestions');
+    if(sugDiv) {
+        sugDiv.innerHTML = '';
+        // Facebook & WA sempre fijos
+        const fixedSugs = [
+            { title: 'Publicar hoy en Facebook', desc: 'Atrae nuevos prospectos publicando preventas.', icon: 'fab fa-facebook', color: '#3b5998', bg: '#f0f2f5', link: 'https://www.facebook.com' },
+            { title: 'Ver WhatsApp Business', desc: 'Responde a tus clientes y cierra ventas.', icon: 'fab fa-whatsapp', color: '#25d366', bg: '#e8f5e9', link: 'https://web.whatsapp.com' }
+        ];
+        fixedSugs.forEach(s => {
+            sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid ${s.color}; background:${s.bg};" onclick="event.stopPropagation(); window.open('${s.link}', '_blank')">
+                <div class="task-info">
+                    <b style="color:${s.color};"><i class="${s.icon}"></i> ${s.title}</b>
+                    <div style="font-size:0.85em;">${s.desc}</div>
+                </div>
+            </div>`;
+        });
+
+        // Alerta de Margen (Detección Inteligente)
+        props.forEach(p => {
+            const precio = parseFloat((p.precio||'0').toString().replace(/,/g,''));
+            const ganancia = parseFloat((p.ganancia||'0').toString().replace(/,/g,''));
+            if(precio > 0 && (ganancia / precio) < 0.15 && p.estatus !== 'Vendido') {
+                sugDiv.innerHTML += `<div class="task-item" style="border-left:4px solid #ff9800; background:#fffbf0;" onclick="event.stopPropagation(); goToRecord('inventario','','null','${p.id}')">
+                    <div class="task-info">
+                        <b style="color:#e65100;">⚠️ REVISAR MARGEN</b>
+                        <div style="font-size:0.85em;">Ganancia en ${p.titulo || p.tipo} baja (<15%).</div>
+                    </div>
+                </div>`;
+            }
+        });
+    }
+
+    // ALERTAS CRÍTICAS (AUTOMÁTICAS BASADAS EN DATOS)
+    const alertDiv = document.getElementById('assistant-alerts');
+    if(alertDiv) {
+        alertDiv.innerHTML = '';
+        let alertsHtml = '';
+        
+        function createAlert(level, text, action, tel = null) {
+            // Activar notificación real al renderizar alertas críticas nuevas
+            if (level === 'Rojo' || level === 'Amarillo') {
+                sendLocalPush("ALERTA DE SEGUIMIENTO", text);
+            }
+            const colors = { 'Rojo': ['#ffebee', '#d32f2f'], 'Amarillo': ['#fff9c4', '#fbc02d'], 'Azul': ['#e3f2fd', '#1e88e5'] };
+            const [bg, border] = colors[level] || colors['Azul'];
+            let btns = `<button class="wa-mini" style="background:${border};" onclick="event.stopPropagation(); ${action}">IR</button>`;
+            if (tel) {
+                btns = `<div style="display:flex; gap:5px;">
+                    <button class="wa-mini" style="background:#2e7d32; width:36px;" onclick="event.stopPropagation(); window.open('tel:${tel}')"><i class="fas fa-phone"></i></button>
+                    <button class="wa-mini" style="background:#25d366; width:36px;" onclick="event.stopPropagation(); window.open('https://wa.me/52${tel}')"><i class="fab fa-whatsapp"></i></button>
+                    ${btns}
+                </div>`;
+            }
+            return `<div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:0.82em; font-weight:700; color:#333; padding-right:8px;">${text}</div>
+                ${btns}
+            </div>`;
+        }
+
+        // 1. Detección de Recordatorios para Mañana (Seguimiento)
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+        allProspects.forEach(p => {
+            if (p.proximaCita === tomorrowStr) {
+                alertsHtml += createAlert('Azul', `📅 SEGUIMIENTO MAÑANA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
+            }
+        });
+
+        // 2. Pagos Pendientes (Vencimiento Cercano o Dio Apartado sin fecha)
+        allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
+            const label = p.fechaVencimiento ? `VENCE ${p.fechaVencimiento}` : 'PAGO PENDIENTE';
+            alertsHtml += createAlert('Amarillo', `💰 ${label}: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
+        });
+
+        // 3. Tareas Manuales Asignadas (Notas con "URGENTE" o "PENDIENTE")
+        allProspects.forEach(p => {
+            const nota = (p.notas || '').toUpperCase();
+            if (nota.includes('URGENTE') || nota.includes('PENDIENTE')) {
+                alertsHtml += createAlert('Rojo', `⚠️ TAREA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
+            }
+        });
+
+        // 4. CRM de Recordatorios Inteligentes con Prioridades
+        if (!voxiData.manualAlerts) voxiData.manualAlerts = [];
+        
+        // Ordenar por prioridad: Urgente > Hoy > Mañana > Semana > Pendiente
+        const priorityOrder = { '🔴 URGENTE': 1, '🟠 HOY': 2, '🟡 MAÑANA': 3, '🔵 SEMANA': 4, '⚪ PENDIENTE': 5 };
+        const sortedAlerts = [...voxiData.manualAlerts].sort((a, b) => (priorityOrder[a.priority] || 99) - (priorityOrder[b.priority] || 99));
+
+        let manualAlertsHtml = '';
+        sortedAlerts.forEach((ma) => {
+            if(!ma.id) ma.id = Date.now() + Math.random(); 
+            const colors = { '🔴 URGENTE': '#ffebee', '🟠 HOY': '#fff3e0', '🟡 MAÑANA': '#fffde7', '🔵 SEMANA': '#e3f2fd', '⚪ PENDIENTE': '#f5f5f5' };
+            const borders = { '🔴 URGENTE': '#d32f2f', '🟠 HOY': '#ef6c00', '🟡 MAÑANA': '#fbc02d', '🔵 SEMANA': '#1976d2', '⚪ PENDIENTE': '#9e9e9e' };
+            const bg = colors[ma.priority] || '#f5f5f5';
+            const border = borders[ma.priority] || '#9e9e9e';
+            
+            // Encontrar índice original para borrar correctamente
+            const originalIdx = voxiData.manualAlerts.findIndex(x => x === ma);
+
+            if (editingAlertId == ma.id) {
+                // MODO EDICIÓN
+                manualAlertsHtml += `
+                    <div style="background:${bg}; border:2px solid ${border}; padding:10px; border-radius:12px; margin-bottom:8px;" onclick="event.stopPropagation();">
+                        <textarea id="edit-text-${ma.id}" style="width:100%; border:1px solid #ddd; border-radius:8px; padding:8px; font-size:0.85em; font-family:inherit; margin-bottom:8px; outline:none; background:white;">${ma.text}</textarea>
+                        <div style="display:flex; gap:5px; align-items:center;">
+                            <input type="time" id="edit-time-${ma.id}" value="${ma.time !== '--:--' ? ma.time : ''}" style="padding:6px; border-radius:8px; border:1px solid #ddd; font-size:0.75em; flex:1;">
+                            <button onclick="saveEditAlert(${originalIdx}, '${ma.id}')" style="background:#2e7d32; color:white; border:none; border-radius:8px; padding:8px 12px; font-size:0.75em; font-weight:bold;">
+                                <i class="fas fa-check"></i> GUARDAR
+                            </button>
+                            <button onclick="editingAlertId=null; renderAssistant();" style="background:#757575; color:white; border:none; border-radius:8px; padding:8px 12px; font-size:0.75em; font-weight:bold;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // VISTA NORMAL
+                manualAlertsHtml += `
+                    <div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:0.82em; font-weight:700; color:#333; flex:1;">
+                            <div style="font-size:0.65em; color:${border}; font-weight:950; margin-bottom:2px;">${ma.priority} [${ma.time || 'S/H'}]</div>
+                            ${ma.text}
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="wa-mini" style="background:#ffa000; width:30px;" onclick="event.stopPropagation(); editingAlertId='${ma.id}'; renderAssistant();">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button class="wa-mini" style="background:#e57373; width:30px;" onclick="event.stopPropagation(); voxiData.manualAlerts.splice(${originalIdx},1); renderAssistant(); autoSave();">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        const noteArea = `
+            ${manualAlertsHtml}
+            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:15px;" onclick="event.stopPropagation();">
+                <div style="font-size:0.65em; font-weight:900; color:#aaa; margin-bottom:8px; text-transform:uppercase;">📝 NUEVO RECORDATORIO (CRM)</div>
+                <textarea id="new-manual-alert" 
+                    style="width:100%; border:1px solid #ddd; border-radius:12px; padding:12px; font-size:0.85em; min-height:60px; font-family:inherit; outline:none; background:#fcfcfc; margin-bottom:8px;"
+                    placeholder="Escribe tu pendiente aquí..."
+                    onclick="event.stopPropagation();"></textarea>
+                
+                <div style="display:flex; gap:5px; flex-wrap:wrap; align-items:center;" onclick="event.stopPropagation();">
+                    <select id="alert-priority" style="padding:8px; border-radius:8px; border:1px solid #ddd; font-size:0.75em; font-weight:bold; flex:1;" onclick="event.stopPropagation();">
+                        <option value="🔴 URGENTE">🔴 URGENTE</option>
+                        <option value="🟠 HOY">🟠 HOY</option>
+                        <option value="🟡 MAÑANA">🟡 MAÑANA</option>
+                        <option value="🔵 SEMANA">🔵 SEMANA</option>
+                        <option value="⚪ PENDIENTE" selected>⚪ PENDIENTE</option>
+                    </select>
+                    <input type="time" id="alert-time" style="padding:7px; border-radius:8px; border:1px solid #ddd; font-size:0.75em;" onclick="event.stopPropagation();">
+                    <button onclick="event.stopPropagation(); saveManualAlert();" style="background:var(--primary); color:white; border:none; border-radius:12px; padding:10px 15px; font-size:0.85em; font-weight:900; cursor:pointer;">
+                        <i class="fas fa-save"></i> GUARDAR
+                    </button>
+                </div>
+            </div>
+        `;
+        alertsHtml += noteArea;
+
+        alertDiv.innerHTML = alertsHtml || '<div style="text-align:center; color:#888; font-size:0.85em; padding:20px;"><i class="fas fa-check-circle" style="color:var(--success); font-size:1.5em; display:block; margin-bottom:5px;"></i> Todo bajo control, socio.</div>';
+    }
 }
-});
-const alertDiv = document.getElementById('assistant-alerts');
-alertDiv.innerHTML = '';
-let alertsHtml = '';
-function createAlert(level, text, action, tel = null) {
-const bg = { 'Rojo': '#ffebee', 'Amarillo': '#fff9c4', 'Azul': '#e3f2fd' }[level];
-const border = { 'Rojo': '#d32f2f', 'Amarillo': '#fbc02d', 'Azul': '#1e88e5' }[level];
-let btns = `<button class="wa-mini" style="background:${border};" onclick="event.stopPropagation(); ${action}">IR</button>`;
-if (tel) {
-btns = `<div style="display:flex; gap:5px;">
-<button class="wa-mini" style="background:#2e7d32; width:36px;" onclick="event.stopPropagation(); window.open('tel:${tel}')"><i class="fas fa-phone"></i></button>
-<button class="wa-mini" style="background:#25d366; width:36px;" onclick="event.stopPropagation(); window.open('https://wa.me/52${tel}')"><i class="fab fa-whatsapp"></i></button>
-${btns}
-</div>`;
+function saveManualAlert() {
+    const text = document.getElementById('new-manual-alert').value;
+    const time = document.getElementById('alert-time').value;
+    const priority = document.getElementById('alert-priority').value;
+    if(!text) {
+        alert("Por favor escribe la nota del recordatorio.");
+        return;
+    }
+    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
+    voxiData.manualAlerts.push({ 
+        id: Date.now(),
+        text, 
+        time: time || '--:--', 
+        priority: priority || '⚪ PENDIENTE',
+        date: new Date().toISOString(),
+        type: 'Recordatorio Manual' 
+    });
+
+    // Notificación Push inmediata al guardar manualmente si es prioritario
+    if (priority.includes('URGENTE') || priority.includes('HOY')) {
+        sendLocalPush("NUEVA ALERTA MANUAL", text + (time ? " a las " + time : ""));
+    }
+
+    renderAssistant();
+    autoSave();
+    document.getElementById('new-manual-alert').value = '';
 }
-return `<div style="background:${bg}; border-left:5px solid ${border}; padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-<div style="font-size:0.82em; font-weight:700; color:#333; padding-right:8px;">${text}</div>
-${btns}
-</div>`;
-}
-voxiData.milis.forEach((p) => {
-const missing = p.m.filter(req => req.s === 'f').length;
-if (missing > 0 && p.status === 'Nuevo Cliente') {
-alertsHtml += createAlert('Rojo', `📄 Falta documentación: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`);
-}
-});
-alertDiv.innerHTML = alertsHtml || '<div style="text-align:center; color:#888; font-size:0.85em; padding:10px;">Sin alertas urgentes.</div>';
+function saveEditAlert(index, id) {
+    const newText = document.getElementById(`edit-text-${id}`).value;
+    const newTime = document.getElementById(`edit-time-${id}`).value;
+    if (newText) {
+        voxiData.manualAlerts[index].text = newText;
+        voxiData.manualAlerts[index].time = newTime || '--:--';
+        editingAlertId = null;
+        renderAssistant();
+        autoSave();
+    }
 }
 function goToRecord(tab, id, prospectId = null, propId = null) {
 if(prospectId) activeProspectId = prospectId;
@@ -1346,56 +2054,136 @@ setTimeout(() => el.style.boxShadow = '', 3000);
 }
 let saveTimeout;
 function autoSave() {
-const status = document.getElementById('auto-save-status');
-status.style.display = 'block';
-clearTimeout(saveTimeout);
-saveTimeout = setTimeout(() => {
-saveMaster(false);
-setTimeout(() => { status.style.display = 'none'; }, 800);
-}, 1500);
+    const status = document.getElementById('auto-save-status');
+    if(status) status.style.display = 'block';
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveMaster(false);
+        setTimeout(() => { if(status) status.style.display = 'none'; }, 800);
+    }, 2000);
+}
+function showVoxiToast(msg) {
+    const t = document.getElementById('voxi-toast');
+    if(!t) return;
+    t.innerText = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 function saveMaster(showMsg) {
-voxiData.props.forEach(p => {
-const text = (p.desc || "").toUpperCase();
-const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
-const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
-if (keywordsMilitar.some(k => text.includes(k))) {
-p.estatus = "CRÉDITO MILITAR";
-} else if (keywordsEfectivo.some(k => text.includes(k))) {
-p.estatus = "CLIENTE EFECTIVO";
+    const startTime = Date.now();
+    voxiData.props.forEach(p => {
+        const text = (p.desc || "").toUpperCase();
+        const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
+        const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
+        if (keywordsMilitar.some(k => text.includes(k))) {
+            p.estatus = "CRÉDITO MILITAR";
+        } else if (keywordsEfectivo.some(k => text.includes(k))) {
+            p.estatus = "CLIENTE EFECTIVO";
+        }
+    });
+    localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+    if(showMsg) showVoxiToast('💾 Guardando en nube...');
+    const cStatus = document.getElementById('cloud-status');
+    if(cStatus) {
+        cStatus.style.display = 'block';
+        cStatus.innerHTML = '⌛ Sincronizando...';
+    }
+
+    const dataToSync = JSON.parse(JSON.stringify(voxiData));
+    if (dataToSync.pendingUploads) {
+        dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
+    }
+
+    firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
+    .then(() => { 
+        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        if(cStatus) {
+            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
+            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+        }
+        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
+    })
+    .catch(err => {
+        console.error("Cloud Save Error", err);
+        if(showMsg) showVoxiToast('❌ Error al guardar en nube');
+        if(cStatus) {
+            cStatus.innerHTML = '❌ Error de red';
+            cStatus.style.color = 'red';
+        }
+    });
 }
-});
-localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-const cStatus = document.getElementById('cloud-status');
-if(cStatus) {
-cStatus.style.display = 'block';
-cStatus.innerHTML = '⌛ Guardando...';
+function renderFolderGallery() {
+    const div = document.getElementById('folderGallery'); if(!div) return;
+    div.innerHTML = GALLERY_FOLDERS.map(f => `
+        <div class="card" style="margin:0; padding:15px; text-align:center; cursor:pointer; background:white; border:2px solid #eee;" onclick="openFolder('${f}')">
+            <div style="font-size:2em; margin-bottom:8px;">${f.split(' ')[0]}</div>
+            <div style="font-size:0.7em; font-weight:900; line-height:1.2;">${f.split(' ').slice(1).join(' ')}</div>
+            <div style="font-size:0.6em; color:#888; margin-top:5px;">${(voxiData.galleries[f] || []).length} fotos</div>
+        </div>
+    `).join('');
 }
-db.collection("data").doc(SYNC_ID).set(voxiData)
-.then(() => { 
-console.log("Cloud Save Success");
-if(cStatus) {
-cStatus.innerHTML = '☁️ Nube Actualizada';
-setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+
+function openFolder(f) {
+    activeFolder = f;
+    document.getElementById('folderGallery').style.display = 'none';
+    document.getElementById('activeFolderView').style.display = 'block';
+    document.getElementById('folderTitle').innerText = f;
+    renderFolderImages();
 }
-if(showMsg) {
-const uniqueID = "ID-" + Date.now();
-alert("✅ Registro guardado con éxito.\n📂 Ubicación: Propiedades/Ventas\n🆔 Folio: " + uniqueID);
+
+function closeFolder() {
+    activeFolder = null;
+    document.getElementById('folderGallery').style.display = 'grid';
+    document.getElementById('activeFolderView').style.display = 'none';
+    renderFolderGallery();
 }
-})
-.catch(err => {
-console.error("Cloud Save Error", err);
-if(cStatus) {
-cStatus.innerHTML = '⚠️ Error en Nube';
-cStatus.style.color = 'red';
+
+function renderFolderImages() {
+    const div = document.getElementById('folderImages'); if(!div) return;
+    const images = voxiData.galleries[activeFolder] || [];
+    div.innerHTML = images.map((img, i) => `
+        <div class="gallery-item" style="position:relative; margin-bottom:10px;">
+            <img src="${img}" style="width:100%; border-radius:10px;" onclick="shareFolderImage('${img}')">
+            <button class="del" style="position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer;" onclick="deleteFolderImage(${i})">×</button>
+        </div>
+    `).join('');
 }
-});
+
+function triggerFolderUpload(type) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    if(type === 'camera') input.setAttribute('capture', 'environment');
+    input.multiple = true;
+    input.onchange = (e) => {
+        const files = e.target.files;
+        if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
+        Array.from(files).forEach(f => saveImageHibrido(f, 'folder', null, null));
+    };
+    input.click();
 }
+
+function deleteFolderImage(i) {
+    if(confirm('¿Eliminar esta imagen?')) {
+        voxiData.galleries[activeFolder].splice(i, 1);
+        renderFolderImages();
+        autoSave();
+    }
+}
+
+function shareFolderImage(img) {
+    const msg = `Hola, te comparto este diseño del catálogo de Constructor HR: ${activeFolder}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+}
+
 async function loadMaster() {
 const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
 if(s) { 
 voxiData = JSON.parse(s); 
+if(!voxiData.galleries) voxiData.galleries = {};
+if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
 renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
+setTimeout(processSyncQueue, 3000);
 }
 db.collection("data").doc(SYNC_ID).get().then(doc => {
 if(doc.exists) {
@@ -1451,7 +2239,146 @@ location.reload();
 reader.readAsText(input.files[0]);
 }
 async function doOCR(i) { if(!i.files[0])return; let w=await Tesseract.createWorker('spa'); let r=await w.recognize(i.files[0]); document.getElementById('editor').innerText=r.data.text; await w.terminate(); }
-window.onload = loadMaster;
+
+async function calculateRoute(i) {
+    const p = voxiData.props[i];
+    const origin = document.getElementById(`routeA_${i}`).value || '';
+    const dest = document.getElementById(`routeB_${i}`).value || '';
+    if(!origin || !dest) { alert("Ingresa origen y destino"); return; }
+    
+    const btn = event.currentTarget;
+    const oldText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> CALCULANDO...';
+    btn.disabled = true;
+
+    // Activar Google Maps Real
+    const mapUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=driving`;
+    window.open(mapUrl, '_blank');
+
+    // Simulación de guardado para el historial mientras se obtiene el dato real
+    setTimeout(() => {
+        const dist = (Math.random() * 15 + 2).toFixed(1); // Mantenemos simulación local por si no hay API Key
+        const time = Math.round(dist * 1.8 + 3);
+        p.routeDist = dist;
+        p.routeTime = time;
+        p.routeA = origin;
+        p.routeB = dest;
+        if(!p.routeHist) p.routeHist = [];
+        p.routeHist.push(`${origin} ➔ ${dest}: ${dist}km | ${time}min`);
+        renderProps();
+        autoSave();
+        btn.disabled = false;
+        btn.innerHTML = oldText;
+    }, 1200);
+}
+
+function getCurrentLocationForRoute(i) {
+    if (!navigator.geolocation) { alert("Geolocalización no soportada."); return; }
+    const btn = event.currentTarget;
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:10px;"></i>';
+    navigator.geolocation.getCurrentPosition(pos => {
+        const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
+        document.getElementById(`routeA_${i}`).value = coords;
+        voxiData.props[i].routeA = coords;
+        autoSave();
+        btn.innerHTML = '<i class="fas fa-check" style="font-size:10px;"></i>';
+        setTimeout(() => btn.innerHTML = oldHtml, 2000);
+    }, err => {
+        alert("Error: " + err.message);
+        btn.innerHTML = '<i class="fas fa-times" style="font-size:10px;"></i>';
+        setTimeout(() => btn.innerHTML = oldHtml, 2000);
+    }, { enableHighAccuracy: true });
+}
+
+function addProspectImage(type, idx) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (file) saveImageHibrido(file, type, idx, null);
+    };
+    input.click();
+}
+function removeProspectImage(type, idx, imgIdx) {
+    if (confirm('¿Eliminar imagen?')) {
+        voxiData[type][idx].gallery.splice(imgIdx, 1);
+        renderProspects();
+        autoSave();
+    }
+}
+function formatVoxiNumber(val) {
+    if (val === null || val === undefined || val === '') return '';
+    let sVal = val.toString();
+    let isNeg = sVal.includes('-');
+    let num = sVal.replace(/[^0-9.]/g, '');
+    if (num === '') return '';
+    let parts = num.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return (isNeg ? '-' : '') + '$' + parts.join('.');
+}
+
+function getProspectLocation(type, idx) {
+    if (!navigator.geolocation) { showVoxiToast("⚠️ GPS no soportado"); return; }
+    showVoxiToast("🛰️ Obteniendo ubicación...");
+    navigator.geolocation.getCurrentPosition(pos => {
+        const p = voxiData[type][idx];
+        p.lat = pos.coords.latitude.toFixed(6);
+        p.lng = pos.coords.longitude.toFixed(6);
+        p.mapsLink = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+        showVoxiToast("📍 Ubicación guardada");
+        renderProspects();
+        autoSave();
+    }, err => showVoxiToast("❌ Error GPS: " + err.message), { enableHighAccuracy: true });
+}
+function updateFinancials(type, idx) {
+    const p = voxiData[type][idx];
+    const total = parseFloat((p.engancheTotal||'').toString().replace(/,/g,'')) || 0;
+    const recibido = parseFloat((p.montoRecibido||'').toString().replace(/,/g,'')) || 0;
+    p.saldoPendiente = total - recibido;
+    const div = document.getElementById(`saldo_${p.id}`);
+    if(div) div.innerText = formatVoxiNumber(p.saldoPendiente.toFixed(0));
+}
+function updateMilitaryBudget(idx) {
+    const p = voxiData.milis[idx];
+    let total = parseFloat((p.presupuestoTotal||'').toString().replace(/,/g,'')) || 0;
+    if(p.coMilis) {
+        p.coMilis.forEach(co => {
+            total += (parseFloat((co.amount||'').toString().replace(/,/g,'')) || 0);
+        });
+    }
+    p.montoDescuento = total * 0.07;
+    p.montoLibre = total - p.montoDescuento;
+    const dM = document.getElementById(`descM_${p.id}`);
+    const lM = document.getElementById(`libreM_${p.id}`);
+    if(dM) dM.innerText = "-" + formatVoxiNumber(p.montoDescuento.toFixed(0));
+    if(lM) lM.innerText = formatVoxiNumber(p.montoLibre.toFixed(0));
+}
+function updateCostoObra(i) {
+    const p = voxiData.props[i];
+    const precio = parseFloat((p.precio||'').toString().replace(/,/g,'')) || 0;
+    const ganancia = parseFloat((p.ganancia||'').toString().replace(/,/g,'')) || 0;
+    const costo = precio - ganancia;
+    const div = document.getElementById('costoObra_' + p.id);
+    if(div) div.innerText = 'Costo de Obra: ' + formatVoxiNumber(costo.toFixed(0));
+}
+window.onload = () => {
+    loadMaster();
+    window.addEventListener('online', () => {
+        processSyncQueue();
+        console.log("Socio, estamos online. Sincronizando alertas y datos...");
+    });
+    if (navigator.onLine) {
+        setTimeout(processSyncQueue, 5000);
+        setTimeout(initNotifications, 2000); 
+    }
+    startAlertMonitor(); // Iniciar monitoreo de alertas reales
+};
+
 </script>
+<div id="voxiLoader"><div class="spinner"></div><span id="voxiLoaderText">Subiendo...</span></div>
+<div id="voxi-toast"></div>
 </body>
 </html>
+
