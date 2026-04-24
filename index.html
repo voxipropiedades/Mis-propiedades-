@@ -476,7 +476,7 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 </div>
 <div class="fixed-footer">
 <button class="btn" style="background:#444; color:white; width:auto; padding:0 15px; margin-right:10px;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+ NUEVO</button>
-<button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
+<button class="btn btn-save" onclick="saveMaster(true); executeCleanupAfterSave();"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
 <script>
 const firebaseConfig = {
@@ -2131,12 +2131,37 @@ function autoSave() {
     if(status) status.style.display = 'block';
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
-        // Ejecutar guardado en background
-        saveMaster(false).catch(e => console.error('Error en autoSave:', e));
-        // Reconstruir índice de búsqueda después de guardar
+        // Ejecutar guardado sin esperar (no-blocking)
+        saveMaster(false);
+        // Reconstruir índice sin bloquear
         if (typeof buildSearchIndex === 'function') {
-            setTimeout(() => buildSearchIndex(), 100);
+            setTimeout(() => buildSearchIndex(), 50);
         }
+// ===== LIMPIEZA AUTOMÁTICA DE FORMULARIOS =====
+function clearAllFormFields() {
+    // Limpiar todos los inputs, selects y textareas
+    document.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], select, textarea').forEach(field => {
+        if (!field.readOnly && !field.disabled) {
+            field.value = '';
+        }
+    });
+    // Resetear índices
+    currentPropIndex = null;
+    activeProspectId = null;
+    activePropId = null;
+}
+
+// Ejecutar limpieza después de guardar exitoso
+function executeCleanupAfterSave() {
+    setTimeout(() => {
+        clearAllFormFields();
+        showVoxiToast('✨ Listo para nuevo registro');
+    }, 600);
+}
+
+        setTimeout(() => { if(status) status.style.display = 'none'; }, 500);
+    }, 1500); // Reducido de 2000 a 1500ms
+}
         setTimeout(() => { if(status) status.style.display = 'none'; }, 800);
     }, 2000);
 }
@@ -2296,47 +2321,45 @@ function shareFolderImage(img) {
 }
 
 async function loadMaster() {
-// Intentar cargar de IndexedDB primero
-let s = null;
-try {
-    s = await localforage.getItem('hr_v38_db');
-} catch(e) {
-    console.warn('Error cargando de IndexedDB:', e);
-}
-
-// Si no hay en IndexedDB, intentar localStorage (compatibilidad)
-if (!s) {
-    s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
-}
-
-// Si s es un objeto (de IndexedDB), convertir a string si es necesario
-if (s && typeof s === 'object') {
-    s = JSON.stringify(s);
-}
-if(s) { 
-voxiData = JSON.parse(s); 
-if(!voxiData.galleries) voxiData.galleries = {};
-if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
-renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
-setTimeout(processSyncQueue, 3000);
-}
-db.collection("data").doc(SYNC_ID).get().then(async doc => {
-if(doc.exists) {
-const cloudData = doc.data();
-if(!s) {
-voxiData = cloudData;
-renderProps(); renderProspects(); renderFiles(); renderAssistant();
-localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-try {
-    await localforage.setItem('hr_v38_db', voxiData);
-} catch(e) {
-    console.error('Error guardando en IndexedDB:', e);
-}
-} else {
-console.log("Datos locales presentes, ignorando carga automática de nube.");
-}
-}
-});
+    // Cargar de IndexedDB sin bloquear
+    let s = null;
+    try {
+        s = await localforage.getItem('hr_v38_db');
+    } catch(e) {
+        console.warn('IndexedDB load error:', e);
+    }
+    
+    // Fallback a localStorage
+    if (!s) {
+        s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db');
+    }
+    
+    if (s && typeof s === 'object') {
+        s = JSON.stringify(s);
+    }
+    
+    if(s) { 
+        voxiData = JSON.parse(s); 
+        if(!voxiData.galleries) voxiData.galleries = {};
+        if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
+        if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
+        renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
+        setTimeout(processSyncQueue, 2000); // No bloquear
+    }
+    
+    // Cargar de Firebase sin bloquear
+    db.collection("data").doc(SYNC_ID).get().then(async doc => {
+        if(doc.exists && !s) {
+            const cloudData = doc.data();
+            voxiData = cloudData;
+            renderProps(); renderProspects(); renderFiles(); renderAssistant();
+            try {
+                await localforage.setItem('hr_v38_db', voxiData);
+            } catch(e) {
+                console.error('Error guardando en IndexedDB:', e);
+            }
+        }
+    }).catch(err => console.error('Firebase load error:', err));
 }
 function manualSync() {
 if(!confirm('¿Quieres descargar los datos de la Nube? Esto reemplazará lo que tienes en este dispositivo.')) return;
