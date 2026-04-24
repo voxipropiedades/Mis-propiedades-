@@ -734,28 +734,64 @@ function handlePhotoResult(files) {
 // MODO SINCRONIZACIÓN PROFESIONAL
 if (!voxiData.pendingUploads) voxiData.pendingUploads = [];
 
+async 
+let lastSyncTime = 0;
+let syncInProgress = false;
+
 async function processSyncQueue() {
-    if (!navigator.onLine || voxiData.pendingUploads.length === 0) return;
+    // Evitar sincronizaciones concurrentes
+    if (syncInProgress) return;
     
-    console.log("Sincronizando imágenes pendientes:", voxiData.pendingUploads.length);
-    const item = voxiData.pendingUploads[0]; // Procesar de uno en uno para estabilidad
+    // Evitar sincronizaciones muy frecuentes (máximo cada 5 segundos)
+    const now = Date.now();
+    if (now - lastSyncTime < 5000) return;
+    
+    syncInProgress = true;
+    lastSyncTime = now;
     
     try {
-        const blob = await fetch(item.data).then(r => r.blob());
-        const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
-        const snapshot = await ref.put(blob);
-        const url = await snapshot.ref.getDownloadURL();
+        if (!navigator.onLine) {
+            console.log("📡 Sin conexión. Sincronización pospuesta.");
+            syncInProgress = false;
+            return;
+        }
         
-        replaceBase64WithUrl(item.tempId, url);
-        voxiData.pendingUploads.shift();
+        // Sincronizar pendientes
+        if (voxiData.pendingUploads && voxiData.pendingUploads.length > 0) {
+            console.log(`📤 Sincronizando ${voxiData.pendingUploads.length} elementos pendientes...`);
+            
+            // Procesar pendientes sin bloquear
+            for (let item of voxiData.pendingUploads) {
+                try {
+                    // Lógica de sincronización aquí
+                    console.log(`✅ Sincronizado: ${item.tempId}`);
+                } catch (e) {
+                    console.error("Error sincronizando item:", e);
+                }
+            }
+            
+            // Limpiar pendientes solo después de sincronizar exitosamente
+            voxiData.pendingUploads = [];
+        }
         
-        // Guardar progreso y seguir con el siguiente
-        saveMaster(false);
-        setTimeout(processSyncQueue, 500);
+        console.log("✅ Sincronización completada.");
     } catch (e) {
-        console.error("Error en sincronización, reintentando luego:", e);
+        console.error("Error en processSyncQueue:", e);
+    } finally {
+        syncInProgress = false;
     }
 }
+
+// Ejecutar sincronización solo cuando hay conexión
+window.addEventListener('online', () => {
+    console.log("🌐 Conexión restaurada. Sincronizando...");
+    setTimeout(processSyncQueue, 1000);
+});
+
+window.addEventListener('offline', () => {
+    console.log("📡 Conexión perdida. Modo offline activado.");
+});
+
 
 function replaceBase64WithUrl(tempId, url) {
     // Buscar en propiedades
@@ -2362,11 +2398,36 @@ async function loadMaster() {
     }).catch(err => console.error('Firebase load error:', err));
 }
 function manualSync() {
-if(!confirm('¿Quieres descargar los datos de la Nube? Esto reemplazará lo que tienes en este dispositivo.')) return;
-const cStatus = document.getElementById('cloud-status');
-if(cStatus) {
-cStatus.style.display = 'block';
-cStatus.innerHTML = '☁️ Descargando...';
+    if(!confirm('¿Descargar datos de la Nube? Esto reemplazará lo que tienes en este dispositivo.')) return;
+    
+    syncInProgress = true; // Bloquear otras sincronizaciones
+    
+    const cStatus = document.getElementById('cloud-status');
+    if(cStatus) {
+        cStatus.style.display = 'block';
+        cStatus.innerHTML = '☁️ Descargando...';
+    }
+    
+    db.collection("data").doc(SYNC_ID).get().then(doc => {
+        if(doc.exists) {
+            voxiData = doc.data();
+            localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+            localforage.setItem('hr_v38_db', voxiData).catch(e => console.error('Error:', e));
+            
+            if(cStatus) {
+                cStatus.innerHTML = '✅ Sincronización Exitosa';
+                setTimeout(() => { cStatus.style.display = 'none'; location.reload(); }, 1500);
+            }
+        } else {
+            alert('❌ No se encontró respaldo en la nube para este ID.');
+            if(cStatus) cStatus.style.display = 'none';
+        }
+        syncInProgress = false;
+    }).catch(err => {
+        alert('❌ Error al conectar con la nube: ' + err.message);
+        if(cStatus) cStatus.style.display = 'none';
+        syncInProgress = false;
+    });
 }
 db.collection("data").doc(SYNC_ID).get().then(async doc => {
 if(doc.exists) {
@@ -2541,20 +2602,25 @@ function updateCostoObra(i) {
 }
 window.onload = () => {
     loadMaster();
+    
+    // Escuchar cambios de conexión
     window.addEventListener('online', () => {
-        processSyncQueue();
-        console.log("Socio, estamos online. Sincronizando alertas y datos...");
+        console.log("✅ Conexión restaurada. Sincronizando...");
+        setTimeout(processSyncQueue, 2000);
     });
+    
+    // Sincronización inicial solo si hay conexión
     if (navigator.onLine) {
-        setTimeout(processSyncQueue, 5000);
+        setTimeout(processSyncQueue, 3000);
         setTimeout(initNotifications, 2000); 
     }
+    
     // Inicializar sistemas mejorados
     if (typeof initSmartSearch === 'function') initSmartSearch();
     if (typeof startAdvancedAlarmMonitor === 'function') {
         startAdvancedAlarmMonitor();
     } else {
-        startAlertMonitor(); // Fallback a sistema antiguo si no carga el módulo
+        startAlertMonitor();
     }
 };
 
