@@ -497,30 +497,10 @@ let performanceMetrics = {
 // ===== CONTROL DE SINCRONIZACIÓN CRÍTICO =====
 let isSyncing = false;
 let saveTimeout = null;
-let lastSaveTime = 0;
-
 function autoSave() {
-    // Evitar guardados muy frecuentes
-    const now = Date.now();
-    if (now - lastSaveTime < 1500) return;
-    lastSaveTime = now;
-    
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
-        // GUARDAR SOLO EN INDEXEDDB - INSTANTÁNEO
-        voxiData.updatedAt = Date.now();
-        voxiData.deviceId = SYNC_ID;
-        
-        // Fire and forget - no esperar
-        localforage.setItem('hr_v38_db', voxiData).catch(e => {
-            console.error('Error guardando:', e);
-        });
-        
-        // Respaldo en localStorage
-        localStorage.setItem('hr_v38_db_meta', JSON.stringify({ 
-            updatedAt: voxiData.updatedAt, 
-            deviceId: SYNC_ID 
-        }));
+        saveMaster(false);
     }, 1500);
 }
 
@@ -572,20 +552,18 @@ function showVoxiToast(msg) {
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 async function saveMaster(showMsg) {
-    // Guardar SOLO localmente - INSTANTANEO
     voxiData.updatedAt = Date.now();
-    voxiData.deviceId = SYNC_ID;
+    voxiData.deviceId = "local_device";
     
-    localforage.setItem('hr_v38_db', voxiData).catch(e => {
-        console.error('Error guardando:', e);
-    });
-    
-    localStorage.setItem('hr_v38_db_meta', JSON.stringify({ 
-        updatedAt: voxiData.updatedAt, 
-        deviceId: SYNC_ID 
-    }));
-    
-    if(showMsg) showVoxiToast('✅ Guardado');
+    // Guardar en IndexedDB
+    try {
+        await localforage.setItem('hr_v38_db', voxiData);
+        // Respaldo rápido
+        localStorage.setItem('hr_v38_db_meta', JSON.stringify({ updatedAt: voxiData.updatedAt }));
+        if(showMsg) showVoxiToast('✅ Guardado Correctamente');
+    } catch(e) {
+        console.error('Error al guardar:', e);
+    }
 }
 
 function renderFolderGallery() {
@@ -679,8 +657,7 @@ async function loadMaster() {
     }
 }
 
-function manualSync() { alert("Sincronización desactivada. La app funciona 100% offline."); }
-}
+function manualSync() { alert("Modo Offline Activo"); }
 // Sincronización automática DESACTIVADA para evitar bloqueos al cargar
 function exportData() {
 const blob = new Blob([JSON.stringify(voxiData, null, 2)], { type: 'application/json' });
@@ -837,19 +814,11 @@ function updateCostoObra(i) {
 }
 window.onload = () => {
     loadMaster();
-    
-    // Inicializar módulos
     if (typeof initSmartSearch === 'function') initSmartSearch();
     if (typeof startAdvancedAlarmMonitor === 'function') {
         startAdvancedAlarmMonitor();
     } else {
         startAlertMonitor();
-    }
-    
-    // Sincronizar cuando hay conexión
-    if (navigator.onLine) {
-        
-        
     }
 };
 
