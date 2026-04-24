@@ -635,6 +635,26 @@ let voxiData = {
     updatedAt: Date.now(),
     deviceId: SYNC_ID
 };
+// ===== MÉTRICAS DE RENDIMIENTO =====
+let performanceMetrics = {
+    lastIndexedDBTime: 0,
+    lastFirebaseTime: 0,
+    lastTotalTime: 0
+};
+
+function logPerformanceMetrics(operation, indexedDBTime, firebaseTime) {
+    performanceMetrics.lastIndexedDBTime = indexedDBTime;
+    performanceMetrics.lastFirebaseTime = firebaseTime;
+    performanceMetrics.lastTotalTime = indexedDBTime + firebaseTime;
+    console.log(`⏱️ ${operation}: IndexedDB=${indexedDBTime}ms, Firebase=${firebaseTime}ms, Total=${performanceMetrics.lastTotalTime}ms`);
+    
+    // Mostrar en consola del navegador
+    const perfDiv = document.getElementById('perf-metrics');
+    if (perfDiv) {
+        perfDiv.innerHTML = `⏱️ IndexedDB: ${indexedDBTime}ms | Firebase: ${firebaseTime}ms | Total: ${performanceMetrics.lastTotalTime}ms`;
+    }
+}
+
     const GALLERY_FOLDERS = [
         '🏠 Fachadas',
         '📐 Planos arquitectónicos (1 piso)',
@@ -791,7 +811,9 @@ function saveImageHibrido(file, type, index, subIdx) {
     
     // Guardar en IndexedDB (sin límite de tamaño)
     try {
+        const indexedDBStart = Date.now();
         await localforage.setItem('hr_v38_db', voxiData);
+        const indexedDBTime = Date.now() - indexedDBStart;
         // Mantener respaldo en localStorage para compatibilidad
         localStorage.setItem('hr_v38_db_meta', JSON.stringify({ updatedAt: voxiData.updatedAt, deviceId: SYNC_ID }));
     } catch(e) {
@@ -1257,7 +1279,8 @@ card.innerHTML = `
 	<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#2e7d32;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
-<div class="box"><label>RANGO MILITAR</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
+	<div class="box"><label>NÚMERO OMI (OBLIGATORIO)</label><input type="text" value="${p.numeroOMI || ''}" placeholder="Ej. 123456" oninput="voxiData.milis[${p.originalIndex}].numeroOMI=this.value; autoSave()" style="border-bottom:1px solid #ddd; font-weight:700;"></div>
+	<div class="box"><label>RANGO MILITAR</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
 <div class="box"><label>PRESUPUESTO TOTAL</label><input type="text" value="${formatVoxiNumber(p.presupuestoTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.milis[${p.originalIndex}].presupuestoTotal=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
 <div id="coMilis_${p.id}" style="grid-column:span 2; padding:5px 0;">
 ${(p.coMilis || []).map((co, coIdx) => `
@@ -2108,10 +2131,34 @@ function autoSave() {
     if(status) status.style.display = 'block';
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
-        saveMaster(false);
+        // Ejecutar guardado en background
+        saveMaster(false).catch(e => console.error('Error en autoSave:', e));
         // Reconstruir índice de búsqueda después de guardar
-        if (typeof buildSearchIndex === 'function') buildSearchIndex();
+        if (typeof buildSearchIndex === 'function') {
+            setTimeout(() => buildSearchIndex(), 100);
+        }
         setTimeout(() => { if(status) status.style.display = 'none'; }, 800);
+    }, 2000);
+}
+// ===== LIMPIEZA DE FORMULARIOS POST-GUARDADO =====
+function clearFormFields() {
+    // Limpiar campos de propiedades
+    document.querySelectorAll('.box input, .box select, .box textarea').forEach(field => {
+        field.value = '';
+    });
+    // Limpiar campos de prospectos
+    document.querySelectorAll('#prospect-form input, #prospect-form select, #prospect-form textarea').forEach(field => {
+        field.value = '';
+    });
+    // Limpiar campos de militares
+    document.querySelectorAll('#military-form input, #military-form select, #military-form textarea').forEach(field => {
+        field.value = '';
+    });
+    // Resetear índices
+    currentPropIndex = null;
+    activeProspectId = null;
+}
+, 800);
     }, 2000);
 }
 function showVoxiToast(msg) {
@@ -2122,7 +2169,13 @@ function showVoxiToast(msg) {
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 async function saveMaster(showMsg) {
-    const startTime = Date.now();
+    const perfStart = Date.now();
+    // Ejecutar en background sin bloquear la UI
+    if (showMsg) showVoxiToast('💾 Guardando en nube...');
+    
+    // Procesar de forma no-bloqueante
+    setTimeout(async () => {
+        const startTime = Date.now();
     voxiData.props.forEach(p => {
         const text = (p.desc || "").toUpperCase();
         const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
@@ -2157,8 +2210,11 @@ async function saveMaster(showMsg) {
         dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
     }
 
+    const firebaseStart = Date.now();
     firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
     .then(() => { 
+        const firebaseTime = Date.now() - firebaseStart;
+        logPerformanceMetrics('Guardado', indexedDBTime, firebaseTime);
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
         if(cStatus) {
             cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
