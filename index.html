@@ -2159,12 +2159,36 @@ function shareFolderImage(img) {
 }
 
 
+
 async function loadMaster() {
     try {
         const idbData = await localDB.load('voxi_main_db');
         if(idbData) {
             voxiData = idbData;
         } else {
+            const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db');
+            if(s) voxiData = JSON.parse(s);
+        }
+    } catch(e) {
+        const s = localStorage.getItem('hr_v38_db');
+        if(s) voxiData = JSON.parse(s);
+    }
+    
+    // Asegurar estructura mínima
+    if(!voxiData.props) voxiData.props = [];
+    if(!voxiData.milis) voxiData.milis = [];
+    if(!voxiData.grals) voxiData.grals = [];
+    if(!voxiData.files) voxiData.files = [];
+    if(!voxiData.galleries) voxiData.galleries = {};
+    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
+    if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
+    
+    renderProps(); 
+    renderProspects(); 
+    renderFiles(); 
+    renderAssistant();
+}
+ else {
             const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db');
             if(s) voxiData = JSON.parse(s);
         }
