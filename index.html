@@ -511,15 +511,7 @@ async function initNotifications() {
     if (!messaging) return;
     
     // Registrar Service Worker para notificaciones en segundo plano
-    if ('serviceWorker' in navigator) {
-        // SW Desactivado
-        .then(function(registration) {
-            console.log('FCM Service Worker registrado con éxito:', registration.scope);
-            messaging.useServiceWorker(registration);
-        }).catch(function(err) {
-            console.error('Error al registrar FCM Service Worker:', err);
-        });
-    }
+    /* SW REGISTRATION REMOVED TO FIX SYNTAX ERROR */
 
     try {
         const permission = await Notification.requestPermission();
@@ -543,7 +535,7 @@ async function initNotifications() {
     }
 
     if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then(reg => {
+        // navigator.serviceWorker.ready.then(reg => {
             reg.showNotification(title, options);
         });
     } else {
