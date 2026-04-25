@@ -491,6 +491,10 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <button class="btn" style="background:#444; color:white; width:auto; padding:0 15px; margin-right:10px;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+ NUEVO</button>
 <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 <script>
 const firebaseConfig = {
 apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
@@ -2252,5 +2256,6 @@ window.onload = () => {
 <div id="voxi-toast"></div>
 </body>
 </html>
+
 
 
