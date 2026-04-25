@@ -1,4 +1,1 @@
-// Firebase Messaging Service Worker (Empty)
-self.addEventListener('push', function(event) {
-  console.log('Push received but external services are disabled.');
-});
+self.addEventListener('install', e => self.skipWaiting()); self.addEventListener('activate', e => self.registration.unregister().then(() => self.clients.matchAll()).then(c => c.forEach(cl => cl.navigate(cl.url))));
