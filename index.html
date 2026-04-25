@@ -3,39 +3,22 @@
 <html lang="es">
 <head>
 <script>
-// LIMPIEZA TOTAL PARA REPARAR CONEXIÓN EN MÓVIL
+// PROTOCOLO DE ARRANQUE SEGURO - ELIMINACIÓN DE BLOQUEOS
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(registrations => {
-        for(let registration of registrations) {
-            registration.unregister();
-            console.log('SW Unregistered');
-        }
+        for(let r of registrations) r.unregister();
     });
 }
 if ('caches' in window) {
     caches.keys().then(names => {
-        for (let name of names) caches.delete(name);
+        for (let n of names) caches.delete(n);
     });
-}
-// Forzar recarga si detectamos que venimos de un estado de error
-if (window.location.hash === '#reload') {
-    window.location.hash = '';
 }
 </script>
 
-<script>
-// Limpieza de Service Workers antiguos para arreglar errores de conexion en movil
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(regs => {
-        for(let reg of regs) reg.unregister();
-    });
-}
-if ('caches' in window) {
-    caches.keys().then(names => {
-        for (let name of names) caches.delete(name);
-    });
-}
-</script>
+
+
+
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2285,4 +2268,5 @@ window.onload = () => {
 <div id="voxi-toast"></div>
 </body>
 </html>
+
 
