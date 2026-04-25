@@ -476,6 +476,7 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos Local Segur
 </div>
 <script>
 function processSyncQueue() { console.log("Modo 100% local."); }
+function manualSync() { alert("Modo 100% local. Los datos se guardan en tu dispositivo."); }
 function initNotifications() { console.log("Notificaciones locales."); }
 
 const db_fire = null; const storage = null; const messaging = null;
@@ -689,42 +690,6 @@ voxiData.props[i].maps = currentMaps ? currentMaps + "\n" + url : url;
 autoSave();
 renderProps();
 window.open(url, '_blank');
-}
-  try {
-    console.log("Iniciando subida de archivo:", file.name, "Tamaño:", file.size);
-    
-    // Si el archivo es mayor a 1.5MB, lo comprimimos antes de subir
-    let fileToUpload = file;
-    if (file.size > 1500000) {
-        console.log("Archivo pesado detectado, comprimiendo...");
-        if(loaderText) loaderText.innerText = "Comprimiendo...";
-        fileToUpload = await compressImage(file, 1000);
-    }
-
-    const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
-    
-    // Usamos el evento de progreso para dar feedback
-    const uploadTask = ref.put(fileToUpload);
-    
-    uploadTask.on('state_changed', 
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            if(loaderText) loaderText.innerText = "Subiendo: " + Math.round(progress) + "%";
-        }
-    );
-
-    await uploadTask;
-    const url = await ref.getDownloadURL();
-    console.log("URL generada con éxito:", url);
-    
-    if(loader) loader.style.display = 'none';
-    return url;
-  } catch (error) {
-    console.error("Error crítico en subida:", error);
-    if(loader) loader.style.display = 'none';
-    alert("Error al subir: " + error.message);
-    return null;
-  }
 }
 
 // Función auxiliar para compresión rápida
