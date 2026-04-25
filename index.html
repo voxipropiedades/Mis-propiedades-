@@ -1629,6 +1629,11 @@ if(icon) icon.className = 'fas fa-chevron-up';
 el.style.display = 'none';
 if(icon) icon.className = 'fas fa-chevron-down';
 }
+    if (!voxiData) voxiData = { props: [], milis: [], grals: [], files: [], galleries: {}, manualAlerts: [], pendingUploads: [] }; 
+    voxiData.milis = Array.isArray(voxiData.milis) ? voxiData.milis : []; 
+    voxiData.grals = Array.isArray(voxiData.grals) ? voxiData.grals : []; 
+    voxiData.props = Array.isArray(voxiData.props) ? voxiData.props : []; 
+    voxiData.manualAlerts = Array.isArray(voxiData.manualAlerts) ? voxiData.manualAlerts : [];
 }
 function renderAssistant() {
     const now = new Date();
