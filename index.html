@@ -474,24 +474,11 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <button class="btn" style="background:#444; color:white; width:auto; padding:0 15px; margin-right:10px;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+ NUEVO</button>
 <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 <script>
-const firebaseConfig = {
-apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
-authDomain: "voxiapp-6672e.firebaseapp.com",
-projectId: "voxiapp-6672e",
-storageBucket: "voxiapp-6672e.firebasestorage.app",
-messagingSenderId: "332968241548",
-appId: "1:332968241548:web:7f35ebe2cd2443fb0732",
-measurementId: "G-77F6483313"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
-const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
+function processSyncQueue() { console.log("Modo 100% local."); }
+function initNotifications() { console.log("Notificaciones locales."); }
+
+const db_fire = null; const storage = null; const messaging = null;
 
 // GESTIÓN DE NOTIFICACIONES REALES (PWA)
 async function initNotifications() {
@@ -1941,9 +1928,8 @@ function showVoxiToast(msg) {
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 function saveMaster(showMsg) {
-    const startTime = Date.now();
     voxiData.props.forEach(p => {
-        if (p.estatus === "Vendido") return; // No sobreescribir si ya está vendida
+        if (p.estatus === "Vendido") return;
         const text = (p.desc || "").toUpperCase();
         const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
         const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
@@ -1954,35 +1940,7 @@ function saveMaster(showMsg) {
         }
     });
     localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-    if(showMsg) showVoxiToast('💾 Guardando en nube...');
-    const cStatus = document.getElementById('cloud-status');
-    if(cStatus) {
-        cStatus.style.display = 'block';
-        cStatus.innerHTML = '⌛ Sincronizando...';
-    }
-
-    const dataToSync = JSON.parse(JSON.stringify(voxiData));
-    if (dataToSync.pendingUploads) {
-        dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
-    }
-
-    firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
-    .then(() => { 
-        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-        if(cStatus) {
-            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
-            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
-        }
-        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
-    })
-    .catch(err => {
-        console.error("Cloud Save Error", err);
-        if(showMsg) showVoxiToast('❌ Error al guardar en nube');
-        if(cStatus) {
-            cStatus.innerHTML = '❌ Error de red';
-            cStatus.style.color = 'red';
-        }
-    });
+    if(showMsg) showVoxiToast('✅ Guardado localmente');
 }
 function renderFolderGallery() {
     const div = document.getElementById('folderGallery'); if(!div) return;
@@ -2048,18 +2006,6 @@ function shareFolderImage(img) {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
 }
 
-async function loadMaster() {
-const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
-if(s) { 
-voxiData = JSON.parse(s); 
-if(!voxiData.galleries) voxiData.galleries = {};
-if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
-renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
-setTimeout(processSyncQueue, 3000);
-}
-console.log("Sync removed");
-});
-}
 function exportData() {
 const blob = new Blob([JSON.stringify(voxiData, null, 2)], { type: 'application/json' });
 const a = document.createElement('a');
