@@ -2,6 +2,24 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>
+// PROTOCOLO DE ARRANQUE SEGURO - ELIMINACIÓN DE BLOQUEOS
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        for(let r of registrations) r.unregister();
+    });
+}
+if ('caches' in window) {
+    caches.keys().then(names => {
+        for (let n of names) caches.delete(n);
+    });
+}
+</script>
+
+
+
+
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Constructor Independiente HR</title>
@@ -169,7 +187,7 @@ body * { visibility: hidden; }
 .assist-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .assist-header i { font-size: 1.8em; color: var(--info); }
 .assist-quote { font-style: italic; color: #444; background: #e8f0fe; padding: 13px; border-radius: 12px; margin-bottom: 16px; border-left: 4px solid var(--info); font-size: 0.9em; }
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .stat-box { background: #f8f9fa; padding: 14px; border-radius: 14px; text-align: center; border: 1px solid #eee; }
 .stat-box h5 { margin: 0; font-size: 0.65em; color: #888; text-transform: uppercase; letter-spacing:.5px; }
 .stat-box p { margin: 6px 0 0; font-size: 1.6em; font-weight: 900; }
@@ -242,8 +260,7 @@ oninput="voxiSearch(this.value)">
 <div id="assistant-quote" class="assist-quote" style="font-style:italic; color:#444; border-left:4px solid var(--primary); padding-left:12px; margin-bottom:15px;">"Preparando tu plan de cierre..."</div>
 <div class="section-label" style="grid-column:unset;">📊 MÉTRICAS Y RESUMEN</div>
 <div class="stat-grid" style="margin-top:12px;">
-<div class="stat-box"><h5>🏠 Activas</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
-<div class="stat-box"><h5>✅ Vendidas</h5><p id="stat-sold" style="color:#2e7d32;">0</p></div>
+<div class="stat-box"><h5>🏠 Propiedades</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
 <div class="stat-box"><h5>🤝 Por Cerrar</h5><p id="stat-closing" style="color:var(--success);">0</p></div>
 <div class="stat-box"><h5>❄️ Seguimiento</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
 <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
@@ -548,9 +565,9 @@ function startAlertMonitor() {
     }, 60000); // Revisar cada minuto
 }
 
+<script>
 // --- CONFIGURACIÓN ---
 let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {}, manualAlerts: [], pendingUploads: [] };
-let editingAlertId = null;
 let activePropId = null;
 let activeProspectId = null;
 let activeFolder = null;
@@ -617,6 +634,32 @@ async function loadMaster() {
     if(typeof startAlertMonitor === 'function') startAlertMonitor();
 }
 
+async function saveMaster(showMsg = false) {
+    const status = document.getElementById('auto-save-status');
+    if(status) status.style.display = 'block';
+
+    // Clasificación automática
+    voxiData.props.forEach(p => {
+        const d = (p.desc || "").toUpperCase();
+        if(d.includes("MILITAR") || d.includes("ISSFAM")) p.estatus = "CRÉDITO MILITAR";
+        else if(d.includes("EFECTIVO") || d.includes("CONTADO")) p.estatus = "CLIENTE EFECTIVO";
+    });
+
+    try {
+        await localDB.save(SYNC_ID, voxiData);
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        if(showMsg) alert("✅ Guardado Exitoso");
+    } catch(e) { console.error("Error guardado:", e); }
+    finally { if(status) setTimeout(() => status.style.display = 'none', 800); }
+}
+
+let saveTimeout;
+function autoSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => saveMaster(false), 2000);
+}
+
+// --- IMÁGENES (LOCAL-ONLY POR AHORA) ---
 function saveImageHibrido(file, type, index, subIdx) {
     processImg(file, 800, (b64) => {
         saveImageInState(b64, type, index, subIdx);
@@ -888,8 +931,6 @@ ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style
 <option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>🏗️ Preventa</option>
 <option value="Construida" ${p.estatus==='Construida'?'selected':''}>🏠 Construida</option>
 <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
-<option value="CRÉDITO MILITAR" ${p.estatus==='CRÉDITO MILITAR'?'selected':''}>🎖️ Crédito Militar</option>
-<option value="CLIENTE EFECTIVO" ${p.estatus==='CLIENTE EFECTIVO'?'selected':''}>💵 Cliente Efectivo</option>
 </select></div>
 <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
 <div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:700;"></div>
@@ -1629,11 +1670,6 @@ if(icon) icon.className = 'fas fa-chevron-up';
 el.style.display = 'none';
 if(icon) icon.className = 'fas fa-chevron-down';
 }
-    if (!voxiData) voxiData = { props: [], milis: [], grals: [], files: [], galleries: {}, manualAlerts: [], pendingUploads: [] }; 
-    voxiData.milis = Array.isArray(voxiData.milis) ? voxiData.milis : []; 
-    voxiData.grals = Array.isArray(voxiData.grals) ? voxiData.grals : []; 
-    voxiData.props = Array.isArray(voxiData.props) ? voxiData.props : []; 
-    voxiData.manualAlerts = Array.isArray(voxiData.manualAlerts) ? voxiData.manualAlerts : [];
 }
 function renderAssistant() {
     const now = new Date();
@@ -1655,7 +1691,7 @@ function renderAssistant() {
     const motivDiv = document.getElementById('assistant-motivation');
     if(motivDiv) {
         motivDiv.innerHTML = `
-            <div style="background: linear-gradient(135deg, #b71c1c, #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div style="background: linear-gradient(135deg, ${accentColor}, #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="font-weight:900; font-size:1.1em;">${greeting}</div>
                 <div style="font-size:0.85em; font-style:italic; margin-top:5px; opacity:0.9;">"${quote}"</div>
                 <div style="font-size:0.8em; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.2); font-weight:700;">🎯 ${strategy}</div>
@@ -1671,19 +1707,17 @@ function renderAssistant() {
     
     const cold = allProspects.filter(p => p.status === 'Nuevo Cliente').length;
     const closing = allProspects.filter(p => p.status === 'Dio apartado').length;
-    const soldProps = props.filter(p => p.estatus === 'Vendido' || p.estatus === 'CRÉDITO MILITAR' || p.estatus === 'CLIENTE EFECTIVO').length;
-    const activeProps = props.filter(p => p.estatus === 'Preventa' || p.estatus === 'Construida').length;
+    const totalProps = props.length;
     const inTalks = allProspects.filter(p => p.status === 'Pláticas avanzadas').length;
 
     // Métricas
     if(document.getElementById('stat-cold')) document.getElementById('stat-cold').innerText = cold;
     if(document.getElementById('stat-closing')) document.getElementById('stat-closing').innerText = closing;
-    if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = activeProps;
-    if(document.getElementById('stat-sold')) document.getElementById('stat-sold').innerText = soldProps;
+    if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = totalProps;
     if(document.getElementById('stat-payments')) document.getElementById('stat-payments').innerText = inTalks;
 
-    // Frase del Socio (Expert Tips)
-    const expertQuotes = [
+    // Frase del Socio
+    const quotes = [
         "ESTRATEGIA: Un cliente que pregunta por el precio dos veces está listo para una oferta de cierre.",
         "TIP EXPERTO: No vendas metros cuadrados, vende el patrimonio de su familia. Eso no tiene precio.",
         "CIERRE: Si el cliente duda, ofrécele una visita hoy mismo. La emoción se enfría en 24 horas.",
@@ -1692,7 +1726,7 @@ function renderAssistant() {
         "INTELIGENCIA: Revisa tus preventas. Si la obra avanza, el precio DEBE subir para proteger tu ganancia."
     ];
     const qElem = document.getElementById('assistant-quote');
-    if(qElem) qElem.innerText = `"${expertQuotes[now.getDay() % expertQuotes.length]}"`;
+    if(qElem) qElem.innerText = `"${quotes[now.getDay() % quotes.length]}"`;
 
     // AGENDA INTELIGENTE
     const agendaDiv = document.getElementById('assistant-agenda');
@@ -1951,7 +1985,6 @@ function showVoxiToast(msg) {
 function saveMaster(showMsg) {
     const startTime = Date.now();
     voxiData.props.forEach(p => {
-        if (p.estatus === "Vendido") return; // No sobreescribir si ya está vendida
         const text = (p.desc || "").toUpperCase();
         const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
         const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
@@ -2056,6 +2089,18 @@ function shareFolderImage(img) {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
 }
 
+async function loadMaster() {
+const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
+if(s) { 
+voxiData = JSON.parse(s); 
+if(!voxiData.galleries) voxiData.galleries = {};
+if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
+renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
+setTimeout(processSyncQueue, 3000);
+}
+console.log("Sync removed");
+});
+}
 function exportData() {
 const blob = new Blob([JSON.stringify(voxiData, null, 2)], { type: 'application/json' });
 const a = document.createElement('a');
@@ -2211,6 +2256,7 @@ window.onload = () => {
 <div id="voxi-toast"></div>
 </body>
 </html>
+
 
 
 
