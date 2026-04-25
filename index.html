@@ -1,4 +1,4 @@
-<!-- Voxi Version 38.4.5 [SYNTAX & FAVICON FIXED] -->
+<!-- Voxi Version 38.4.6 [MATH & LABELS FIXED] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,7 +10,7 @@
 <script>
     // Limpieza de consola para evitar confusión al usuario
     console.clear();
-    console.log("Voxi App v38.4.5 - Cargada correctamente.");
+    console.log("Voxi App v38.4.6 - Cargada correctamente.");
 </script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1025,7 +1025,7 @@ card.innerHTML = `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
 <div class="box"><label>CANTIDAD SOLICITADA</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
 <div class="box"><label>MONTO RECIBIDO (APARTADO)</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>ENGANCHE TOTAL</label><input type="text" value="${formatVoxiNumber(p.engancheTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].engancheTotal=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>PLAZO APARTADO (40 DÍAS / MES Y MEDIO)</label><input type="text" value="${formatVoxiNumber(p.engancheTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].engancheTotal=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
 <div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
@@ -2079,9 +2079,9 @@ function getProspectLocation(type, idx) {
 }
 function updateFinancials(type, idx) {
     const p = voxiData[type][idx];
-    const total = parseFloat(p.engancheTotal) || 0;
+    const solicitado = parseFloat(p.montoSolicitado) || 0;
     const recibido = parseFloat(p.montoRecibido) || 0;
-    p.saldoPendiente = total - recibido;
+    p.saldoPendiente = solicitado - recibido;
     const div = document.getElementById(`saldo_${p.id}`);
     if(div) div.innerText = formatVoxiNumber(p.saldoPendiente.toFixed(0));
 }
