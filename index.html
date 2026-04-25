@@ -509,41 +509,33 @@ const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null
 // GESTIÓN DE NOTIFICACIONES REALES (PWA)
 async function initNotifications() {
     if (!messaging) return;
-    
-    // Registrar Service Worker para notificaciones en segundo plano
-    /* SW REGISTRATION REMOVED TO FIX SYNTAX ERROR */
-
     try {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
-            console.log("Permiso de notificaciones concedido.");
-            // Generar token real del dispositivo
             const token = await messaging.getToken({ 
-                vapidKey: 'BPH5S_v68N0vLpXm8N7xG_Xyv0-8jL9UeX0G_vL0V9U' // Key Pública de Firebase Console
+                vapidKey: 'BPH5S_v68N0vLpXm8N7xG_Xyv0-8jL9UeX0G_vL0V9U'
             });
-            
             if (token) {
                 console.log("Token FCM generado:", token);
-                // Guardar en Firestore para vinculación real
                 saveMaster(false);
-    } catch(e) {}
+            }
+        }
+    } catch(e) { console.error("Error en notificaciones:", e); }
 
     // Actualizar badge del app si es soportado
     if ('setAppBadge' in navigator) {
         const count = (voxiData.manualAlerts || []).filter(a => !a.notified).length;
         navigator.setAppBadge(count).catch(() => {});
     }
+}
 
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        // navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification(title, options);
-        });
-    } else {
+function sendLocalPush(title, text) {
+    const options = { body: text, icon: 'https://voxipropiedades.github.io/Mis-propiedades-/icon-192.png' };
+    if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(title, options);
     }
 }
 
-// SISTEMA DE MONITOREO DE ALERTAS EN TIEMPO REAL
 function startAlertMonitor() {
     setInterval(() => {
         if (!voxiData.manualAlerts) return;
