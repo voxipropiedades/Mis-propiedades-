@@ -1,1 +1,0 @@
-self.addEventListener('install', e => self.skipWaiting()); self.addEventListener('activate', e => self.registration.unregister().then(() => self.clients.matchAll()).then(c => c.forEach(cl => cl.navigate(cl.url))));
