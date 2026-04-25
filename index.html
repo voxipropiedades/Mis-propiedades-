@@ -609,13 +609,7 @@ function saveImageHibrido(file, type, index, subIdx) {
         autoSave();
     });
 }
-);
-        
-        // 3. Persistir local y disparar sync
-        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-        processSyncQueue();
-    });
-}
+
 const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
 const REQS_E = ["INE (ambos lados)"];
 function moveProspect(fromType, index, toType) {
@@ -1927,7 +1921,7 @@ function showVoxiToast(msg) {
     t.style.display = 'block';
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
-function saveMaster(showMsg) {
+async function saveMaster(showMsg) {
     voxiData.props.forEach(p => {
         if (p.estatus === "Vendido") return;
         const text = (p.desc || "").toUpperCase();
@@ -1940,6 +1934,7 @@ function saveMaster(showMsg) {
         }
     });
     localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+    if (window.localDB) await localDB.save(SYNC_ID, voxiData);
     if(showMsg) showVoxiToast('✅ Guardado localmente');
 }
 function renderFolderGallery() {
