@@ -11,7 +11,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<!-- Firebase Removed -->
+
+
+
+
+
 <style>
 :root {
 --primary: #b71c1c;
@@ -206,11 +210,13 @@ body { background: white; padding: 0 !important; }
 <span class="header-sub" style="font-size: 0.7em;">Sistema de Ventas Inteligente</span>
 </div>
 </div>
-<!-- Sync Button Removed -->
+<button onclick="manualSync()" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Sincronizar Nube">
+<i class="fas fa-cloud-download-alt"></i>
+</button>
 </header>
 <div class="container">
 <div id="auto-save-status">💾 Guardando...</div>
-<!-- Cloud Status Removed -->
+<div id="cloud-status" style="font-size: 0.72em; color: #1565c0; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e3f2fd; border-radius:8px; display:none; width:fit-content;">☁️ Sincronizando Nube...</div>
 <div class="nav-tabs">
 <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
 <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
@@ -468,54 +474,31 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
 <script>
-
-const localDB = {
-    dbName: 'VoxiLocalDB',
-    storeName: 'appData',
-    db: null,
-    async init() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, 1);
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(this.storeName)) {
-                    db.createObjectStore(this.storeName);
-                }
-            };
-            request.onsuccess = (e) => {
-                this.db = e.target.result;
-                resolve();
-            };
-            request.onerror = (e) => reject(e.target.error);
-        });
-    },
-    async save(key, data) {
-        if(!this.db) await this.init();
-        return new Promise((resolve, reject) => {
-            const tx = this.db.transaction(this.storeName, 'readwrite');
-            const store = tx.objectStore(this.storeName);
-            store.put(data, key);
-            tx.oncomplete = () => resolve();
-            tx.onerror = (e) => reject(e.target.error);
-        });
-    },
-    async load(key) {
-        if(!this.db) await this.init();
-        return new Promise((resolve, reject) => {
-            const tx = this.db.transaction(this.storeName, 'readonly');
-            const store = tx.objectStore(this.storeName);
-            const request = store.get(key);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = (e) => reject(e.target.error);
-        });
-    }
+const firebaseConfig = {
+apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
+authDomain: "voxiapp-6672e.firebaseapp.com",
+projectId: "voxiapp-6672e",
+storageBucket: "voxiapp-6672e.firebasestorage.app",
+messagingSenderId: "332968241548",
+appId: "1:332968241548:web:7f35ebe2cd2443fb0732",
+measurementId: "G-77F6483313"
 };
-
-/* Firebase Init Removed */
-/* Firebase Refs Removed */
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
+const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
 
 // GESTIÓN DE NOTIFICACIONES REALES (PWA)
-/* initNotifications Removed */).catch(function(err) {
+async function initNotifications() {
+    if (!messaging) return;
+    
+    // Registrar Service Worker para notificaciones en segundo plano
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('firebase-messaging-sw.js')
+        .then(function(registration) {
+            console.log('FCM Service Worker registrado con éxito:', registration.scope);
+            messaging.useServiceWorker(registration);
+        }).catch(function(err) {
             console.error('Error al registrar FCM Service Worker:', err);
         });
     }
@@ -532,53 +515,7 @@ const localDB = {
             if (token) {
                 console.log("Token FCM generado:", token);
                 // Guardar en Firestore para vinculación real
-                db.collection("tokens").doc(SYNC_ID).set({ 
-                    token: token, 
-                    lastUpdate: new Date().toISOString(),
-                    platform: navigator.platform,
-                    status: 'active'
-                }, { merge: true });
-            }
-        } else {
-            console.warn("Permiso de notificaciones denegado.");
-        }
-    } catch (e) {
-        console.warn("Error en initNotifications:", e);
-    }
-
-    // Manejar mensajes recibidos cuando la app está abierta
-    messaging.onMessage((payload) => {
-        console.log('Mensaje FCM recibido (Foreground):', payload);
-        const title = payload.notification ? payload.notification.title : "ALERTA DE SISTEMA";
-        const body = payload.notification ? payload.notification.body : payload.data.message;
-        sendLocalPush(title, body);
-    });
-}
-
-const notifiedAlerts = new Set();
-let editingAlertId = null;
-
-function sendLocalPush(title, body) {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    
-    const alertKey = title + body + new Date().getHours() + new Date().getMinutes();
-    if (notifiedAlerts.has(alertKey)) return;
-    notifiedAlerts.add(alertKey);
-
-    const options = {
-        body: body,
-        icon: 'icon-192.png',
-        vibrate: [300, 100, 300, 100, 300], // Vibración fuerte
-        badge: 'icon-192.png',
-        requireInteraction: true,
-        tag: 'voxi-alert-real',
-        data: { arrival: Date.now() }
-    };
-
-    // Alerta sonora
-    try {
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-        audio.play().catch(() => {});
+                saveMaster(false);
     } catch(e) {}
 
     // Actualizar badge del app si es soportado
@@ -621,133 +558,113 @@ function startAlertMonitor() {
         });
     }, 60000); // Revisar cada minuto
 }
-const SYNC_ID = "voxi_main_db"; // ID único para este usuario
-let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {} };
-    const GALLERY_FOLDERS = [
-        '🏠 Fachadas',
-        '📐 Planos arquitectónicos (1 piso)',
-        '🏢 Planos arquitectónicos (2 pisos)',
-        '🚿 Baños',
-        '🚪 Puertas de herrería',
-        '🚪 Puertas de madera',
-        '🚪 Puertas de baño',
-        '🍽️ Barritas de cocina',
-        '🪟 Ventanas de aluminio',
-        '🌿 Jardín',
-        '🧺 Lavadero',
-        '💡 Iluminación'
-    ];
-let activeFolder = null;
-let currentPropIndex = null;
+
+<script>
+// --- CONFIGURACIÓN ---
+let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {}, manualAlerts: [], pendingUploads: [] };
 let activePropId = null;
-let currentWANumber = '';
 let activeProspectId = null;
-let currentPhotoTarget = { index: null, type: null };
-function selectPhotoSource(i, type) {
-currentPhotoTarget = { index: i, type: type };
-document.getElementById('photoMenuModal').style.display = 'flex';
-}
-function closePhotoMenu() {
-document.getElementById('photoMenuModal').style.display = 'none';
-}
-function triggerCamera() {
-const input = document.createElement('input');
-input.type = 'file';
-input.accept = 'image/*';
-input.capture = 'environment';
-input.onchange = (e) => handlePhotoResult(e.target.files);
-input.click();
-closePhotoMenu();
-}
-function triggerGallery() {
-const input = document.createElement('input');
-input.type = 'file';
-input.accept = 'image/*';
-if (currentPhotoTarget.type === 'main' || currentPhotoTarget.type === 'gallery') {
-input.multiple = true;
-}
-input.onchange = (e) => handlePhotoResult(e.target.files);
-input.click();
-closePhotoMenu();
-}
-function saveImageInState(data, type, index, idx) {
-    let targetObj = (type === 'main' || type === 'gallery' || type === 'doc') ? voxiData.props[index] : null;
-    if (type === 'main') {
-        if (idx === 0) targetObj.mainImg = data;
-        else targetObj.gallery.push(data);
-        renderProps();
-    } else if (type === 'gallery') {
-        if (!targetObj.mainImg) targetObj.mainImg = data;
-        else targetObj.gallery.push(data);
-        renderProps();
-    } else if (type === 'doc') {
-        targetObj.docImg = data;
-        renderProps();
-    } else if (type === 'folder') {
-        if(!voxiData.galleries[activeFolder]) voxiData.galleries[activeFolder] = [];
-        voxiData.galleries[activeFolder].push(data);
-        renderFolderImages();
+let activeFolder = null;
+const SYNC_ID = "voxi_main_db";
+
+const GALLERY_FOLDERS = [
+    '🏠 Fachadas', '📐 Planos (1 piso)', '🏢 Planos (2 pisos)', '🚿 Baños',
+    '🚪 Herrería', '🚪 Madera', '🚪 Baño', '🍽️ Cocina',
+    '🪟 Ventanas', '🌿 Jardín', '🧺 Lavadero', '💡 Iluminación'
+];
+
+// --- DB LOCAL (IndexedDB) ---
+const localDB = {
+    dbName: 'VoxiLocalDB', storeName: 'appData', db: null,
+    async init() {
+        return new Promise((res, rej) => {
+            const req = indexedDB.open(this.dbName, 1);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(this.storeName)) db.createObjectStore(this.storeName);
+            };
+            req.onsuccess = (e) => { this.db = e.target.result; res(); };
+            req.onerror = (e) => rej(e.target.error);
+        });
+    },
+    async save(key, data) {
+        if(!this.db) await this.init();
+        const tx = this.db.transaction(this.storeName, 'readwrite');
+        tx.objectStore(this.storeName).put(data, key);
+        return new Promise((res) => tx.oncomplete = res);
+    },
+    async load(key) {
+        if(!this.db) await this.init();
+        return new Promise((res) => {
+            const req = this.db.transaction(this.storeName, 'readonly').objectStore(this.storeName).get(key);
+            req.onsuccess = () => res(req.result);
+            req.onerror = () => res(null);
+        });
     }
-    autoSave();
+};
+
+// --- CORE: CARGA Y GUARDADO ---
+async function loadMaster() {
+    try {
+        const saved = await localDB.load(SYNC_ID);
+        if(saved) voxiData = saved;
+        else {
+            const legacy = localStorage.getItem('hr_v38_db');
+            if(legacy) voxiData = JSON.parse(legacy);
+        }
+    } catch(e) { console.error("Error al cargar:", e); }
+
+    // Asegurar estructura
+    if(!voxiData.props) voxiData.props = [];
+    if(!voxiData.milis) voxiData.milis = [];
+    if(!voxiData.grals) voxiData.grals = [];
+    if(!voxiData.galleries) voxiData.galleries = {};
+    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
+    if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
+
+    renderProps();
+    renderProspects();
+    renderAssistant();
+    if(typeof startAlertMonitor === 'function') startAlertMonitor();
 }
 
-function handlePhotoResult(files) {
-    if (!files || files.length === 0) return;
-    const { index, type } = currentPhotoTarget;
-    if (index === null && type !== 'folder') return;
-    if (type !== 'folder') saveLocation(index, true);
-    Array.from(files).forEach((f, idx) => saveImageHibrido(f, type, index, idx));
-}
+async function saveMaster(showMsg = false) {
+    const status = document.getElementById('auto-save-status');
+    if(status) status.style.display = 'block';
 
-// MODO SINCRONIZACIÓN PROFESIONAL
-if (!voxiData.pendingUploads) voxiData.pendingUploads = [];
-
-async /* processSyncQueue Removed */ catch (e) {
-        console.error("Error en sincronización, reintentando luego:", e);
-    }
-}
-
-function replaceBase64WithUrl(tempId, url) {
-    // Buscar en propiedades
+    // Clasificación automática
     voxiData.props.forEach(p => {
-        if (p.mainImg === tempId) p.mainImg = url;
-        if (p.docImg === tempId) p.docImg = url;
-        if (p.gallery) {
-            const idx = p.gallery.indexOf(tempId);
-            if (idx !== -1) p.gallery[idx] = url;
-        }
+        const d = (p.desc || "").toUpperCase();
+        if(d.includes("MILITAR") || d.includes("ISSFAM")) p.estatus = "CRÉDITO MILITAR";
+        else if(d.includes("EFECTIVO") || d.includes("CONTADO")) p.estatus = "CLIENTE EFECTIVO";
     });
-    // Buscar en prospectos
-    ['prospects','leads','closed'].forEach(key => {
-        if (voxiData[key]) {
-            voxiData[key].forEach(p => {
-                if (p.gallery) {
-                    const idx = p.gallery.indexOf(tempId);
-                    if (idx !== -1) p.gallery[idx] = url;
-                }
-            });
-        }
-    });
-    // Buscar en carpetas/galerías
-    for (let folder in voxiData.galleries) {
-        const idx = voxiData.galleries[folder].indexOf(tempId);
-        if (idx !== -1) voxiData.galleries[folder][idx] = url;
-    }
-    
-    // Refrescar vistas activas
-    if (typeof renderProps === 'function') renderProps();
-    if (typeof renderFolderImages === 'function') renderFolderImages();
-    if (typeof renderProspects === 'function') renderProspects();
+
+    try {
+        await localDB.save(SYNC_ID, voxiData);
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        if(showMsg) alert("✅ Guardado Exitoso");
+    } catch(e) { console.error("Error guardado:", e); }
+    finally { if(status) setTimeout(() => status.style.display = 'none', 800); }
 }
 
+let saveTimeout;
+function autoSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => saveMaster(false), 2000);
+}
+
+// --- IMÁGENES (LOCAL-ONLY POR AHORA) ---
 function saveImageHibrido(file, type, index, subIdx) {
-    processImg(file, 1000, (b64) => {
-        const tempId = "TEMP_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
-        
-        // 1. Guardar Base64 localmente con ID temporal
-        saveImageInState(tempId, type, index, subIdx);
-        
+    processImg(file, 800, (b64) => {
+        saveImageInState(b64, type, index, subIdx);
         autoSave();
+    });
+}
+);
+        
+        // 3. Persistir local y disparar sync
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        processSyncQueue();
     });
 }
 const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
@@ -1010,10 +927,10 @@ ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style
 <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
 </select></div>
 <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); updateCostoObra(${i}); autoSave()" style="color:var(--success); font-weight:700;"></div>
-<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=raw; this.value=formatVoxiNumber(raw); updateCostoObra(${i}); autoSave()" style="color:var(--primary); font-weight:700;"></div>
-<div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;" id="costoObra_${p.id}">
-Costo de Obra: ${formatVoxiNumber((parseFloat((p.precio||'').toString().replace(/,/g,'')) - parseFloat((p.ganancia||'').toString().replace(/,/g,'')) || 0).toFixed(0))}
+<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:700;"></div>
+<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--primary); font-weight:700;"></div>
+<div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;">
+Costo de Obra: ${formatVoxiNumber((parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toFixed(0))}
 </div>
 <div class="section-label">📍 UBICACIONES GUARDADAS</div>
 <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
@@ -1748,7 +1665,7 @@ el.style.display = 'none';
 if(icon) icon.className = 'fas fa-chevron-down';
 }
 }
-function renderAssistant(isBackground = false) {
+function renderAssistant() {
     const now = new Date();
     const db = voxiData || {};
     
@@ -1824,15 +1741,7 @@ function renderAssistant(isBackground = false) {
     // SUGERENCIAS PROACTIVAS
     const sugDiv = document.getElementById('assistant-suggestions');
     if(sugDiv) {
-        sugDiv.innerHTML = `
-            <div class="task-item" style="border-left:4px solid #2e7d32; background:#e8f5e9; margin-bottom:12px;">
-                <div class="task-info">
-                    <b style="color:#1b5e20;">🚀 ESTRATEGIA DEL SOCIO</b>
-                    <div style="font-size:0.85em; font-weight:700;">"No vendes solo tierra, vendes el patrimonio de una familia. Hoy cerramos ese trato en efectivo."</div>
-                    <div style="font-size:0.75em; margin-top:4px; color:#333;">💡 Tip: Revisa los 5 prospectos activos. El cierre está en el seguimiento de hoy, no de mañana.</div>
-                </div>
-            </div>
-        `;
+        sugDiv.innerHTML = '';
         // Facebook & WA sempre fijos
         const fixedSugs = [
             { title: 'Publicar hoy en Facebook', desc: 'Atrae nuevos prospectos publicando preventas.', icon: 'fab fa-facebook', color: '#3b5998', bg: '#f0f2f5', link: 'https://www.facebook.com' },
@@ -1868,9 +1777,9 @@ function renderAssistant(isBackground = false) {
         alertDiv.innerHTML = '';
         let alertsHtml = '';
         
-        function createAlert(level, text, action, tel = null, silent = false) {
-            // Solo enviar push si no es una renderización silenciosa (UI)
-            if (!silent && (level === 'Rojo' || level === 'Amarillo')) {
+        function createAlert(level, text, action, tel = null) {
+            // Activar notificación real al renderizar alertas críticas nuevas
+            if (level === 'Rojo' || level === 'Amarillo') {
                 sendLocalPush("ALERTA DE SEGUIMIENTO", text);
             }
             const colors = { 'Rojo': ['#ffebee', '#d32f2f'], 'Amarillo': ['#fff9c4', '#fbc02d'], 'Azul': ['#e3f2fd', '#1e88e5'] };
@@ -1896,21 +1805,21 @@ function renderAssistant(isBackground = false) {
 
         allProspects.forEach(p => {
             if (p.proximaCita === tomorrowStr) {
-                alertsHtml += createAlert('Azul', `📅 SEGUIMIENTO MAÑANA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono, !isBackground);
+                alertsHtml += createAlert('Azul', `📅 SEGUIMIENTO MAÑANA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
             }
         });
 
         // 2. Pagos Pendientes (Vencimiento Cercano o Dio Apartado sin fecha)
         allProspects.filter(p => p.status === 'Dio apartado').forEach(p => {
             const label = p.fechaVencimiento ? `VENCE ${p.fechaVencimiento}` : 'PAGO PENDIENTE';
-            alertsHtml += createAlert('Amarillo', `💰 ${label}: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono, !isBackground);
+            alertsHtml += createAlert('Amarillo', `💰 ${label}: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
         });
 
         // 3. Tareas Manuales Asignadas (Notas con "URGENTE" o "PENDIENTE")
         allProspects.forEach(p => {
             const nota = (p.notas || '').toUpperCase();
             if (nota.includes('URGENTE') || nota.includes('PENDIENTE')) {
-                alertsHtml += createAlert('Rojo', `⚠️ TAREA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono, !isBackground);
+                alertsHtml += createAlert('Rojo', `⚠️ TAREA: ${p.nombre}`, `goToRecord('prospectos', '', '${p.id}')`, p.telefono);
             }
         });
 
@@ -2067,8 +1976,7 @@ function showVoxiToast(msg) {
     t.style.display = 'block';
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
-
-async function saveMaster(showMsg) {
+function saveMaster(showMsg) {
     const startTime = Date.now();
     voxiData.props.forEach(p => {
         const text = (p.desc || "").toUpperCase();
@@ -2080,20 +1988,37 @@ async function saveMaster(showMsg) {
             p.estatus = "CLIENTE EFECTIVO";
         }
     });
-    
-    // Guardado local tradicional
     localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-    
-    // Guardado robusto en IndexedDB
-    try {
-        await localDB.save('voxi_main_db', voxiData);
-        if(showMsg) showVoxiToast('✅ Guardado Local Exitoso');
-    } catch(e) {
-        console.error("Error IDB:", e);
-        if(showMsg) showVoxiToast('⚠️ Error en guardado local');
+    if(showMsg) showVoxiToast('💾 Guardando en nube...');
+    const cStatus = document.getElementById('cloud-status');
+    if(cStatus) {
+        cStatus.style.display = 'block';
+        cStatus.innerHTML = '⌛ Sincronizando...';
     }
-}
 
+    const dataToSync = JSON.parse(JSON.stringify(voxiData));
+    if (dataToSync.pendingUploads) {
+        dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
+    }
+
+    firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
+    .then(() => { 
+        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        if(cStatus) {
+            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
+            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+        }
+        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
+    })
+    .catch(err => {
+        console.error("Cloud Save Error", err);
+        if(showMsg) showVoxiToast('❌ Error al guardar en nube');
+        if(cStatus) {
+            cStatus.innerHTML = '❌ Error de red';
+            cStatus.style.color = 'red';
+        }
+    });
+}
 function renderFolderGallery() {
     const div = document.getElementById('folderGallery'); if(!div) return;
     div.innerHTML = GALLERY_FOLDERS.map(f => `
@@ -2158,66 +2083,16 @@ function shareFolderImage(img) {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
 }
 
-
-
 async function loadMaster() {
-    try {
-        const idbData = await localDB.load('voxi_main_db');
-        if(idbData) {
-            voxiData = idbData;
-        } else {
-            const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db');
-            if(s) voxiData = JSON.parse(s);
-        }
-    } catch(e) {
-        const s = localStorage.getItem('hr_v38_db');
-        if(s) voxiData = JSON.parse(s);
-    }
-    
-    // Asegurar estructura mínima
-    if(!voxiData.props) voxiData.props = [];
-    if(!voxiData.milis) voxiData.milis = [];
-    if(!voxiData.grals) voxiData.grals = [];
-    if(!voxiData.files) voxiData.files = [];
-    if(!voxiData.galleries) voxiData.galleries = {};
-    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
-    if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
-    
-    renderProps(); 
-    renderProspects(); 
-    renderFiles(); 
-    renderAssistant();
+const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
+if(s) { 
+voxiData = JSON.parse(s); 
+if(!voxiData.galleries) voxiData.galleries = {};
+if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
+renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
+setTimeout(processSyncQueue, 3000);
 }
- else {
-            const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db');
-            if(s) voxiData = JSON.parse(s);
-        }
-    } catch(e) {
-        const s = localStorage.getItem('hr_v38_db');
-        if(s) voxiData = JSON.parse(s);
-    }
-    
-    if(!voxiData.galleries) voxiData.galleries = {};
-    if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
-    
-    renderProps(); 
-    renderProspects(); 
-    renderFiles(); 
-    renderAssistant();
-}
-
-/* manualSync Removed */
-db.collection("data").doc(SYNC_ID).get().then(doc => {
-if(doc.exists) {
-voxiData = doc.data();
-localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-alert('✅ Sincronización Exitosa. La página se recargará.');
-location.reload();
-} else {
-alert('❌ No se encontró respaldo en la nube para este ID.');
-}
-}).catch(err => {
-alert('❌ Error al conectar con la nube: ' + err.message);
+console.log("Sync removed");
 });
 }
 function exportData() {
@@ -2336,18 +2211,18 @@ function getProspectLocation(type, idx) {
 }
 function updateFinancials(type, idx) {
     const p = voxiData[type][idx];
-    const total = parseFloat((p.engancheTotal||'').toString().replace(/,/g,'')) || 0;
-    const recibido = parseFloat((p.montoRecibido||'').toString().replace(/,/g,'')) || 0;
+    const total = parseFloat(p.engancheTotal) || 0;
+    const recibido = parseFloat(p.montoRecibido) || 0;
     p.saldoPendiente = total - recibido;
     const div = document.getElementById(`saldo_${p.id}`);
     if(div) div.innerText = formatVoxiNumber(p.saldoPendiente.toFixed(0));
 }
 function updateMilitaryBudget(idx) {
     const p = voxiData.milis[idx];
-    let total = parseFloat((p.presupuestoTotal||'').toString().replace(/,/g,'')) || 0;
+    let total = parseFloat(p.presupuestoTotal) || 0;
     if(p.coMilis) {
         p.coMilis.forEach(co => {
-            total += (parseFloat((co.amount||'').toString().replace(/,/g,'')) || 0);
+            total += (parseFloat(co.amount) || 0);
         });
     }
     p.montoDescuento = total * 0.07;
@@ -2357,23 +2232,21 @@ function updateMilitaryBudget(idx) {
     if(dM) dM.innerText = "-" + formatVoxiNumber(p.montoDescuento.toFixed(0));
     if(lM) lM.innerText = formatVoxiNumber(p.montoLibre.toFixed(0));
 }
-function updateCostoObra(i) {
-    const p = voxiData.props[i];
-    const precio = parseFloat((p.precio||'').toString().replace(/,/g,'')) || 0;
-    const ganancia = parseFloat((p.ganancia||'').toString().replace(/,/g,'')) || 0;
-    const costo = precio - ganancia;
-    const div = document.getElementById('costoObra_' + p.id);
-    if(div) div.innerText = 'Costo de Obra: ' + formatVoxiNumber(costo.toFixed(0));
-}
 window.onload = () => {
     loadMaster();
-    
-    
+    window.addEventListener('online', () => {
+        processSyncQueue();
+        console.log("Socio, estamos online. Sincronizando alertas y datos...");
+    });
+    if (navigator.onLine) {
+        setTimeout(processSyncQueue, 5000);
+        setTimeout(initNotifications, 2000); 
+    }
     startAlertMonitor(); // Iniciar monitoreo de alertas reales
 };
 
 </script>
-<span id="voxiLoaderText">Subiendo...</span></div>
+<div id="voxiLoader"><div class="spinner"></div><span id="voxiLoaderText">Subiendo...</span></div>
 <div id="voxi-toast"></div>
 </body>
 </html>
