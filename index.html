@@ -2,24 +2,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>
-// PROTOCOLO DE ARRANQUE SEGURO - ELIMINACIÓN DE BLOQUEOS
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(registrations => {
-        for(let r of registrations) r.unregister();
-    });
-}
-if ('caches' in window) {
-    caches.keys().then(names => {
-        for (let n of names) caches.delete(n);
-    });
-}
-</script>
-
-
-
-
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Constructor Independiente HR</title>
@@ -187,7 +169,7 @@ body * { visibility: hidden; }
 .assist-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .assist-header i { font-size: 1.8em; color: var(--info); }
 .assist-quote { font-style: italic; color: #444; background: #e8f0fe; padding: 13px; border-radius: 12px; margin-bottom: 16px; border-left: 4px solid var(--info); font-size: 0.9em; }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .stat-box { background: #f8f9fa; padding: 14px; border-radius: 14px; text-align: center; border: 1px solid #eee; }
 .stat-box h5 { margin: 0; font-size: 0.65em; color: #888; text-transform: uppercase; letter-spacing:.5px; }
 .stat-box p { margin: 6px 0 0; font-size: 1.6em; font-weight: 900; }
@@ -260,7 +242,8 @@ oninput="voxiSearch(this.value)">
 <div id="assistant-quote" class="assist-quote" style="font-style:italic; color:#444; border-left:4px solid var(--primary); padding-left:12px; margin-bottom:15px;">"Preparando tu plan de cierre..."</div>
 <div class="section-label" style="grid-column:unset;">📊 MÉTRICAS Y RESUMEN</div>
 <div class="stat-grid" style="margin-top:12px;">
-<div class="stat-box"><h5>🏠 Propiedades</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
+<div class="stat-box"><h5>🏠 Activas</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
+<div class="stat-box"><h5>✅ Vendidas</h5><p id="stat-sold" style="color:#2e7d32;">0</p></div>
 <div class="stat-box"><h5>🤝 Por Cerrar</h5><p id="stat-closing" style="color:var(--success);">0</p></div>
 <div class="stat-box"><h5>❄️ Seguimiento</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
 <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
@@ -565,7 +548,6 @@ function startAlertMonitor() {
     }, 60000); // Revisar cada minuto
 }
 
-<script>
 // --- CONFIGURACIÓN ---
 let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {}, manualAlerts: [], pendingUploads: [] };
 let activePropId = null;
@@ -634,32 +616,6 @@ async function loadMaster() {
     if(typeof startAlertMonitor === 'function') startAlertMonitor();
 }
 
-async function saveMaster(showMsg = false) {
-    const status = document.getElementById('auto-save-status');
-    if(status) status.style.display = 'block';
-
-    // Clasificación automática
-    voxiData.props.forEach(p => {
-        const d = (p.desc || "").toUpperCase();
-        if(d.includes("MILITAR") || d.includes("ISSFAM")) p.estatus = "CRÉDITO MILITAR";
-        else if(d.includes("EFECTIVO") || d.includes("CONTADO")) p.estatus = "CLIENTE EFECTIVO";
-    });
-
-    try {
-        await localDB.save(SYNC_ID, voxiData);
-        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-        if(showMsg) alert("✅ Guardado Exitoso");
-    } catch(e) { console.error("Error guardado:", e); }
-    finally { if(status) setTimeout(() => status.style.display = 'none', 800); }
-}
-
-let saveTimeout;
-function autoSave() {
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => saveMaster(false), 2000);
-}
-
-// --- IMÁGENES (LOCAL-ONLY POR AHORA) ---
 function saveImageHibrido(file, type, index, subIdx) {
     processImg(file, 800, (b64) => {
         saveImageInState(b64, type, index, subIdx);
@@ -1707,13 +1663,15 @@ function renderAssistant() {
     
     const cold = allProspects.filter(p => p.status === 'Nuevo Cliente').length;
     const closing = allProspects.filter(p => p.status === 'Dio apartado').length;
-    const totalProps = props.length;
+    const soldProps = props.filter(p => p.estatus === 'Vendido').length;
+    const activeProps = props.filter(p => p.estatus !== 'Vendido').length;
     const inTalks = allProspects.filter(p => p.status === 'Pláticas avanzadas').length;
 
     // Métricas
     if(document.getElementById('stat-cold')) document.getElementById('stat-cold').innerText = cold;
     if(document.getElementById('stat-closing')) document.getElementById('stat-closing').innerText = closing;
-    if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = totalProps;
+    if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = activeProps;
+    if(document.getElementById('stat-sold')) document.getElementById('stat-sold').innerText = soldProps;
     if(document.getElementById('stat-payments')) document.getElementById('stat-payments').innerText = inTalks;
 
     // Frase del Socio
@@ -1985,6 +1943,7 @@ function showVoxiToast(msg) {
 function saveMaster(showMsg) {
     const startTime = Date.now();
     voxiData.props.forEach(p => {
+        if (p.estatus === "Vendido") return; // No sobreescribir si ya está vendida
         const text = (p.desc || "").toUpperCase();
         const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
         const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
