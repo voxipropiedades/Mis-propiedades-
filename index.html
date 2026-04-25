@@ -3,6 +3,27 @@
 <html lang="es">
 <head>
 <script>
+// LIMPIEZA TOTAL PARA REPARAR CONEXIÓN EN MÓVIL
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        for(let registration of registrations) {
+            registration.unregister();
+            console.log('SW Unregistered');
+        }
+    });
+}
+if ('caches' in window) {
+    caches.keys().then(names => {
+        for (let name of names) caches.delete(name);
+    });
+}
+// Forzar recarga si detectamos que venimos de un estado de error
+if (window.location.hash === '#reload') {
+    window.location.hash = '';
+}
+</script>
+
+<script>
 // Limpieza de Service Workers antiguos para arreglar errores de conexion en movil
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(regs => {
@@ -20,7 +41,7 @@ if ('caches' in window) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Constructor Independiente HR</title>
 <link rel="manifest" href="manifest.json">
-<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js?v=2'); }</script>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -508,7 +529,7 @@ async function initNotifications() {
     
     // Registrar Service Worker para notificaciones en segundo plano
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('firebase-messaging-sw.js')
+        // SW Desactivado
         .then(function(registration) {
             console.log('FCM Service Worker registrado con éxito:', registration.scope);
             messaging.useServiceWorker(registration);
