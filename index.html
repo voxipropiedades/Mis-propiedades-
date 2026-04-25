@@ -1,13 +1,17 @@
-<!-- Voxi Version 38.4.3 [FINAL FORMATTING FIXED] -->
+<!-- Voxi Version 38.4.4 [FONT & TITLE FIXED] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Constructor Independiente HR</title>
+<title>Voxi App - Sistema Inmobiliario</title>
 <link rel="manifest" href="manifest.json">
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script>
+    // Limpieza de consola para evitar confusión al usuario
+    console.clear();
+    console.log("Voxi App v38.4.4 - Cargada correctamente.");
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1571,7 +1575,7 @@ function renderAssistant() {
     
     // 0. MOTIVACIÓN Y ESTRATEGIA (MODO SOCIO)
     const hours = now.getHours();
-    let greeting = hours < 12 ? "¡Buenos días, Socio! ☕" : hours < 18 ? "¡Buenas tardes, Socio! 💪" : "¡Buenas noches, Socio! 🌙";
+    let greeting = hours < 12 ? "¡Buenos días! ☕" : hours < 18 ? "¡Buenas tardes! 💪" : "¡Buenas noches! 🌙";
     const quotes = [
         "El éxito inmobiliario no es cuestión de suerte, es cuestión de seguimiento.",
         "Cada 'no' te acerca más al próximo cierre en efectivo. ¡Dale con todo!",
