@@ -1,18 +1,31 @@
-<!-- Voxi Version 38.4.8 [EMERGENCY FIX - ACCESS RESTORED] -->
+<!-- Voxi Version 38.4.3 [FINAL FORMATTING FIXED] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>
+// PROTOCOLO DE ARRANQUE SEGURO - ELIMINACIÓN DE BLOQUEOS
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        for(let r of registrations) r.unregister();
+    });
+}
+if ('caches' in window) {
+    caches.keys().then(names => {
+        for (let n of names) caches.delete(n);
+    });
+}
+</script>
+
+
+
+
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voxi App - Sistema Inmobiliario</title>
-<link rel="icon" href="data:,">
+<title>Constructor Independiente HR</title>
 <link rel="manifest" href="manifest.json">
-<script>
-    // Limpieza de consola para evitar confusión al usuario
-    console.clear();
-    console.log("Voxi App v38.4.8 - ACCESO RESTABLECIDO");
-</script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -174,7 +187,7 @@ body * { visibility: hidden; }
 .assist-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .assist-header i { font-size: 1.8em; color: var(--info); }
 .assist-quote { font-style: italic; color: #444; background: #e8f0fe; padding: 13px; border-radius: 12px; margin-bottom: 16px; border-left: 4px solid var(--info); font-size: 0.9em; }
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .stat-box { background: #f8f9fa; padding: 14px; border-radius: 14px; text-align: center; border: 1px solid #eee; }
 .stat-box h5 { margin: 0; font-size: 0.65em; color: #888; text-transform: uppercase; letter-spacing:.5px; }
 .stat-box p { margin: 6px 0 0; font-size: 1.6em; font-weight: 900; }
@@ -247,8 +260,7 @@ oninput="voxiSearch(this.value)">
 <div id="assistant-quote" class="assist-quote" style="font-style:italic; color:#444; border-left:4px solid var(--primary); padding-left:12px; margin-bottom:15px;">"Preparando tu plan de cierre..."</div>
 <div class="section-label" style="grid-column:unset;">📊 MÉTRICAS Y RESUMEN</div>
 <div class="stat-grid" style="margin-top:12px;">
-<div class="stat-box"><h5>🏠 Activas</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
-<div class="stat-box"><h5>✅ Vendidas</h5><p id="stat-sold" style="color:#2e7d32;">0</p></div>
+<div class="stat-box"><h5>🏠 Propiedades</h5><p id="stat-props" style="color:var(--primary);">0</p></div>
 <div class="stat-box"><h5>🤝 Por Cerrar</h5><p id="stat-closing" style="color:var(--success);">0</p></div>
 <div class="stat-box"><h5>❄️ Seguimiento</h5><p id="stat-cold" style="color:#1565c0;">0</p></div>
 <div class="stat-box"><h5>💰 Pagos</h5><p id="stat-payments" style="color:#e65100;">0</p></div>
@@ -400,7 +412,7 @@ oninput="voxiSearch(this.value)">
 <div id="fileList"></div>
 <div style="background:#e8f5e9; border-left:4px solid var(--success); padding:10px; margin-top:20px; font-size:0.85em; color:#2e7d32; border-radius:8px;">
 <i class="fas fa-shield-alt"></i> <strong>Ubicación de Seguridad:</strong><br>
-Las fotos y documentos se comprimen y guardan en la <b>Base de Datos Local Segura (IndexedDB)</b> y en el <b>Almacenamiento Local</b> de tu celular. Esto garantiza que tus cierres estén respaldados siempre.
+Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (Firebase Firestore)</b> y en el <b>Almacenamiento Local</b> de tu celular. Esto garantiza que tus cierres estén respaldados siempre.
 </div>
 </div>
 </div>
@@ -479,12 +491,24 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos Local Segur
 <button class="btn" style="background:#444; color:white; width:auto; padding:0 15px; margin-right:10px;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+ NUEVO</button>
 <button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
 </div>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 <script>
-function processSyncQueue() { console.log("Modo 100% local."); }
-function manualSync() { alert("Modo 100% local. Los datos se guardan en tu dispositivo."); }
-function initNotifications() { console.log("Notificaciones locales."); }
-
-const db_fire = null; const storage = null; const messaging = null;
+const firebaseConfig = {
+apiKey: "AIzaSyBto16XfwgU2DW4f0M7wvjdZZKfy1_wY",
+authDomain: "voxiapp-6672e.firebaseapp.com",
+projectId: "voxiapp-6672e",
+storageBucket: "voxiapp-6672e.firebasestorage.app",
+messagingSenderId: "332968241548",
+appId: "1:332968241548:web:7f35ebe2cd2443fb0732",
+measurementId: "G-77F6483313"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
+const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
 
 // GESTIÓN DE NOTIFICACIONES REALES (PWA)
 async function initNotifications() {
@@ -541,6 +565,7 @@ function startAlertMonitor() {
     }, 60000); // Revisar cada minuto
 }
 
+<script>
 // --- CONFIGURACIÓN ---
 let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {}, manualAlerts: [], pendingUploads: [] };
 let activePropId = null;
@@ -609,13 +634,45 @@ async function loadMaster() {
     if(typeof startAlertMonitor === 'function') startAlertMonitor();
 }
 
+async function saveMaster(showMsg = false) {
+    const status = document.getElementById('auto-save-status');
+    if(status) status.style.display = 'block';
+
+    // Clasificación automática
+    voxiData.props.forEach(p => {
+        const d = (p.desc || "").toUpperCase();
+        if(d.includes("MILITAR") || d.includes("ISSFAM")) p.estatus = "CRÉDITO MILITAR";
+        else if(d.includes("EFECTIVO") || d.includes("CONTADO")) p.estatus = "CLIENTE EFECTIVO";
+    });
+
+    try {
+        await localDB.save(SYNC_ID, voxiData);
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        if(showMsg) alert("✅ Guardado Exitoso");
+    } catch(e) { console.error("Error guardado:", e); }
+    finally { if(status) setTimeout(() => status.style.display = 'none', 800); }
+}
+
+let saveTimeout;
+function autoSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => saveMaster(false), 2000);
+}
+
+// --- IMÁGENES (LOCAL-ONLY POR AHORA) ---
 function saveImageHibrido(file, type, index, subIdx) {
     processImg(file, 800, (b64) => {
         saveImageInState(b64, type, index, subIdx);
         autoSave();
     });
 }
-
+);
+        
+        // 3. Persistir local y disparar sync
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        processSyncQueue();
+    });
+}
 const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
 const REQS_E = ["INE (ambos lados)"];
 function moveProspect(fromType, index, toType) {
@@ -695,6 +752,50 @@ voxiData.props[i].maps = currentMaps ? currentMaps + "\n" + url : url;
 autoSave();
 renderProps();
 window.open(url, '_blank');
+}
+async function uploadImage(file) {
+  const loader = document.getElementById('voxiLoader');
+  const loaderText = document.getElementById('voxiLoaderText');
+  if(loader) {
+    loader.style.display = 'flex';
+    if(loaderText) loaderText.innerText = "Subiendo...";
+  }
+
+  try {
+    console.log("Iniciando subida de archivo:", file.name, "Tamaño:", file.size);
+    
+    // Si el archivo es mayor a 1.5MB, lo comprimimos antes de subir
+    let fileToUpload = file;
+    if (file.size > 1500000) {
+        console.log("Archivo pesado detectado, comprimiendo...");
+        if(loaderText) loaderText.innerText = "Comprimiendo...";
+        fileToUpload = await compressImage(file, 1000);
+    }
+
+    const ref = storage.ref('voxi_images/' + Date.now() + '_' + Math.floor(Math.random()*1000) + '.jpg');
+    
+    // Usamos el evento de progreso para dar feedback
+    const uploadTask = ref.put(fileToUpload);
+    
+    uploadTask.on('state_changed', 
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            if(loaderText) loaderText.innerText = "Subiendo: " + Math.round(progress) + "%";
+        }
+    );
+
+    await uploadTask;
+    const url = await ref.getDownloadURL();
+    console.log("URL generada con éxito:", url);
+    
+    if(loader) loader.style.display = 'none';
+    return url;
+  } catch (error) {
+    console.error("Error crítico en subida:", error);
+    if(loader) loader.style.display = 'none';
+    alert("Error al subir: " + error.message);
+    return null;
+  }
 }
 
 // Función auxiliar para compresión rápida
@@ -1023,14 +1124,14 @@ card.innerHTML = `
 <div class="box"><label>📍 Ubicación (GPS)</label><div style="display:flex; gap:5px;"><input type="text" placeholder="Lat, Lng" value="${p.lat && p.lng ? p.lat+','+p.lng : ''}" readonly style="font-size:0.8em; border-bottom:1px solid #ddd;"><button class="btn" onclick="getProspectLocation('${p.type}', ${p.originalIndex})" style="padding:5px; height:auto; background:${accentColor}; color:white;"><i class="fas fa-map-marker-alt"></i></button></div></div>
 <div class="box"><label>🗺️ Link Maps</label><div style="display:flex; gap:5px;"><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd; flex:1;"><button class="btn" onclick="if(voxiData.${p.type}[${p.originalIndex}].mapsLink) window.open(voxiData.${p.type}[${p.originalIndex}].mapsLink, '_blank')" style="padding:5px; height:auto; background:#4285F4; color:white;"><i class="fas fa-external-link-alt"></i></button></div></div>
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
-<div class="box"><label>CANTIDAD SOLICITADA</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>MONTO RECIBIDO (APARTADO)</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-<div class="box"><label>PLAZO APARTADO (40 DÍAS / MES Y MEDIO)</label><input type="text" value="${p.engancheTotal || ''}" oninput="voxiData.${p.type}[${p.originalIndex}].engancheTotal=this.value; autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>CANTIDAD SOLICITADA</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>MONTO RECIBIDO (APARTADO)</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>ENGANCHE TOTAL</label><input type="text" value="${formatVoxiNumber(p.engancheTotal) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].engancheTotal=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
 <div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
 ${isMili ? `
 <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
 <div class="box"><label>RANGO MILITAR</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
-<div class="box"><label>PRESUPUESTO TOTAL</label><input type="text" value="${formatVoxiNumber(p.presupuestoTotal) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.milis[${p.originalIndex}].presupuestoTotal=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>PRESUPUESTO TOTAL</label><input type="text" value="${formatVoxiNumber(p.presupuestoTotal) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.milis[${p.originalIndex}].presupuestoTotal=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
 <div id="coMilis_${p.id}" style="grid-column:span 2; padding:5px 0;">
 ${(p.coMilis || []).map((co, coIdx) => `
 <div style="display:flex; gap:5px; margin-top:5px; align-items:center; background:#f9f9f9; padding:5px; border-radius:8px;">
@@ -1070,7 +1171,7 @@ ${voxiData.files.filter(f => f.prospectId == p.id).length > 0
 }
 </div>
 </div>
-<button class="btn" style="background:${accentColor}; color:white; margin-top:14px; font-size:0.85em; border-radius:12px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"' ")}','${p.status||''}','${isMili?'mili':'gral'}')">
+<button class="btn" style="background:${accentColor}; color:white; margin-top:14px; font-size:0.85em; border-radius:12px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
 <i class="fab fa-whatsapp"></i> CONTACTAR POR WHATSAPP
 </button>
 `;
@@ -1576,7 +1677,7 @@ function renderAssistant() {
     
     // 0. MOTIVACIÓN Y ESTRATEGIA (MODO SOCIO)
     const hours = now.getHours();
-    let greeting = hours < 12 ? "¡Buenos días! ☕" : hours < 18 ? "¡Buenas tardes! 💪" : "¡Buenas noches! 🌙";
+    let greeting = hours < 12 ? "¡Buenos días, Socio! ☕" : hours < 18 ? "¡Buenas tardes, Socio! 💪" : "¡Buenas noches, Socio! 🌙";
     const quotes = [
         "El éxito inmobiliario no es cuestión de suerte, es cuestión de seguimiento.",
         "Cada 'no' te acerca más al próximo cierre en efectivo. ¡Dale con todo!",
@@ -1590,7 +1691,7 @@ function renderAssistant() {
     const motivDiv = document.getElementById('assistant-motivation');
     if(motivDiv) {
         motivDiv.innerHTML = `
-            <div style="background: linear-gradient(135deg, #b71c1c, #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div style="background: linear-gradient(135deg, ${accentColor}, #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="font-weight:900; font-size:1.1em;">${greeting}</div>
                 <div style="font-size:0.85em; font-style:italic; margin-top:5px; opacity:0.9;">"${quote}"</div>
                 <div style="font-size:0.8em; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.2); font-weight:700;">🎯 ${strategy}</div>
@@ -1606,19 +1707,17 @@ function renderAssistant() {
     
     const cold = allProspects.filter(p => p.status === 'Nuevo Cliente').length;
     const closing = allProspects.filter(p => p.status === 'Dio apartado').length;
-    const soldProps = props.filter(p => p.estatus === 'Vendido').length;
-    const activeProps = props.filter(p => p.estatus !== 'Vendido').length;
+    const totalProps = props.length;
     const inTalks = allProspects.filter(p => p.status === 'Pláticas avanzadas').length;
 
     // Métricas
     if(document.getElementById('stat-cold')) document.getElementById('stat-cold').innerText = cold;
     if(document.getElementById('stat-closing')) document.getElementById('stat-closing').innerText = closing;
-    if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = activeProps;
-    if(document.getElementById('stat-sold')) document.getElementById('stat-sold').innerText = soldProps;
+    if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = totalProps;
     if(document.getElementById('stat-payments')) document.getElementById('stat-payments').innerText = inTalks;
 
     // Frase del Socio
-    const strategyQuotes = [
+    const quotes = [
         "ESTRATEGIA: Un cliente que pregunta por el precio dos veces está listo para una oferta de cierre.",
         "TIP EXPERTO: No vendas metros cuadrados, vende el patrimonio de su familia. Eso no tiene precio.",
         "CIERRE: Si el cliente duda, ofrécele una visita hoy mismo. La emoción se enfría en 24 horas.",
@@ -1627,7 +1726,7 @@ function renderAssistant() {
         "INTELIGENCIA: Revisa tus preventas. Si la obra avanza, el precio DEBE subir para proteger tu ganancia."
     ];
     const qElem = document.getElementById('assistant-quote');
-    if(qElem) qElem.innerText = `"${strategyQuotes[now.getDay() % strategyQuotes.length]}"`;
+    if(qElem) qElem.innerText = `"${quotes[now.getDay() % quotes.length]}"`;
 
     // AGENDA INTELIGENTE
     const agendaDiv = document.getElementById('assistant-agenda');
@@ -1883,9 +1982,9 @@ function showVoxiToast(msg) {
     t.style.display = 'block';
     setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
-async function saveMaster(showMsg) {
+function saveMaster(showMsg) {
+    const startTime = Date.now();
     voxiData.props.forEach(p => {
-        if (p.estatus === "Vendido") return;
         const text = (p.desc || "").toUpperCase();
         const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
         const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
@@ -1896,8 +1995,35 @@ async function saveMaster(showMsg) {
         }
     });
     localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-    if (window.localDB) await localDB.save(SYNC_ID, voxiData);
-    if(showMsg) showVoxiToast('✅ Guardado localmente');
+    if(showMsg) showVoxiToast('💾 Guardando en nube...');
+    const cStatus = document.getElementById('cloud-status');
+    if(cStatus) {
+        cStatus.style.display = 'block';
+        cStatus.innerHTML = '⌛ Sincronizando...';
+    }
+
+    const dataToSync = JSON.parse(JSON.stringify(voxiData));
+    if (dataToSync.pendingUploads) {
+        dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
+    }
+
+    firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
+    .then(() => { 
+        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        if(cStatus) {
+            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
+            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+        }
+        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
+    })
+    .catch(err => {
+        console.error("Cloud Save Error", err);
+        if(showMsg) showVoxiToast('❌ Error al guardar en nube');
+        if(cStatus) {
+            cStatus.innerHTML = '❌ Error de red';
+            cStatus.style.color = 'red';
+        }
+    });
 }
 function renderFolderGallery() {
     const div = document.getElementById('folderGallery'); if(!div) return;
@@ -1963,6 +2089,18 @@ function shareFolderImage(img) {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
 }
 
+async function loadMaster() {
+const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
+if(s) { 
+voxiData = JSON.parse(s); 
+if(!voxiData.galleries) voxiData.galleries = {};
+if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
+renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
+setTimeout(processSyncQueue, 3000);
+}
+console.log("Sync removed");
+});
+}
 function exportData() {
 const blob = new Blob([JSON.stringify(voxiData, null, 2)], { type: 'application/json' });
 const a = document.createElement('a');
@@ -2079,9 +2217,9 @@ function getProspectLocation(type, idx) {
 }
 function updateFinancials(type, idx) {
     const p = voxiData[type][idx];
-    const solicitado = parseFloat(p.montoSolicitado) || 0;
+    const total = parseFloat(p.engancheTotal) || 0;
     const recibido = parseFloat(p.montoRecibido) || 0;
-    p.saldoPendiente = solicitado - recibido;
+    p.saldoPendiente = total - recibido;
     const div = document.getElementById(`saldo_${p.id}`);
     if(div) div.innerText = formatVoxiNumber(p.saldoPendiente.toFixed(0));
 }
