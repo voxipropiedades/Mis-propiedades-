@@ -1,46 +1,48 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RESCATE VOXI</title>
+    <title>Reparando Voxi...</title>
     <style>
-        body { font-family: sans-serif; background: #b71c1c; color: white; text-align: center; padding: 50px 20px; }
-        .card { background: white; color: #333; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { color: #b71c1c; }
-        button { background: #b71c1c; color: white; border: none; padding: 20px; border-radius: 10px; font-weight: bold; font-size: 1.2em; width: 100%; margin-top: 20px; }
-        .danger { background: #444; margin-top: 40px; font-size: 0.8em; }
-    </style>
+        body { background: #b71c1c; color: white; font-family: sans-serif; text-align: center; padding: 50px; }
+        .box { background: white; color: black; padding: 20px; border-radius: 10px; display: inline-block; }
+        button { background: #444; color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </script>
 </head>
 <body>
-    <div class="card">
-        <h1>SISTEMA DE RESCATE</h1>
-        <p>Tu app tiene un error de memoria bloqueado.</p>
-        <p>Paso 1: Toca el botón rojo para limpiar todo.</p>
-        <button onclick="limpiarYReiniciar()">🔴 LIMPIAR Y REPARAR APP</button>
-        
-        <p style="margin-top:20px;">Paso 2: Después de limpiar, vuelve a entrar al link normal.</p>
-        
-        <button class="danger" onclick="window.location.href='index.html'">IR A LA APP SIN LIMPIAR</button>
+    <div class="box">
+        <h1>REPARACIÓN NUCLEAR</h1>
+        <p>Se borrará la caché forzadamente y se reinstalará la versión estable.</p>
+        <button onclick="nuclear()">PRESIONAR PARA REPARAR AHORA</button>
+        <p id="status"></p>
     </div>
 
     <script>
-        async function limpiarYReiniciar() {
-            if (confirm("Esto borrará la memoria trabada de la app para que puedas volver a instalarla. ¿Continuar?")) {
-                localStorage.clear();
-                sessionStorage.clear();
-                const dbs = await indexedDB.databases();
-                for (let db of dbs) {
-                    indexedDB.deleteDatabase(db.name);
-                }
-                if ('serviceWorker' in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    for(let r of regs) await r.unregister();
-                }
-                alert("LIMPIEZA COMPLETA. Ahora cierra esta pestaña y abre el link de la app de nuevo.");
-                window.location.href = 'index.html?v=999';
-            }
+    async function nuclear() {
+        document.getElementById('status').innerText = "Limpiando...";
+        
+        // 1. Unregister all service workers
+        if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            for(let r of regs) await r.unregister();
         }
+
+        // 2. Clear all caches
+        if ('caches' in window) {
+            const names = await caches.keys();
+            for (let n of names) await caches.delete(n);
+        }
+
+        // 3. Clear LocalStorage and SessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+
+        document.getElementById('status').innerText = "Listo. Redirigiendo...";
+        
+        // 4. Force reload from server bypassing cache
+        setTimeout(() => {
+            window.location.href = "index.html?v=" + Date.now();
+        }, 1000);
+    }
     </script>
 </body>
 </html>
