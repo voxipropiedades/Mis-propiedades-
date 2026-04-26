@@ -481,6 +481,7 @@ async function saveMaster(showMsg = false) {
     if(status) status.style.display = 'block';
 
     // Clasificación automática
+    if(!voxiData.props) voxiData.props = [];
     voxiData.props.forEach(p => {
         const d = (p.desc || "").toUpperCase();
         if(d.includes("MILITAR") || d.includes("ISSFAM")) p.estatus = "CRÉDITO MILITAR";
