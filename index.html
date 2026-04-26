@@ -1,9 +1,9 @@
-<!-- Voxi Version 51.0 [NUCLEAR CACHE BUST] -->
+<!-- Voxi Version 52.0 [NUCLEAR CACHE BUST] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <script>
-    const CURRENT_V = '51.0';
+    const CURRENT_V = '52.0';
     const savedV = localStorage.getItem('VOXI_V');
     if (savedV !== CURRENT_V) {
         localStorage.setItem('VOXI_V', CURRENT_V);
@@ -29,7 +29,13 @@
     // FIX DE LOGO ROTO FALLBACK
     function logoError(img) {
         img.onerror = null;
-        img.src = 'https://cdn-icons-png.flaticon.com/512/609/609803.png';
+        const parent = img.parentElement;
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-home';
+        icon.style.fontSize = '24px';
+        icon.style.marginRight = '10px';
+        icon.style.color = 'white';
+        parent.replaceChild(icon, img);
     }
     </script>
         :root {
