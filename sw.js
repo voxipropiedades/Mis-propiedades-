@@ -1,4 +1,5 @@
-// sw.js V47 - NUCLEAR RESET
+// sw.js V50 - FORCED NETWORK ONLY
+const CACHE_NAME = 'voxi-v50';
 self.addEventListener('install', (e) => {
     self.skipWaiting();
 });
@@ -10,6 +11,12 @@ self.addEventListener('activate', (e) => {
     );
 });
 self.addEventListener('fetch', (e) => {
-    // Bypass SW entirely
-    return; 
+    // Si la URL tiene el parámetro v=, forzamos red
+    if (e.request.url.includes('?v=')) {
+        e.respondWith(fetch(e.request));
+    } else {
+        e.respondWith(
+            fetch(e.request).catch(() => caches.match(e.request))
+        );
+    }
 });
