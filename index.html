@@ -685,6 +685,12 @@ async function saveMaster(showMsg = false) {
         await localDB.save(SYNC_ID, voxiData);
         localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
         
+        if (!navigator.onLine) {
+            localStorage.setItem('voxi_pending_save', JSON.stringify(voxiData));
+            if(showMsg) showVoxiToast('📶 Offline: Guardado localmente');
+            return;
+        }
+
         // Sincronización con Nube (Firebase)
         const cStatus = document.getElementById('cloud-status');
         if(cStatus) {
@@ -2148,6 +2154,13 @@ function finalInit() {
     }, 5000);
 
     try {
+        const pending = localStorage.getItem('voxi_pending_save');
+        if (pending && navigator.onLine) {
+            console.log("Detectado guardado pendiente offline, sincronizando...");
+            voxiData = JSON.parse(pending);
+            saveMaster(true).then(() => localStorage.removeItem('voxi_pending_save'));
+        }
+
         if(typeof loadMaster === 'function') {
             loadMaster().then(() => {
                 if(loader) loader.style.display = 'none';
