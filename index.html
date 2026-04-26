@@ -3,27 +3,16 @@
 <html lang="es">
 <head>
     <script>
-    const CURRENT_V = '45.0';
+    const CURRENT_V = '47.0';
     if (localStorage.getItem('VOXI_V') !== CURRENT_V) {
-        localStorage.clear();
-        if ('caches' in window) {
-            caches.keys().then(names => {
-                for (let n of names) caches.delete(n);
-            });
-        }
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(regs => {
-                for(let r of regs) r.unregister();
-            });
-        }
         localStorage.setItem('VOXI_V', CURRENT_V);
-        window.location.reload(true);
+        window.location.href = window.location.pathname + "?v=" + CURRENT_V;
     }
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Voxi 2026 PRO</title>
-    <link rel="manifest" href="manifest.json?v=45.0">
+    <link rel="manifest" href="manifest.json?v=47.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -132,10 +121,10 @@
             <div style="display: flex; align-items: center; gap: 10px;">
                 <img src="https://voxipropiedades.github.io/Mis-propiedades-/favicon.ico" class="header-logo" alt="Voxi">
                 <div>
-                    <span style="font-weight:950; font-size:1.1em; display: block;">Voxi 2026 PRO</span>
+                    <span style="font-weight:950; font-size:1.1em; display: block;">Voxi 2026 PRO <span style="font-size:0.5em; vertical-align:middle; background:rgba(255,255,255,0.2); padding:2px 4px; border-radius:3px;">v47</span></span>
                     <span class="header-sub">Venta Inmobiliaria Hidalgo</span>
                 </div>
-                <button onclick="loadMaster()" style="margin-left:10px; background:#f44336; color:white; border:none; padding:5px 10px; border-radius:5px; font-size:10px; font-weight:bold; cursor:pointer;">🔄 SINCRONIZAR</button>
+                <button onclick="loadMaster()" style="margin-left:10px; background:#4CAF50; color:white; border:none; padding:5px 10px; border-radius:5px; font-size:10px; font-weight:bold; cursor:pointer;">🔄 SINCRONIZAR</button>
             </div>
     </header>
 
@@ -416,6 +405,7 @@ measurementId: "G-77F6483313"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+db.enablePersistence({synchronizeTabs:true}).catch(err => console.error("Persistencia falló", err));
 const storage = firebase.storage();
 const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
 
@@ -523,63 +513,55 @@ const localDB = {
 
 // --- CORE: CARGA Y GUARDADO ---
 async function loadMaster() {
-    const loader = document.getElementById('voxiLoader');
+    var loader = document.getElementById('voxiLoader');
     if(loader) {
         loader.style.display = 'flex';
-        const lText = document.getElementById('voxiLoaderText');
+        var lText = document.getElementById('voxiLoaderText');
         if(lText) lText.innerText = "🔍 Buscando tus datos...";
     }
 
     try {
-        // --- 1. RECUPERACIÓN MULTI-NIVEL (IndexedDB + LocalStorage) ---
-        let saved = await localDB.load(SYNC_ID);
-        
-        const possibleKeys = [SYNC_ID, 'hr_v38_db', 'voxi_db', 'voxi_main_db', 'voxi_data', 'voxi_save', 'voxiprop_db'];
-        
+        // 1. Local
+        var saved = await localDB.load(SYNC_ID);
+        var pKeys = [SYNC_ID, 'hr_v38_db', 'voxi_db', 'voxi_main_db', 'voxi_data', 'voxi_save', 'voxiprop_db'];
         if(!saved) {
-            for(let key of possibleKeys) {
-                const legacy = localStorage.getItem(key);
+            for(var i=0; i<pKeys.length; i++) {
+                var key = pKeys[i];
+                var legacy = localStorage.getItem(key);
                 if(legacy) {
                     try {
-                        const parsed = JSON.parse(legacy);
+                        var parsed = JSON.parse(legacy);
                         if(parsed && parsed.props) {
                             saved = parsed;
-                            console.log("Datos rescatados de legacy key:", key);
-                            showVoxiToast("📦 Datos locales encontrados: " + key);
                             break;
                         }
                     } catch(e){}
                 }
             }
         }
-
         if(saved && saved.props) {
             voxiData = saved;
             renderAll();
+            showVoxiToast("⚡ Sistema Offline Activo");
         }
 
-        // --- 2. RECUPERACIÓN DESDE LA NUBE (Firebase) ---
-        showVoxiToast("☁️ Conectando con Nube...");
-        const doc = await firebase.firestore().collection("data").doc(SYNC_ID).get();
-        if(doc.exists) {
-            const cloudData = doc.data();
-            if(cloudData && cloudData.props && cloudData.props.length > 0) {
-                // Si la nube tiene datos, los tomamos si son más o iguales que los locales
-                if(!voxiData.props || cloudData.props.length >= voxiData.props.length) {
-                    voxiData = cloudData;
-                    await localDB.save(SYNC_ID, voxiData);
-                    showVoxiToast("✅ Datos descargados de Nube");
+        // 2. Nube (Intento silencioso)
+        try {
+            var doc = await firebase.firestore().collection("data").doc(SYNC_ID).get();
+            if(doc.exists) {
+                var cloudData = doc.data();
+                if(cloudData && cloudData.props && cloudData.props.length > 0) {
+                    if(!voxiData.props || cloudData.props.length >= voxiData.props.length) {
+                        voxiData = cloudData;
+                        await localDB.save(SYNC_ID, voxiData);
+                    }
                 }
-            } else {
-                showVoxiToast("ℹ️ La Nube no tiene registros aún");
             }
-        } else {
-            console.log("No hay documento en Firestore para", SYNC_ID);
+        } catch(cloudErr) {
+            console.log("Modo offline: Usando datos locales.");
         }
-
     } catch(e) { 
-        console.error("Error en loadMaster:", e);
-        showVoxiToast("❌ Error de carga: " + e.message);
+        console.error("Error loadMaster:", e);
     } finally {
         if(loader) loader.style.display = 'none';
         renderAll();
@@ -603,74 +585,74 @@ function renderAll() {
 }
 
 async function saveMaster(showMsg = false) {
-    const startTime = Date.now();
-    const status = document.getElementById('auto-save-status');
+    var startTime = Date.now();
+    var status = document.getElementById('auto-save-status');
     if(status) status.style.display = 'block';
 
-    // Clasificación automática
     if(!voxiData.props) voxiData.props = [];
-    voxiData.props.forEach(p => {
-        const d = (p.desc || "").toUpperCase();
-        if(d.includes("MILITAR") || d.includes("ISSFAM")) p.estatus = "CRÉDITO MILITAR";
-        else if(d.includes("EFECTIVO") || d.includes("CONTADO")) p.estatus = "CLIENTE EFECTIVO";
+    voxiData.props.forEach(function(p) {
+        var d = (p.desc || "").toUpperCase();
+        if(d.indexOf("MILITAR") !== -1 || d.indexOf("ISSFAM") !== -1) p.estatus = "CRÉDITO MILITAR";
+        else if(d.indexOf("EFECTIVO") !== -1 || d.indexOf("CONTADO") !== -1) p.estatus = "CLIENTE EFECTIVO";
     });
 
     try {
         await localDB.save(SYNC_ID, voxiData);
         localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
         
-        // Sincronización con Nube (Firebase)
-        const cStatus = document.getElementById('cloud-status');
+        var cStatus = document.getElementById('cloud-status');
         if(cStatus) {
             cStatus.style.display = 'block';
             cStatus.innerHTML = '⌛ Sincronizando...';
         }
 
-        const dataToSync = JSON.parse(JSON.stringify(voxiData));
+        var dataToSync = JSON.parse(JSON.stringify(voxiData));
         if (dataToSync.pendingUploads) {
-            dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
+            dataToSync.pendingUploads = dataToSync.pendingUploads.map(function(item) { 
+                return { tempId: item.tempId, timestamp: item.timestamp }; 
+            });
         }
 
         await firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync);
         
-        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        var duration = ((Date.now() - startTime) / 1000).toFixed(1);
         if(cStatus) {
-            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
-            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+            cStatus.innerHTML = "☁️ Nube OK (" + duration + "s)";
+            setTimeout(function() { cStatus.style.display = 'none'; }, 2000);
         }
-        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
+        if(showMsg) showVoxiToast("✅ Guardado (" + duration + "s)");
     } catch(e) { 
         console.error("Error guardado:", e); 
         if(showMsg) showVoxiToast('❌ Error al guardar');
     } finally { 
-        if(status) setTimeout(() => status.style.display = 'none', 800); 
+        if(status) setTimeout(function() { status.style.display = 'none'; }, 800); 
     }
 }
 
 async function forcePull() {
-    const backupId = prompt("Ingresa tu ID de respaldo (por defecto es voxi_main_db):", SYNC_ID);
+    var backupId = prompt("Ingresa tu ID de respaldo:", SYNC_ID);
     if(!backupId) return;
     
-    showVoxiToast("⌛ Intentando descargar: " + backupId);
+    showVoxiToast("⌛ Descargando: " + backupId);
     try {
-        const doc = await firebase.firestore().collection("data").doc(backupId).get();
+        var doc = await firebase.firestore().collection("data").doc(backupId).get();
         if(doc.exists) {
-            const cloudData = doc.data();
+            var cloudData = doc.data();
             if(cloudData && cloudData.props) {
-                if(confirm(`Se encontraron ${cloudData.props.length} propiedades. ¿Deseas importarlas?`)) {
+                if(confirm("Se encontraron " + cloudData.props.length + " propiedades. ¿Deseas importarlas?")) {
                     voxiData = cloudData;
                     await localDB.save(SYNC_ID, voxiData); 
                     renderAll();
-                    showVoxiToast("✅ Datos Recuperados Correctamente");
+                    showVoxiToast("✅ Datos Recuperados");
                 }
             } else {
-                showVoxiToast("⚠️ El respaldo parece estar vacío");
+                showVoxiToast("⚠️ El respaldo está vacío");
             }
         } else {
-            showVoxiToast("❌ No se encontró el ID en la Nube: " + backupId);
+            showVoxiToast("❌ No existe el ID: " + backupId);
         }
     } catch(e) {
-        showVoxiToast("❌ Error de Nube: " + e.message);
+        showVoxiToast("❌ Error: " + e.message);
     }
 }
 
