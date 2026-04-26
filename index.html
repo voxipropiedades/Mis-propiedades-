@@ -18,7 +18,7 @@
         .header-logo { max-width: 42px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
         .header-sub { font-size: 0.65em; opacity: 0.85; display: block; margin-top: 2px; }
         .container { max-width: 800px; margin: auto; padding: 10px; }
-        #voxiLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
+        #voxiLoader { display:none !important;  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         /* Emergency Bar Styles */
@@ -26,6 +26,30 @@
     </style>
 </head>
 <body onload="finalInit()">
+<script>
+// AUTO-DEBLOQUEO CRÍTICO
+(function() {
+    console.log("Iniciando protocolo de desbloqueo...");
+    
+    // 1. Quitar loader inmediatamente
+    const forceKill = () => {
+        const l = document.getElementById('voxiLoader');
+        if(l) { l.style.setProperty('display', 'none', 'important'); console.log("Loader eliminado"); }
+    };
+    forceKill();
+    setTimeout(forceKill, 100);
+    setTimeout(forceKill, 500);
+    setTimeout(forceKill, 2000);
+
+    // 2. Si la app se congela por un loop, intentamos recuperar el control
+    window.onerror = function(m, u, l) {
+        console.log("Error capturado, intentando seguir...");
+        forceKill();
+        return true; 
+    };
+})();
+</script>
+
     <div id="voxiLoader">
         <div class="spinner"></div>
         <p id="voxiLoaderText" style="margin-top:15px; color:#b71c1c; font-weight:bold;">Voxi Pro cargando...</p>
