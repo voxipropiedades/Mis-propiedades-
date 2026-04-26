@@ -18,7 +18,7 @@
         .header-logo { max-width: 42px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
         .header-sub { font-size: 0.65em; opacity: 0.85; display: block; margin-top: 2px; }
         .container { max-width: 800px; margin: auto; padding: 10px; }
-        #voxiLoader { display:none !important;  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
+        #voxiLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         /* Emergency Bar Styles */
@@ -26,30 +26,6 @@
     </style>
 </head>
 <body onload="finalInit()">
-<script>
-// AUTO-DEBLOQUEO CRÍTICO
-(function() {
-    console.log("Iniciando protocolo de desbloqueo...");
-    
-    // 1. Quitar loader inmediatamente
-    const forceKill = () => {
-        const l = document.getElementById('voxiLoader');
-        if(l) { l.style.setProperty('display', 'none', 'important'); console.log("Loader eliminado"); }
-    };
-    forceKill();
-    setTimeout(forceKill, 100);
-    setTimeout(forceKill, 500);
-    setTimeout(forceKill, 2000);
-
-    // 2. Si la app se congela por un loop, intentamos recuperar el control
-    window.onerror = function(m, u, l) {
-        console.log("Error capturado, intentando seguir...");
-        forceKill();
-        return true; 
-    };
-})();
-</script>
-
     <div id="voxiLoader">
         <div class="spinner"></div>
         <p id="voxiLoaderText" style="margin-top:15px; color:#b71c1c; font-weight:bold;">Voxi Pro cargando...</p>
@@ -59,18 +35,19 @@
     <div id="voxiEmergencyBar"></div>
 
     <header style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="https://voxipropiedades.github.io/Mis-propiedades-/favicon.ico" class="header-logo" alt="Voxi">
-            <div>
-                <span style="font-weight:950; font-size:1.1em; display: block;">Voxi 2026 PRO</span>
-                <span class="header-sub">Venta Inmobiliaria Hidalgo</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="https://voxipropiedades.github.io/Mis-propiedades-/favicon.ico" class="header-logo" alt="Voxi">
+                <div>
+                    <span style="font-weight:950; font-size:1.1em; display: block;">Voxi 2026 PRO</span>
+                    <span class="header-sub">Venta Inmobiliaria Hidalgo</span>
+                </div>
+                <button onclick="loadMaster()" style="margin-left:10px; background:#f44336; color:white; border:none; padding:5px 10px; border-radius:5px; font-size:10px; font-weight:bold; cursor:pointer;">🔄 SINCRONIZAR</button>
             </div>
-        </div>
     </header>
 
     <div class="container">
-        <div id="auto-save-status">💾 Sistema Online</div>
-<div id="auto-save-status">💾 Guardando...</div>
+        <div id="auto-save-status" style="display:none;">💾 Guardando...</div>
+        <div id="online-status" style="font-size: 0.72em; color: #2e7d32; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; width:fit-content;">💾 Sistema Online</div>
 <div id="cloud-status" style="font-size: 0.72em; color: #1565c0; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e3f2fd; border-radius:8px; display:none; width:fit-content;">☁️ Sincronizando Nube...</div>
 <div class="nav-tabs">
 <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
@@ -451,15 +428,38 @@ const localDB = {
 
 // --- CORE: CARGA Y GUARDADO ---
 async function loadMaster() {
-    try {
-        const saved = await localDB.load(SYNC_ID);
-        if(saved) voxiData = saved;
-        else {
-            const legacy = localStorage.getItem('hr_v38_db');
-            if(legacy) voxiData = JSON.parse(legacy);
-        }
-    } catch(e) { console.error("Error al cargar:", e); }
+    const loader = document.getElementById('voxiLoader');
+    const lText = document.getElementById('voxiLoaderText');
+    if(lText) lText.innerText = "Sincronizando datos...";
 
+    try {
+        // 1. Cargar local primero para velocidad
+        const saved = await localDB.load(SYNC_ID);
+        if(saved) {
+            voxiData = saved;
+            renderAll();
+        }
+
+        // 2. Sincronizar con Firebase forzosamente al inicio
+        const doc = await firebase.firestore().collection("data").doc(SYNC_ID).get();
+        if(doc.exists) {
+            const cloudData = doc.data();
+            // Solo actualizamos si la nube tiene algo
+            if(cloudData && cloudData.props) {
+                voxiData = cloudData;
+                await localDB.save(SYNC_ID, voxiData);
+                console.log("Sincronización con Nube Exitosa");
+            }
+        }
+    } catch(e) { 
+        console.error("Error al cargar:", e); 
+    } finally {
+        if(loader) loader.style.display = 'none';
+        renderAll();
+    }
+}
+
+function renderAll() {
     // Asegurar estructura
     if(!voxiData.props) voxiData.props = [];
     if(!voxiData.milis) voxiData.milis = [];
