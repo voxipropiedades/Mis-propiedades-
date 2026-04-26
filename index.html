@@ -524,42 +524,62 @@ const localDB = {
 // --- CORE: CARGA Y GUARDADO ---
 async function loadMaster() {
     const loader = document.getElementById('voxiLoader');
-    const lText = document.getElementById('voxiLoaderText');
-    if(lText) lText.innerText = "Sincronizando datos...";
+    if(loader) {
+        loader.style.display = 'flex';
+        const lText = document.getElementById('voxiLoaderText');
+        if(lText) lText.innerText = "🔍 Buscando tus datos...";
+    }
 
     try {
-        // 1. Intentar cargar de todas las fuentes locales posibles
+        // --- 1. RECUPERACIÓN MULTI-NIVEL (IndexedDB + LocalStorage) ---
         let saved = await localDB.load(SYNC_ID);
         
-        if(!saved) {
-            const legacy1 = localStorage.getItem(SYNC_ID);
-            if(legacy1) saved = JSON.parse(legacy1);
-        }
+        const possibleKeys = [SYNC_ID, 'hr_v38_db', 'voxi_db', 'voxi_main_db', 'voxi_data', 'voxi_save', 'voxiprop_db'];
         
         if(!saved) {
-            const legacy2 = localStorage.getItem('hr_v38_db');
-            if(legacy2) saved = JSON.parse(legacy2);
+            for(let key of possibleKeys) {
+                const legacy = localStorage.getItem(key);
+                if(legacy) {
+                    try {
+                        const parsed = JSON.parse(legacy);
+                        if(parsed && parsed.props) {
+                            saved = parsed;
+                            console.log("Datos rescatados de legacy key:", key);
+                            showVoxiToast("📦 Datos locales encontrados: " + key);
+                            break;
+                        }
+                    } catch(e){}
+                }
+            }
         }
 
         if(saved && saved.props) {
             voxiData = saved;
-            console.log("Datos recuperados de fuente local");
             renderAll();
         }
 
-        // 2. Sincronizar con Firebase forzosamente
+        // --- 2. RECUPERACIÓN DESDE LA NUBE (Firebase) ---
+        showVoxiToast("☁️ Conectando con Nube...");
         const doc = await firebase.firestore().collection("data").doc(SYNC_ID).get();
         if(doc.exists) {
             const cloudData = doc.data();
-            // Solo actualizamos si la nube tiene algo
-            if(cloudData && cloudData.props) {
-                voxiData = cloudData;
-                await localDB.save(SYNC_ID, voxiData);
-                console.log("Sincronización con Nube Exitosa");
+            if(cloudData && cloudData.props && cloudData.props.length > 0) {
+                // Si la nube tiene datos, los tomamos si son más o iguales que los locales
+                if(!voxiData.props || cloudData.props.length >= voxiData.props.length) {
+                    voxiData = cloudData;
+                    await localDB.save(SYNC_ID, voxiData);
+                    showVoxiToast("✅ Datos descargados de Nube");
+                }
+            } else {
+                showVoxiToast("ℹ️ La Nube no tiene registros aún");
             }
+        } else {
+            console.log("No hay documento en Firestore para", SYNC_ID);
         }
+
     } catch(e) { 
-        console.error("Error al cargar:", e); 
+        console.error("Error en loadMaster:", e);
+        showVoxiToast("❌ Error de carga: " + e.message);
     } finally {
         if(loader) loader.style.display = 'none';
         renderAll();
@@ -628,25 +648,29 @@ async function saveMaster(showMsg = false) {
 }
 
 async function forcePull() {
-    if(!confirm("¿Deseas sobreescribir tus datos locales con los de la Nube?")) return;
-    showVoxiToast("⌛ Bajando datos...");
+    const backupId = prompt("Ingresa tu ID de respaldo (por defecto es voxi_main_db):", SYNC_ID);
+    if(!backupId) return;
+    
+    showVoxiToast("⌛ Intentando descargar: " + backupId);
     try {
-        const doc = await firebase.firestore().collection("data").doc(SYNC_ID).get();
+        const doc = await firebase.firestore().collection("data").doc(backupId).get();
         if(doc.exists) {
             const cloudData = doc.data();
             if(cloudData && cloudData.props) {
-                voxiData = cloudData;
-                await localDB.save(SYNC_ID, voxiData);
-                renderAll();
-                showVoxiToast("✅ Sincronización Exitosa");
+                if(confirm(`Se encontraron ${cloudData.props.length} propiedades. ¿Deseas importarlas?`)) {
+                    voxiData = cloudData;
+                    await localDB.save(SYNC_ID, voxiData); 
+                    renderAll();
+                    showVoxiToast("✅ Datos Recuperados Correctamente");
+                }
             } else {
-                showVoxiToast("⚠️ La Nube parece estar vacía");
+                showVoxiToast("⚠️ El respaldo parece estar vacío");
             }
         } else {
-            showVoxiToast("❌ No se encontraron datos en la Nube");
+            showVoxiToast("❌ No se encontró el ID en la Nube: " + backupId);
         }
     } catch(e) {
-        showVoxiToast("❌ Error: " + e.message);
+        showVoxiToast("❌ Error de Nube: " + e.message);
     }
 }
 
