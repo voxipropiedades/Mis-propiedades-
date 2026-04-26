@@ -1,12 +1,20 @@
-<!-- Voxi Version 45.0 [DATA RECOVERY FIX] -->
+<!-- Voxi Version 51.0 [NUCLEAR CACHE BUST] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <script>
-    const CURRENT_V = '47.0';
-    if (localStorage.getItem('VOXI_V') !== CURRENT_V) {
+    const CURRENT_V = '51.0';
+    const savedV = localStorage.getItem('VOXI_V');
+    if (savedV !== CURRENT_V) {
         localStorage.setItem('VOXI_V', CURRENT_V);
-        window.location.href = window.location.pathname + "?v=" + CURRENT_V;
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                for(let r of regs) r.unregister();
+                window.location.href = window.location.pathname + "?v=" + CURRENT_V;
+            });
+        } else {
+            window.location.href = window.location.pathname + "?v=" + CURRENT_V;
+        }
     }
     </script>
     <meta charset="UTF-8">
@@ -17,7 +25,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
+    <script>
+    // FIX DE LOGO ROTO FALLBACK
+    function logoError(img) {
+        img.onerror = null;
+        img.src = 'https://cdn-icons-png.flaticon.com/512/609/609803.png';
+    }
+    </script>
         :root {
             --primary: #b71c1c;
             --secondary: #ff5252;
@@ -81,7 +95,7 @@
         .btn-add { background: var(--primary); color: white; margin-bottom: 18px; }
         .btn-save { background: var(--success); color: white; font-size: 1.1em; border: 2px solid white; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
         .fixed-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 12px 15px;
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
             box-shadow: 0 -4px 18px rgba(0,0,0,0.12); z-index: 1000;
         }
         .tab-content { display: none; }
@@ -101,6 +115,16 @@
             border-radius: 50%; animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* MODALES FIX */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-card {
+            background: white; border-radius: 20px; padding: 25px; width: 100%; max-width: 450px;
+            max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
         .assist-card { background: #fff; border-radius: 20px; padding: 18px; border-left: 7px solid var(--info); margin-bottom: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.07); }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .stat-box { background: #f8f9fa; padding: 14px; border-radius: 14px; text-align: center; border: 1px solid #eee; }
@@ -119,9 +143,9 @@
 
     <header style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="https://voxipropiedades.github.io/Mis-propiedades-/favicon.ico" class="header-logo" alt="Voxi">
+                <img src="https://cdn-icons-png.flaticon.com/512/602/602175.png" class="header-logo" alt="Voxi" onerror="logoError(this)">
                 <div>
-                    <span style="font-weight:950; font-size:1.1em; display: block;">Voxi 2026 PRO <span style="font-size:0.5em; vertical-align:middle; background:rgba(255,255,255,0.2); padding:2px 4px; border-radius:3px;">v47</span></span>
+                    <span style="font-weight:950; font-size:1.1em; display: block;">Voxi 2026 PRO <span style="font-size:0.5em; vertical-align:middle; background:rgba(255,255,255,0.2); padding:2px 4px; border-radius:3px;">v50</span></span>
                     <span class="header-sub">Venta Inmobiliaria Hidalgo</span>
                 </div>
                 <button onclick="loadMaster()" style="margin-left:10px; background:#4CAF50; color:white; border:none; padding:5px 10px; border-radius:5px; font-size:10px; font-weight:bold; cursor:pointer;">🔄 SINCRONIZAR</button>
@@ -130,18 +154,22 @@
 
     <div class="container">
         <div id="auto-save-status" style="display:none;">💾 Guardando...</div>
-        <div id="online-status" style="font-size: 0.72em; color: #2e7d32; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; width:fit-content;">💾 Sistema Online</div>
+        <div id="online-status" style="font-size: 0.72em; color: #2e7d32; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; width:fit-content;">💾 <span id="voxi-net-text">Sistema Online</span></div>
 <div id="cloud-status" style="font-size: 0.72em; color: #1565c0; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e3f2fd; border-radius:8px; display:none; width:fit-content;">☁️ Sincronizando Nube...</div>
-<div class="nav-tabs">
-<button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
-<button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')"><i class="fas fa-home"></i> INVENTARIO</button>
-<button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')"><i class="fas fa-users"></i> PROSPECTOS</button>
-<button class="tab-btn" id="btn-galeria" onclick="openTab('galeria')"><i class="fas fa-images"></i> GALERÍA</button>
-<button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')"><i class="fas fa-file-contract"></i> CONTRATOS</button>
-<button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')"><i class="fas fa-folder-open"></i> ARCHIVOS</button>
+<div class="nav-tabs" style="overflow-x: auto; white-space: nowrap; padding-bottom: 5px;">
+<button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')" style="min-width: 100px;"><i class="fas fa-chart-line"></i> TABLERO</button>
+<button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')" style="min-width: 100px;"><i class="fas fa-home"></i> INV</button>
+<button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')" style="min-width: 100px;"><i class="fas fa-users"></i> PROS</button>
+<button class="tab-btn" id="btn-galeria" onclick="openTab('galeria')" style="min-width: 100px;"><i class="fas fa-images"></i> GAL</button>
+<button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')" style="min-width: 100px;"><i class="fas fa-file-contract"></i> DOCS</button>
+<button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')" style="min-width: 100px;"><i class="fas fa-folder-open"></i> FILES</button>
 </div>
 <!-- ============ TAB: TABLERO ============ -->
 <div id="asistente" class="tab-content active-tab">
+    <div style="padding:15px; background:white; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center;">
+        <button class="btn" style="background:#ff9800; color:white; font-size:0.65em; padding:5px 10px; width:auto; border-radius:8px;" onclick="forceV50Update()"><i class="fas fa-sync"></i> ACTUALIZAR SISTEMA</button>
+        <span style="font-size:0.65em; color:#888;">ID: v50.0-PRO</span>
+    </div>
 <!-- BUSCADOR INTELIGENTE -->
 <div class="assist-card" style="padding: 12px; margin-bottom: 12px;">
 <div style="display:flex; align-items:center; gap:10px; background:#f0f2f5; padding:8px 15px; border-radius:25px; border:2px solid #ddd;">
@@ -384,10 +412,10 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <button class="btn" style="background:#eee; color:#333; margin-top:10px;" onclick="closePhotoMenu()">CANCELAR</button>
 </div>
 </div>
-<div class="fixed-footer">
-<button class="btn" style="background:#444; color:white; width:auto; padding:0 15px; margin-right:10px;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+ NUEVO</button>
-<button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-cloud-upload-alt"></i> SUBIR A NUBE</button>
-<button class="btn btn-save" style="background:#1565c0" onclick="forcePull()"><i class="fas fa-cloud-download-alt"></i> BAJAR DE NUBE</button>
+<div class="fixed-footer" style="padding: 10px; height: 65px; display: grid; grid-template-columns: 1fr 2fr 2fr; gap: 8px;">
+<button class="btn" style="background:#444; color:white; font-size: 0.7em; padding: 0;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+NUEVO</button>
+<button class="btn btn-save" style="font-size: 0.7em;" onclick="saveMaster(true)"><i class="fas fa-cloud-upload-alt"></i> SUBIR</button>
+<button class="btn btn-save" style="background:#1565c0; font-size: 0.7em;" onclick="forcePull()"><i class="fas fa-cloud-download-alt"></i> BAJAR</button>
 </div>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -547,7 +575,7 @@ async function loadMaster() {
 
         // 2. Nube (Intento silencioso)
         try {
-            var doc = await firebase.firestore().collection("data").doc(SYNC_ID).get();
+            var doc = await firebase.firestore().collection("data").doc(SYNC_ID).get({source: 'server'});
             if(doc.exists) {
                 var cloudData = doc.data();
                 if(cloudData && cloudData.props && cloudData.props.length > 0) {
@@ -558,7 +586,8 @@ async function loadMaster() {
                 }
             }
         } catch(cloudErr) {
-            console.log("Modo offline: Usando datos locales.");
+            console.log("Nube no alcanzable: Usando datos locales.");
+            // No mostramos toast de error aquí para no molestar al usuario si está offline
         }
     } catch(e) { 
         console.error("Error loadMaster:", e);
@@ -1874,6 +1903,12 @@ setTimeout(() => el.style.boxShadow = '', 3000);
 }, 300);
 }
 function showVoxiToast(msg) {
+    if(msg.includes("offline") || msg.includes("client is offline")) {
+        console.warn("Firestore Offline:", msg);
+        const icon = document.querySelector('.fa-save');
+        if(icon) icon.parentElement.innerHTML = '<i class="fas fa-plane"></i> Sistema Offline';
+        return;
+    }
     const t = document.getElementById('voxi-toast');
     if(!t) return;
     t.innerText = msg;
@@ -2081,28 +2116,71 @@ function updateMilitaryBudget(idx) {
     if(dM) dM.innerText = "-" + formatVoxiNumber(p.montoDescuento.toFixed(0));
     if(lM) lM.innerText = formatVoxiNumber(p.montoLibre.toFixed(0));
 }
+function updateOnlineStatus() {
+    const text = document.getElementById('voxi-net-text');
+    const box = document.getElementById('online-status');
+    if (!text || !box) return;
+    if (navigator.onLine) {
+        text.innerText = "Sistema Online";
+        box.style.background = "#e8f5e9";
+        box.style.color = "#2e7d32";
+    } else {
+        text.innerText = "Modo Avión / Sin Red";
+        box.style.background = "#ffebee";
+        box.style.color = "#c62828";
+    }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+function forceV50Update() {
+    localStorage.removeItem('VOXI_V');
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            for(let r of regs) r.unregister();
+            window.location.reload(true);
+        });
+    } else {
+        window.location.reload(true);
+    }
+}
 function finalInit() {
-    console.log("Iniciando Voxi PRO...");
+    console.log("Iniciando Voxi PRO v50...");
     const loader = document.getElementById('voxiLoader');
     
-    // Si el loader sigue ahí después de 5 segundos, lo quitamos a la fuerza
-    setTimeout(() => {
-        if(loader) loader.style.display = 'none';
-    }, 5000);
+    // GESTIÓN DE SEGURIDAD PARA EL CARGANDO
+    setTimeout(() => { if(loader) loader.style.display = 'none'; }, 6000);
 
     try {
         if(typeof loadMaster === 'function') {
             loadMaster().then(() => {
+                console.log("Sistema listo.");
+                // Verificación de integridad de datos locales para el catálogo (50+ fotos)
+                if(Object.keys(voxiData.galleries || {}).length === 0) {
+                    const local = localStorage.getItem('voxiData');
+                    if(local) {
+                        const parsed = JSON.parse(local);
+                        if(parsed.galleries && Object.keys(parsed.galleries).length > 0) {
+                            voxiData.galleries = parsed.galleries;
+                            if(typeof renderFolderGallery === 'function') renderFolderGallery();
+                        }
+                    }
+                }
                 if(loader) loader.style.display = 'none';
-                console.log("Master Loaded");
             }).catch(e => {
-                console.error("LoadMaster fail", e);
+                console.error("Fallo crítico loadMaster:", e);
                 if(loader) loader.style.display = 'none';
+                // Intento recuperar local
+                const local = localStorage.getItem('voxiData');
+                if(local) {
+                    voxiData = JSON.parse(local);
+                    renderProps();
+                }
             });
-        } else {
-            if(loader) loader.style.display = 'none';
         }
     } catch(e) {
+        console.error("Error en arranque:", e);
         if(loader) loader.style.display = 'none';
     }
 }
