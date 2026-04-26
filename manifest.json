@@ -1,7 +1,7 @@
 {
   "name": "Voxi 2026 PRO",
   "short_name": "Voxi2026",
-  "start_url": "index.html?v=47.0",
+  "start_url": "index.html?v=51.0",
   "scope": "/Mis-propiedades-/",
   "display": "standalone",
   "background_color": "#b71c1c",
