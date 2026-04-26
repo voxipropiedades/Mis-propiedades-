@@ -1,246 +1,239 @@
-<!-- Voxi Version 43.1 [STYLE RESTORED] -->
+<!-- Voxi Version 38.4.3 [FINAL FORMATTING FIXED] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Voxi 2026 PRO</title>
-    <link rel="manifest" href="manifest.json">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
+<script>
+// PROTOCOLO DE ARRANQUE SEGURO - ELIMINACIÓN DE BLOQUEOS
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        for(let r of registrations) r.unregister();
+    });
+}
+if ('caches' in window) {
+    caches.keys().then(names => {
+        for (let n of names) caches.delete(n);
+    });
+}
+</script>
 
-        :root {
-            --primary: #b71c1c;
-            --secondary: #ff5252;
-            --accent: #ffde59;
-            --bg: #f0f2f5;
-            --white: #ffffff;
-            --text: #1c1e21;
-            --success: #2e7d32;
-            --wa-green: #25D366;
-            --info: #1565c0;
-        }
-        * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
-        body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 140px; }
 
-        header {
-            background: linear-gradient(135deg, #7f0000 0%, #b71c1c 50%, #d32f2f 100%);
-            color: white; padding: 14px 20px; text-align: center;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .header-logo { max-width: 42px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
-        .header-sub { font-size: 0.65em; opacity: 0.85; display: block; margin-top: 2px; }
 
-        .container { max-width: 800px; margin: auto; padding: 10px; }
 
-        .nav-tabs {
-            display: flex; gap: 5px; margin: 12px 0; background: white; padding: 8px;
-            border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow-x: auto; scrollbar-width: none;
-        }
-        .tab-btn {
-            flex: 1; border: none; padding: 11px 6px; border-radius: 10px;
-            background: #f0f2f5; color: #606770; font-weight: 800; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            min-width: 80px; transition: 0.25s; font-size: 0.65em;
-        }
-        .tab-btn i { font-size: 1.2em; }
-        .tab-btn.active { background: var(--primary); color: white; transform: scale(1.05); }
 
-        .card {
-            background: var(--white); border-radius: 18px; padding: 20px;
-            margin-bottom: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.09);
-            position: relative; border: 1px solid #e0e0e0;
-        }
-        /* Estilos diferenciados por tipo de cliente */
-        .card-mili { border: 2px solid #2e7d32; border-left: 10px solid #2e7d32; background: #f1f8e9; }
-        .card-gral { border: 2px solid #757575; border-left: 10px solid #757575; background: #f5f5f5; }
-        .box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .box { background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px; }
-        .box label { font-size: 0.62em; font-weight: 900; color: #757575; display: block; text-transform: uppercase; margin-bottom: 3px; }
-        .box input, .box select, .box textarea {
-            width: 100%; border: none; background: transparent; font-size: 0.95em;
-            color: var(--text); padding: 2px 0; outline: none; font-weight: 700;
-        }
-        .full-box { grid-column: span 2; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor Independiente HR</title>
+<link rel="manifest" href="manifest.json">
 
-        .section-label {
-            grid-column: span 2; font-size: 0.82em; font-weight: 950; color: var(--primary);
-            margin-top: 18px; border-bottom: 3px solid #b71c1c22; padding-bottom: 5px;
-            text-transform: uppercase;
-        }
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-        .btn {
-            border: none; padding: 14px; border-radius: 12px; cursor: pointer;
-            font-weight: 800; display: flex; align-items: center; gap: 10px;
-            justify-content: center; width: 100%; transition: 0.2s; font-size: 0.9em;
-        }
-        .btn:active { transform: scale(0.97); }
-        .btn-add { background: var(--primary); color: white; margin-bottom: 18px; }
-        .btn-save { background: var(--success); color: white; font-size: 1.1em; border: 2px solid white; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
-        .btn-delete { position: absolute; top: 14px; right: 14px; color: #bbb; background: none; border: none; font-size: 1.2em; cursor: pointer; }
 
-        .fixed-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 12px 15px;
-            box-shadow: 0 -4px 18px rgba(0,0,0,0.12); z-index: 1000;
-        }
-        .tab-content { display: none; }
-        .active-tab { display: block; }
 
-        .main-photo {
-            width: 100%; height: 220px; background: #eee; border-radius: 15px; margin-bottom: 15px;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-            border: 2px dashed #bbb; cursor: pointer;
-        }
-        .main-photo img { width: 100%; height: 100%; object-fit: cover; }
-        .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
-        .gallery-item { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 10px; overflow: hidden; position: relative; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .gallery-item .del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor:pointer; }
 
-        #editorArea { 
-            border: 1px solid #ddd; padding: 20px; min-height: 400px; background: #fff; 
-            border-radius: 12px; margin-top: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-            font-family: 'Courier New', Courier, monospace; line-height: 1.6;
-        }
-        #editor { min-height: 380px; outline: none; font-size: 0.95em; white-space: pre-wrap; color: #333; }
-        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 11px; background: white; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 8px; }
 
-        /* MODAL BASE */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.72); display: none; align-items: flex-end; justify-content: center;
-            z-index: 2000; padding: 0;
-        }
-        .modal-card {
-            background: white; border-radius: 24px 24px 0 0; padding: 24px; width: 100%; max-width: 600px;
-            max-height: 90vh; overflow-y: auto;
-        }
-        .modal-title { font-size: 1.1em; font-weight: 900; margin: 0 0 16px; display:flex; align-items:center; gap:10px; }
-
-        /* FLYER MODAL */
-        .flyer-option {
-            background: #f8f9fa; border: 2px solid #eee; border-radius: 15px;
-            padding: 14px; margin-bottom: 10px; cursor: pointer; transition:0.2s;
-        }
-        .flyer-option:active { transform: scale(0.98); border-color: var(--primary); }
-        .flyer-option h4 { margin: 0 0 5px; font-size:0.9em; color: var(--primary); }
-        .flyer-option p { margin: 0; font-size: 0.8em; color: #555; }
-
-        /* MODAL WHATSAPP PREVIEW */
-        .wa-preview {
-            background: #e8f5e9; border: 2px solid var(--wa-green); border-radius: 15px;
-            padding: 14px; margin: 14px 0; font-size: 0.9em; line-height: 1.6; white-space: pre-wrap;
-            word-break: break-word; min-height: 100px;
-        }
-        .wa-edit {
-            width: 100%; border: 2px solid #ddd; border-radius: 12px; padding: 12px;
-            font-size: 0.9em; line-height: 1.6; min-height: 140px; outline: none;
-            resize: vertical; font-family: inherit;
-        }
-        @media print {
-            body * { visibility: hidden; }
-            #editorArea, #editorArea * { visibility: visible; }
-            #editorArea { position: absolute; left: 0; top: 0; width: 100%; border:none; padding:0; }
-            #editor { border:none; box-shadow:none; padding:0; }
-            .fixed-footer, .navbar, .tabs, .btn, .box, label, h2, .status-bar { display: none !important; }
-        }
-
-        .folder-group { border: 1px solid #ddd; border-radius: 12px; margin-bottom: 15px; overflow: hidden; background: #fff; }
-        .folder-header { background: #f5f5f5; padding: 12px; font-weight: 900; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .folder-content { padding: 10px; display: block; }
-        .wa-btn-send:active { transform: scale(0.97); }
-
-        /* ASISTENTE */
-        .assist-card { background: #fff; border-radius: 20px; padding: 18px; border-left: 7px solid var(--info); margin-bottom: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.07); }
-        .assist-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .assist-header i { font-size: 1.8em; color: var(--info); }
-        .assist-quote { font-style: italic; color: #444; background: #e8f0fe; padding: 13px; border-radius: 12px; margin-bottom: 16px; border-left: 4px solid var(--info); font-size: 0.9em; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-        .stat-box { background: #f8f9fa; padding: 14px; border-radius: 14px; text-align: center; border: 1px solid #eee; }
-        .stat-box h5 { margin: 0; font-size: 0.65em; color: #888; text-transform: uppercase; letter-spacing:.5px; }
-        .stat-box p { margin: 6px 0 0; font-size: 1.6em; font-weight: 900; }
-
-        .task-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #fff; border: 1px solid #eee; border-radius: 13px; margin-bottom: 8px; flex-wrap: wrap; }
-        .task-item .task-info { flex: 1; font-size: 0.85em; }
-        .task-item .task-badge { font-size: 0.65em; font-weight: 900; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
-
-        .alert-hot { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
-        .alert-hot h4 { margin: 0 0 8px; color: #2e7d32; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
-        .alert-cold { background: #e3f2fd; border: 2px solid #90caf9; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
-        .alert-cold h4 { margin: 0 0 8px; color: #1565c0; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
-        .alert-warn { background: #fff8e1; border: 2px solid #ffe082; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
-        .alert-warn h4 { margin: 0 0 8px; color: #e65100; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
-        .alert-danger { background: #fff5f5; border: 2px solid #ef9a9a; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
-        .alert-danger h4 { margin: 0 0 8px; color: #b71c1c; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
-
-        .wa-mini { background: var(--wa-green); color: white; border: none; border-radius: 10px; padding: 6px 12px; font-size: 0.65em; font-weight: 900; cursor: pointer; white-space: nowrap; }
-        .wa-mini:active { transform: scale(0.96); }
-
-        .agenda-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; margin-bottom:8px; font-size:0.85em; font-weight:700; }
-        .agenda-item.priority { background:#fff3e0; border:1px solid #ffcc80; }
-        .agenda-item.normal { background:#f9f9f9; border:1px solid #eee; }
-        .agenda-num { background: var(--primary); color:white; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75em; font-weight:900; flex-shrink:0; }
-
-        .check-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
-        .check-item span { font-size: 0.78em; font-weight: 800; }
-
-        .btn-print-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
-
-        #auto-save-status { font-size: 0.72em; color: var(--success); font-weight: 900; display: none; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; display:none; width:fit-content; }
-
-        @media print {
-            body { background: white; padding: 0 !important; }
-            .nav-tabs, header, .fixed-footer, .btn, .btn-delete, .modal-overlay, .btn-print-options, #auto-save-status, .no-print { display: none !important; }
-            .card { box-shadow: none !important; border: 1px solid #000 !important; page-break-inside: avoid !important; }
-        }
-        .filter-chip {
-            background: #eee; border: none; padding: 6px 14px; border-radius: 15px;
-            font-size: 0.72em; font-weight: 800; cursor: pointer; white-space: nowrap;
-            color: #666; transition: 0.2s; flex-shrink: 0;
-        }
-        .filter-chip.active { background: var(--primary); color: white; }
-        .alert-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px;
-            background: white; border-radius: 15px; margin-bottom: 10px;
-            border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .alert-item.completed { opacity: 0.5; border-left-color: #9e9e9e; text-decoration: line-through; }
-        .alert-item.cat-documento { border-left-color: var(--primary); background: #ffebee; }
-        .alert-item.cat-cliente { border-left-color: var(--info); background: #e3f2fd; }
-        .alert-item.cat-pago { border-left-color: var(--success); background: #e8f5e9; }
-        .alert-item.cat-tarea { border-left-color: #fbc02d; background: #fff9c4; }
-        .alert-meta { font-size: 0.75em; color: #777; font-weight: 700; margin-top: 2px; }
-        .alert-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 1.1em; padding: 5px; }
-        .alert-btn:hover { color: var(--primary); }
-        </style>
+<style>
+:root {
+--primary: #b71c1c;
+--secondary: #ff5252;
+--accent: #ffde59;
+--bg: #f0f2f5;
+--white: #ffffff;
+--text: #1c1e21;
+--success: #2e7d32;
+--wa-green: #25D366;
+--info: #1565c0;
+}
+* { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
+body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 140px; }
+header {
+background: linear-gradient(135deg, #7f0000 0%, #b71c1c 50%, #d32f2f 100%);
+color: white; padding: 14px 20px; text-align: center;
+box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+position: sticky; top: 0; z-index: 1000;
+}
+.header-logo { max-width: 42px; border-radius: 50%; background: white; padding: 2px; vertical-align: middle; margin-right: 10px; }
+.header-sub { font-size: 0.65em; opacity: 0.85; display: block; margin-top: 2px; }
+.container { max-width: 800px; margin: auto; padding: 10px; }
+.nav-tabs {
+display: flex; gap: 5px; margin: 12px 0; background: white; padding: 8px;
+border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+overflow-x: auto; scrollbar-width: none;
+}
+.tab-btn {
+flex: 1; border: none; padding: 11px 6px; border-radius: 10px;
+background: #f0f2f5; color: #606770; font-weight: 800; cursor: pointer;
+display: flex; flex-direction: column; align-items: center; gap: 4px;
+min-width: 80px; transition: 0.25s; font-size: 0.65em;
+}
+.tab-btn i { font-size: 1.2em; }
+.tab-btn.active { background: var(--primary); color: white; transform: scale(1.05); }
+.card {
+background: var(--white); border-radius: 18px; padding: 20px;
+margin-bottom: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.09);
+position: relative; border: 1px solid #e0e0e0;
+}
+/* Estilos diferenciados por tipo de cliente */
+.card-mili { border: 2px solid #2e7d32; border-left: 10px solid #2e7d32; background: #f1f8e9; }
+.card-gral { border: 2px solid #757575; border-left: 10px solid #757575; background: #f5f5f5; }
+.box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.box { background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px; }
+.box label { font-size: 0.62em; font-weight: 900; color: #757575; display: block; text-transform: uppercase; margin-bottom: 3px; }
+.box input, .box select, .box textarea {
+width: 100%; border: none; background: transparent; font-size: 0.95em;
+color: var(--text); padding: 2px 0; outline: none; font-weight: 700;
+}
+.full-box { grid-column: span 2; }
+.section-label {
+grid-column: span 2; font-size: 0.82em; font-weight: 950; color: var(--primary);
+margin-top: 18px; border-bottom: 3px solid #b71c1c22; padding-bottom: 5px;
+text-transform: uppercase;
+}
+.btn {
+border: none; padding: 14px; border-radius: 12px; cursor: pointer;
+font-weight: 800; display: flex; align-items: center; gap: 10px;
+justify-content: center; width: 100%; transition: 0.2s; font-size: 0.9em;
+}
+.btn:active { transform: scale(0.97); }
+.btn-add { background: var(--primary); color: white; margin-bottom: 18px; }
+.btn-save { background: var(--success); color: white; font-size: 1.1em; border: 2px solid white; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+.btn-delete { position: absolute; top: 14px; right: 14px; color: #bbb; background: none; border: none; font-size: 1.2em; cursor: pointer; }
+.fixed-footer {
+position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 12px 15px;
+box-shadow: 0 -4px 18px rgba(0,0,0,0.12); z-index: 1000;
+}
+.tab-content { display: none; }
+.active-tab { display: block; }
+.main-photo {
+width: 100%; height: 220px; background: #eee; border-radius: 15px; margin-bottom: 15px;
+display: flex; align-items: center; justify-content: center; overflow: hidden;
+border: 2px dashed #bbb; cursor: pointer;
+}
+.main-photo img { width: 100%; height: 100%; object-fit: cover; }
+.gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.gallery-item { width: 100%; aspect-ratio: 1/1; background: #eee; border-radius: 10px; overflow: hidden; position: relative; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-item .del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor:pointer; }
+#voxiLoader {
+    display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8); color: white; padding: 20px 30px; border-radius: 15px;
+    z-index: 10000; flex-direction: column; align-items: center; gap: 10px;
+}
+#voxi-toast {
+    position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
+    background: #333; color: white; padding: 12px 25px; border-radius: 50px;
+    font-weight: 950; font-size: 0.9em; z-index: 15000; display: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: slideUpToast 0.3s ease-out;
+    border: 2px solid var(--accent);
+}
+@keyframes slideUpToast { from { bottom: -50px; opacity: 0; } to { bottom: 85px; opacity: 1; } }
+.spinner {
+    width: 30px; height: 30px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent);
+    border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+#editorArea { 
+border: 1px solid #ddd; padding: 20px; min-height: 400px; background: #fff; 
+border-radius: 12px; margin-top: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+font-family: 'Courier New', Courier, monospace; line-height: 1.6;
+}
+#editor { min-height: 380px; outline: none; font-size: 0.95em; white-space: pre-wrap; color: #333; }
+.file-item { display: flex; align-items: center; justify-content: space-between; padding: 11px; background: white; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 8px; }
+/* MODAL BASE */
+.modal-overlay {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background: rgba(0,0,0,0.72); display: none; align-items: flex-end; justify-content: center;
+z-index: 2000; padding: 0;
+}
+.modal-card {
+background: white; border-radius: 24px 24px 0 0; padding: 24px; width: 100%; max-width: 600px;
+max-height: 90vh; overflow-y: auto;
+}
+.modal-title { font-size: 1.1em; font-weight: 900; margin: 0 0 16px; display:flex; align-items:center; gap:10px; }
+/* FLYER MODAL */
+.flyer-option {
+background: #f8f9fa; border: 2px solid #eee; border-radius: 15px;
+padding: 14px; margin-bottom: 10px; cursor: pointer; transition:0.2s;
+}
+.flyer-option:active { transform: scale(0.98); border-color: var(--primary); }
+.flyer-option h4 { margin: 0 0 5px; font-size:0.9em; color: var(--primary); }
+.flyer-option p { margin: 0; font-size: 0.8em; color: #555; }
+/* MODAL WHATSAPP PREVIEW */
+.wa-preview {
+background: #e8f5e9; border: 2px solid var(--wa-green); border-radius: 15px;
+padding: 14px; margin: 14px 0; font-size: 0.9em; line-height: 1.6; white-space: pre-wrap;
+word-break: break-word; min-height: 100px;
+}
+.wa-edit {
+width: 100%; border: 2px solid #ddd; border-radius: 12px; padding: 12px;
+font-size: 0.9em; line-height: 1.6; min-height: 140px; outline: none;
+resize: vertical; font-family: inherit;
+}
+@media print {
+body * { visibility: hidden; }
+#editorArea, #editorArea * { visibility: visible; }
+#editorArea { position: absolute; left: 0; top: 0; width: 100%; border:none; padding:0; }
+#editor { border:none; box-shadow:none; padding:0; }
+.fixed-footer, .navbar, .tabs, .btn, .box, label, h2, .status-bar { display: none !important; }
+}
+.folder-group { border: 1px solid #ddd; border-radius: 12px; margin-bottom: 15px; overflow: hidden; background: #fff; }
+.folder-header { background: #f5f5f5; padding: 12px; font-weight: 900; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.folder-content { padding: 10px; display: block; }
+.wa-btn-send:active { transform: scale(0.97); }
+/* ASISTENTE */
+.assist-card { background: #fff; border-radius: 20px; padding: 18px; border-left: 7px solid var(--info); margin-bottom: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.07); }
+.assist-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.assist-header i { font-size: 1.8em; color: var(--info); }
+.assist-quote { font-style: italic; color: #444; background: #e8f0fe; padding: 13px; border-radius: 12px; margin-bottom: 16px; border-left: 4px solid var(--info); font-size: 0.9em; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-box { background: #f8f9fa; padding: 14px; border-radius: 14px; text-align: center; border: 1px solid #eee; }
+.stat-box h5 { margin: 0; font-size: 0.65em; color: #888; text-transform: uppercase; letter-spacing:.5px; }
+.stat-box p { margin: 6px 0 0; font-size: 1.6em; font-weight: 900; }
+.task-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #fff; border: 1px solid #eee; border-radius: 13px; margin-bottom: 8px; flex-wrap: wrap; }
+.task-item .task-info { flex: 1; font-size: 0.85em; }
+.task-item .task-badge { font-size: 0.65em; font-weight: 900; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.alert-hot { background: #e8f5e9; border: 2px solid #4caf50; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
+.alert-hot h4 { margin: 0 0 8px; color: #2e7d32; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
+.alert-cold { background: #e3f2fd; border: 2px solid #90caf9; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
+.alert-cold h4 { margin: 0 0 8px; color: #1565c0; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
+.alert-warn { background: #fff8e1; border: 2px solid #ffe082; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
+.alert-warn h4 { margin: 0 0 8px; color: #e65100; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
+.alert-danger { background: #fff5f5; border: 2px solid #ef9a9a; border-radius: 14px; padding: 13px; margin-bottom: 12px; }
+.alert-danger h4 { margin: 0 0 8px; color: #b71c1c; font-size: 0.88em; display:flex; align-items:center; gap:8px; }
+.wa-mini { background: var(--wa-green); color: white; border: none; border-radius: 10px; padding: 6px 12px; font-size: 0.65em; font-weight: 900; cursor: pointer; white-space: nowrap; }
+.wa-mini:active { transform: scale(0.96); }
+.agenda-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; margin-bottom:8px; font-size:0.85em; font-weight:700; }
+.agenda-item.priority { background:#fff3e0; border:1px solid #ffcc80; }
+.agenda-item.normal { background:#f9f9f9; border:1px solid #eee; }
+.agenda-num { background: var(--primary); color:white; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75em; font-weight:900; flex-shrink:0; }
+.check-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
+.check-item span { font-size: 0.78em; font-weight: 800; }
+.btn-print-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+#auto-save-status { font-size: 0.72em; color: var(--success); font-weight: 900; display: none; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; display:none; width:fit-content; }
+@media print {
+body { background: white; padding: 0 !important; }
+.nav-tabs, header, .fixed-footer, .btn, .btn-delete, .modal-overlay, .btn-print-options, #auto-save-status, .no-print { display: none !important; }
+.card { box-shadow: none !important; border: 1px solid #000 !important; page-break-inside: avoid !important; }
+}
+</style>
 </head>
-<body onload="finalInit()">
-    <div id="voxiLoader">
-        <div class="spinner"></div>
-        <p id="voxiLoaderText" style="margin-top:15px; color:#b71c1c; font-weight:bold;">Voxi Pro cargando...</p>
-        <button onclick="document.getElementById('voxiLoader').style.display='none'" style="margin-top:20px; background:#f0f2f5; border:1px solid #ccc; padding:8px 15px; border-radius:5px; font-size:12px;">Cerrar Cargador</button>
-    </div>
-    
-    <div id="voxiEmergencyBar"></div>
-
-    <header style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="https://voxipropiedades.github.io/Mis-propiedades-/favicon.ico" class="header-logo" alt="Voxi">
-                <div>
-                    <span style="font-weight:950; font-size:1.1em; display: block;">Voxi 2026 PRO</span>
-                    <span class="header-sub">Venta Inmobiliaria Hidalgo</span>
-                </div>
-            </div>
-    </header>
-
-    <div class="container">
-        <div id="auto-save-status" style="display:none;">💾 Guardando...</div>
-        <div id="online-status" style="font-size: 0.72em; color: #2e7d32; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; width:fit-content;">💾 Sistema Online</div>
+<body>
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
+<div style="display: flex; align-items: center; gap: 10px;">
+<img src="icon.png" class="header-logo" alt="HR">
+<div>
+<span style="font-weight:950; font-size:1.1em; display: block;">Constructor Independiente HR</span>
+<span class="header-sub" style="font-size: 0.7em;">Sistema de Ventas Inteligente</span>
+</div>
+</div>
+<button onclick="manualSync()" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Sincronizar Nube">
+<i class="fas fa-cloud-download-alt"></i>
+</button>
+</header>
+<div class="container">
+<div id="auto-save-status">💾 Guardando...</div>
 <div id="cloud-status" style="font-size: 0.72em; color: #1565c0; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e3f2fd; border-radius:8px; display:none; width:fit-content;">☁️ Sincronizando Nube...</div>
 <div class="nav-tabs">
 <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')"><i class="fas fa-chart-line"></i> TABLERO</button>
@@ -517,9 +510,6 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
 
-// --- 1. CONTROL DE CONEXIÓN Y CARGA CRÍTICA ---
-// window.onerror consolidado al inicio
-
 // GESTIÓN DE NOTIFICACIONES REALES (PWA)
 async function initNotifications() {
     if (!messaging) return;
@@ -575,12 +565,12 @@ function startAlertMonitor() {
     }, 60000); // Revisar cada minuto
 }
 
+<script>
 // --- CONFIGURACIÓN ---
 let voxiData = { props: [], milis: [], grals: [], files: [], galleries: {}, manualAlerts: [], pendingUploads: [] };
 let activePropId = null;
 let activeProspectId = null;
 let activeFolder = null;
-let editingAlertId = null;
 const SYNC_ID = "voxi_main_db";
 
 const GALLERY_FOLDERS = [
@@ -621,38 +611,15 @@ const localDB = {
 
 // --- CORE: CARGA Y GUARDADO ---
 async function loadMaster() {
-    const loader = document.getElementById('voxiLoader');
-    const lText = document.getElementById('voxiLoaderText');
-    if(lText) lText.innerText = "Sincronizando datos...";
-
     try {
-        // 1. Cargar local primero para velocidad
         const saved = await localDB.load(SYNC_ID);
-        if(saved) {
-            voxiData = saved;
-            renderAll();
+        if(saved) voxiData = saved;
+        else {
+            const legacy = localStorage.getItem('hr_v38_db');
+            if(legacy) voxiData = JSON.parse(legacy);
         }
+    } catch(e) { console.error("Error al cargar:", e); }
 
-        // 2. Sincronizar con Firebase forzosamente al inicio
-        const doc = await firebase.firestore().collection("data").doc(SYNC_ID).get();
-        if(doc.exists) {
-            const cloudData = doc.data();
-            // Solo actualizamos si la nube tiene algo
-            if(cloudData && cloudData.props) {
-                voxiData = cloudData;
-                await localDB.save(SYNC_ID, voxiData);
-                console.log("Sincronización con Nube Exitosa");
-            }
-        }
-    } catch(e) { 
-        console.error("Error al cargar:", e); 
-    } finally {
-        if(loader) loader.style.display = 'none';
-        renderAll();
-    }
-}
-
-function renderAll() {
     // Asegurar estructura
     if(!voxiData.props) voxiData.props = [];
     if(!voxiData.milis) voxiData.milis = [];
@@ -660,7 +627,6 @@ function renderAll() {
     if(!voxiData.galleries) voxiData.galleries = {};
     if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
     if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
-    if(!voxiData.files) voxiData.files = [];
 
     renderProps();
     renderProspects();
@@ -669,12 +635,10 @@ function renderAll() {
 }
 
 async function saveMaster(showMsg = false) {
-    const startTime = Date.now();
     const status = document.getElementById('auto-save-status');
     if(status) status.style.display = 'block';
 
     // Clasificación automática
-    if(!voxiData.props) voxiData.props = [];
     voxiData.props.forEach(p => {
         const d = (p.desc || "").toUpperCase();
         if(d.includes("MILITAR") || d.includes("ISSFAM")) p.estatus = "CRÉDITO MILITAR";
@@ -684,48 +648,15 @@ async function saveMaster(showMsg = false) {
     try {
         await localDB.save(SYNC_ID, voxiData);
         localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-        
-        if (!navigator.onLine) {
-            localStorage.setItem('voxi_pending_save', JSON.stringify(voxiData));
-            if(showMsg) showVoxiToast('📶 Offline: Guardado localmente');
-            return;
-        }
-
-        // Sincronización con Nube (Firebase)
-        const cStatus = document.getElementById('cloud-status');
-        if(cStatus) {
-            cStatus.style.display = 'block';
-            cStatus.innerHTML = '⌛ Sincronizando...';
-        }
-
-        const dataToSync = JSON.parse(JSON.stringify(voxiData));
-        if (dataToSync.pendingUploads) {
-            dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
-        }
-
-        await firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync);
-        
-        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-        if(cStatus) {
-            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
-            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
-        }
-        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
-    } catch(e) { 
-        console.error("Error guardado:", e); 
-        if(showMsg) showVoxiToast('❌ Error al guardar');
-    } finally { 
-        if(status) setTimeout(() => status.style.display = 'none', 800); 
-    }
+        if(showMsg) alert("✅ Guardado Exitoso");
+    } catch(e) { console.error("Error guardado:", e); }
+    finally { if(status) setTimeout(() => status.style.display = 'none', 800); }
 }
 
 let saveTimeout;
 function autoSave() {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => saveMaster(false), 2000);
-}
-function processSyncQueue() {
-    saveMaster(false);
 }
 
 // --- IMÁGENES (LOCAL-ONLY POR AHORA) ---
@@ -735,7 +666,13 @@ function saveImageHibrido(file, type, index, subIdx) {
         autoSave();
     });
 }
-
+);
+        
+        // 3. Persistir local y disparar sync
+        localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+        processSyncQueue();
+    });
+}
 const REQS_M = ["INE", "Acta", "CURP", "Solicitud", "Haberes", "Servicios", "Preautorización", "Mensaje CEI", "Credencial Militar"];
 const REQS_E = ["INE (ambos lados)"];
 function moveProspect(fromType, index, toType) {
@@ -745,33 +682,25 @@ voxiData[toType].unshift(item);
 renderProspects();
 autoSave();
 }
-// --- NAVEGACIÓN ---
-document.addEventListener('DOMContentLoaded', () => { 
-    setTimeout(() => { openTab('asistente'); }, 100);
+function openTab(id) {
+document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active-tab'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.getElementById(id).classList.add('active-tab');
+document.getElementById('btn-' + id).classList.add('active');
+if(id === 'prospectos') renderProspects();
+if(id === 'galeria') renderFolderGallery();
+if(id === 'inventario') renderProps();
+if(id === 'papeleo') {
+const select = document.getElementById('papeleoProspecto');
+select.innerHTML = '<option value="">-- Sin asignar --</option>';
+const all = [
+...voxiData.milis.map(p => ({ name: p.nombre, id: p.id })),
+...voxiData.grals.map(p => ({ name: p.nombre, id: p.id }))
+];
+all.forEach(p => {
+select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
 });
-
-function openTab(name) {
-    document.querySelectorAll('.tab-content').forEach(t => {
-        t.style.display = 'none';
-        t.classList.remove('active-tab');
-    });
-
-    const target = document.getElementById(name);
-    if(target) {
-        target.style.display = 'block';
-        target.classList.add('active-tab');
-    }
-
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('btn-' + name);
-    if(btn) btn.classList.add('active');
-
-    if(name === 'asistente' && typeof renderAssistant === 'function') renderAssistant();
-    if(name === 'inventario' && typeof renderProps === 'function') renderProps();
-    if(name === 'prospectos' && typeof renderProspects === 'function') renderProspects();
-    if(name === 'galeria' && typeof renderFolderGallery === 'function') renderFolderGallery();
-    if(name === 'papeleo' && typeof renderLegalCategories === 'function') renderLegalCategories();
-    if(name === 'archivos' && typeof renderFiles === 'function') renderFiles();
+}
 }
 function openLatestMap(i) {
 const p = voxiData.props[i];
@@ -781,14 +710,14 @@ const last = links[links.length - 1];
 if(last) window.open(last, '_blank');
 }
 function saveLocation(i, silent = false) {
-    if (!navigator.geolocation) {
-        showVoxiToast("Geolocalización no soportada");
-        return;
-    }
+if (!navigator.geolocation) {
+if(!silent) alert("Geolocalización no soportada.");
+return;
+}
 const icon = document.querySelector(`[onclick="saveLocation(${i})"]`);
 if(icon && !silent) {
 icon.style.color = "#ff9800";
-showVoxiToast("📍 Obteniendo ubicación... Por favor espera.");
+alert("📍 Obteniendo ubicación... Por favor espera unos segundos.");
 }
 navigator.geolocation.getCurrentPosition(pos => {
 const lat = pos.coords.latitude;
@@ -800,7 +729,7 @@ autoSave();
 if(!silent) {
 if(icon) icon.style.color = "#4caf50";
 renderProps();
-showVoxiToast("📍 Ubicación guardada.");
+alert("📍 Ubicación guardada en el historial.");
 }
 }, err => {
 if(!silent) {
@@ -960,182 +889,293 @@ renderProspects();
 autoSave();
 }
 function renderProps() {
-    const div = document.getElementById('propList');
-    const select = document.getElementById('propSelect');
-    div.innerHTML = '';
-    
-    // Poblar select (se mantiene por compatibilidad)
-    select.innerHTML = '<option value="">-- BUSCAR / SELECCIONAR PROPIEDAD --</option>';
-    voxiData.props.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${p.precio || '0'}`;
-        select.appendChild(opt);
-    });
+const div = document.getElementById('propList');
+const select = document.getElementById('propSelect');
+div.innerHTML = '';
+select.innerHTML = '<option value="">-- ELIGE UNA PROPIEDAD --</option>';
+voxiData.props.forEach(p => {
+const opt = document.createElement('option');
+opt.value = p.id;
+opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${p.precio || '0'}`;
+if(activePropId == p.id) opt.selected = true;
+select.appendChild(opt);
+});
+if(!activePropId && voxiData.props.length > 0) activePropId = voxiData.props[0].id;
+const p = voxiData.props.find(x => x.id == activePropId);
+if(!p) {
+div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-home" style="font-size:3em; margin-bottom:10px; display:block;"></i> Selecciona una propiedad arriba o añade una nueva.</div>';
+return;
+}
+const i = voxiData.props.indexOf(p);
+const esCasa = p.tipo.includes('Casa');
+let galH = '';
+(p.gallery || []).forEach((img, gi) => {
+galH += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="if(confirm('¿Quitar foto?')){voxiData.props[${i}].gallery.splice(${gi},1);renderProps();autoSave();}">✕</button></div>`;
+});
+const card = document.createElement('div');
+card.className = 'card';
+card.id = 'fullPropCard' + i;
+card.innerHTML = `
+<button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1); activePropId=null; renderProps(); autoSave();}"><i class="fas fa-trash"></i></button>
+<div class="main-photo" onclick="selectPhotoSource(${i}, 'main')">
+${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i><div style="font-size:0.7em; color:#888; margin-top:5px;">CAPTURAR FOTO</div>'}
+</div>
+<div class="box-container">
+<div class="box full-box"><label>Dueño / Vendedor</label><input type="text" value="${p.dueño}" oninput="voxiData.props[${i}].dueño=this.value;autoSave()"></div>
+<div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();autoSave()">
+<option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏠 Casa</option>
+<option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🏞️ Terreno</option>
+<option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>🌄 Parcela</option>
+</select></div>
+<div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value;autoSave()">
+<option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>🏗️ Preventa</option>
+<option value="Construida" ${p.estatus==='Construida'?'selected':''}>🏠 Construida</option>
+<option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
+</select></div>
+<div class="box full-box"><label>Título</label><input type="text" value="${p.titulo}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
+<div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:700;"></div>
+<div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--primary); font-weight:700;"></div>
+<div class="box full-box" style="margin-top:-5px; padding:0 10px 10px; font-size:0.85em; color:#2e7d32; font-weight:700;">
+Costo de Obra: ${formatVoxiNumber((parseFloat((p.precio||'').replace(/,/g,'')) - parseFloat((p.ganancia||'').replace(/,/g,'')) || 0).toFixed(0))}
+</div>
+<div class="section-label">📍 UBICACIONES GUARDADAS</div>
+<div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
 
-    if (voxiData.props.length === 0) {
-        div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-home" style="font-size:3em; margin-bottom:10px; display:block;"></i> No tienes propiedades. Añade una arriba.</div>';
-        return;
-    }
-
-    voxiData.props.forEach((p, i) => {
-        const esCasa = (p.tipo || '').includes('Casa');
-        let galH = '';
-        (p.gallery || []).forEach((img, gi) => {
-            galH += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="if(confirm('¿Quitar foto?')){voxiData.props[${i}].gallery.splice(${gi},1);renderProps();autoSave();}">✕</button></div>`;
-        });
-
-        const item = document.createElement('div');
-        item.className = 'item-registro';
-        item.innerHTML = `
-            <div class="header-registro" id="header-prop-${p.id}">
-                <div class="info-principal">
-                    <span class="titulo-p">${p.titulo || p.tipo || 'Propiedad sin título'} <span class="cat-badge badge-prop">${formatVoxiNumber(p.precio) || '$0'}</span></span>
-                    <span class="subtitulo-p">${p.tipo} | ${p.estatus} | 📍 ${p.ubicacion || 'Sin ubicación'}</span>
-                </div>
-                <i class="fas fa-chevron-down" style="color:#ccc;"></i>
-            </div>
-            <div class="detalle-desplegable" id="det-prop-${p.id}">
-                <div class="card" style="border:none; box-shadow:none; padding:0; margin:0; background:transparent;">
-                    <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1); renderProps(); autoSave();}"><i class="fas fa-trash"></i></button>
-                    <div class="main-photo" onclick="selectPhotoSource(${i}, 'main')">
-                        ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i><div style="font-size:0.7em; color:#888; margin-top:5px;">CAPTURAR FOTO</div>'}
-                    </div>
-                    <div class="box-container">
-                        <div class="box full-box"><label>Dueño / Vendedor</label><input type="text" value="${p.dueño||''}" oninput="voxiData.props[${i}].dueño=this.value;autoSave()"></div>
-                        <div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();autoSave()">
-                            <option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏠 Casa</option>
-                            <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🏞️ Terreno</option>
-                            <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>🌄 Parcela</option>
-                        </select></div>
-                        <div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value;autoSave()">
-                            <option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>🏗️ Preventa</option>
-                            <option value="Construida" ${p.estatus==='Construida'?'selected':''}>🏠 Construida</option>
-                            <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
-                        </select></div>
-                        <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo||''}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-                        <div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:700;"></div>
-                        <div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--primary); font-weight:700;"></div>
-                        
-                        <div class="section-label">📍 UBICACIÓN</div>
-                        <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
-                        <div class="box full-box"><label>Maps / GPS</label><textarea oninput="voxiData.props[${i}].maps=this.value;autoSave()" style="height:60px; font-size:0.75em;">${p.maps||''}</textarea></div>
-                        
-                        <div class="section-label">🗺️ MEDIDAS</div>
-                        <div class="box"><label>Norte</label><input type="text" value="${p.norte||''}" oninput="voxiData.props[${i}].norte=this.value;calcArea(${i});autoSave()"></div>
-                        <div class="box"><label>Sur</label><input type="text" value="${p.sur||''}" oninput="voxiData.props[${i}].sur=this.value;calcArea(${i});autoSave()"></div>
-                        <div class="box"><label>Este</label><input type="text" value="${p.este||''}" oninput="voxiData.props[${i}].este=this.value;calcArea(${i});autoSave()"></div>
-                        <div class="box"><label>Oeste</label><input type="text" value="${p.oeste||''}" oninput="voxiData.props[${i}].oeste=this.value;calcArea(${i});autoSave()"></div>
-                        <div class="box full-box"><label>ÁREA TOTAL</label><input type="text" value="${p.area||''}" oninput="voxiData.props[${i}].area=this.value;autoSave()" style="font-weight:900; color:var(--primary);"></div>
-                        
-                        <div class="section-label">📸 GALERÍA</div>
-                        <div class="gallery" style="grid-column:span 2;">
-                            ${galH}
-                            <div class="gallery-item" onclick="selectPhotoSource(${i}, 'gallery')"><i class="fas fa-plus"></i></div>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:10px; margin-top:15px;">
-                        <button class="btn" style="background:var(--wa-green); color:white; font-size:0.8em;" onclick="openFlyerOptions(${i})"><i class="fab fa-whatsapp"></i> ENVIAR FLYER</button>
-                        <button class="btn" style="background:#333; color:white; font-size:0.8em;" onclick="printListingV32(${i})"><i class="fas fa-print"></i> IMPRIMIR</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        div.appendChild(item);
-    });
+<!-- MÓDULO CÁLCULO DE DISTANCIA (MODO BLINDADO) -->
+<div class="section-label" style="color:#1565c0; border-bottom-color:#1565c022;">📍 CÁLCULO DE DISTANCIA Y TIEMPO</div>
+<div class="box full-box" style="background:#f0f7ff; border:1px solid #cce3ff; padding:12px; border-radius:12px;">
+    <div style="display:flex; gap:8px; margin-bottom:10px;">
+        <div style="flex:1; position:relative;">
+            <label style="color:#1565c0; font-size:0.6em;">ORIGEN (PUNTO A) <i class="fas fa-location-arrow" style="cursor:pointer; color:#1565c0; margin-left:5px;" onclick="getCurrentLocationForRoute(${i})" title="Usar mi ubicación"></i></label>
+            <input type="text" id="routeA_${i}" value="${p.routeA || ''}" placeholder="Ej. Pachuca" oninput="voxiData.props[${i}].routeA=this.value;autoSave()" style="border-bottom:1px solid #ddd; font-size:0.85em; padding-right:20px;">
+        </div>
+        <div style="flex:1;">
+            <label style="color:#1565c0; font-size:0.6em;">DESTINO (PUNTO B)</label>
+            <input type="text" id="routeB_${i}" value="${p.routeB || p.ubicacion || ''}" placeholder="Destino" oninput="voxiData.props[${i}].routeB=this.value;autoSave()" style="border-bottom:1px solid #ddd; font-size:0.85em;">
+        </div>
+    </div>
+    <button class="btn" style="background:#1565c0; color:white; padding:10px; font-size:0.8em; height:auto;" onclick="calculateRoute(${i})">
+        <i class="fas fa-calculator"></i> CALCULAR RUTA
+    </button>
+    <div id="routeRes_${i}" style="margin-top:12px; background:white; padding:10px; border-radius:8px; border:1px solid #eee; text-align:center;">
+        <div style="font-size:1.1em; font-weight:900; color:#1565c0;">${p.routeDist || '--'} KM</div>
+        <div style="font-size:0.8em; color:#666;">TIEMPO EST.: <b>${p.routeTime || '--'} MIN</b></div>
+    </div>
+    <div style="margin-top:10px; border-top:1px dashed #ccc; padding-top:8px;">
+        <label style="font-size:0.6em; color:#888;">HISTORIAL DE RUTAS</label>
+        <div style="max-height:60px; overflow-y:auto; font-size:0.7em; color:#444;" id="routeHist_${i}">
+            ${(p.routeHist || []).slice().reverse().map(h => `<div style="margin-bottom:3px; border-bottom:1px solid #f0f0f0; padding:2px 0;">• ${h}</div>`).join('')}
+        </div>
+    </div>
+</div>
+<div class="box full-box"><label>HISTORIAL DE LINKS <i class="fas fa-location-arrow" style="cursor:pointer; color:#e53935; margin-left:10px; padding:5px;" onclick="saveLocation(${i})" title="Obtener GPS"></i> <i class="fas fa-search" style="cursor:pointer; color:#1e88e5; margin-left:12px; padding:5px;" onclick="searchInMaps(${i})" title="Buscar en Maps"></i>${p.maps ? ` <i class="fas fa-external-link-alt" style="cursor:pointer; color:var(--info); margin-left:15px; padding:5px;" onclick="openLatestMap(${i})" title="Ver Última Ubicación"></i>` : ''}</label><textarea oninput="voxiData.props[${i}].maps=this.value;autoSave()" style="width:100%; height:60px; font-size:0.75em; border:1px solid #ddd; border-radius:5px; padding:5px; resize:none;">${p.maps||''}</textarea></div>
+<div class="section-label">🗺️ MEDIDAS DEL TERRENO</div>
+<div class="box"><label>Norte</label><input type="text" value="${p.norte}" oninput="voxiData.props[${i}].norte=this.value;calcArea(${i});autoSave()"></div>
+<div class="box"><label>Sur</label><input type="text" value="${p.sur}" oninput="voxiData.props[${i}].sur=this.value;calcArea(${i});autoSave()"></div>
+<div class="box"><label>Este</label><input type="text" value="${p.este}" oninput="voxiData.props[${i}].este=this.value;calcArea(${i});autoSave()"></div>
+<div class="box"><label>Oeste</label><input type="text" value="${p.oeste}" oninput="voxiData.props[${i}].oeste=this.value;calcArea(${i});autoSave()"></div>
+<div class="box full-box">
+<label>ÁREA TOTAL <span class="suma-medidas" style="color:var(--primary); margin-left:10px;">(Suma: ${((parseFloat(p.norte)||0) + (parseFloat(p.sur)||0) + (parseFloat(p.este)||0) + (parseFloat(p.oeste)||0)).toFixed(2)} m)</span></label>
+<input type="text" value="${p.area}" oninput="voxiData.props[${i}].area=this.value;autoSave()" style="font-weight:900; color:var(--primary); font-size:1.2em;">
+</div>
+<div class="section-label">📋 DOCUMENTOS</div>
+<div class="box"><label>Tipo Docto</label><select onchange="voxiData.props[${i}].docto=this.value;renderProps();autoSave()">
+<option value="Escritura Pública" ${p.docto==='Escritura Pública'?'selected':''}>Escritura Pública</option>
+<option value="Título" ${p.docto==='Título'?'selected':''}>Título</option>
+</select></div>
+<div class="box"><label>Permisos</label><select onchange="voxiData.props[${i}].permisos=this.value;autoSave()">
+<option value="No" ${p.permisos==='No'?'selected':''}>No</option>
+<option value="Sí" ${p.permisos==='Sí'?'selected':''}>Sí</option>
+</select></div>
+<div class="box full-box" style="background:#f1f8e9; border:1px solid #c5e1a5; padding:10px; border-radius:10px;">
+<label style="color:#2e7d32; font-weight:700;">📄 ESCANEAR ${p.docto}</label>
+<button class="btn" style="background:#2e7d32; color:white; width:100%; margin-top:8px;" onclick="selectPhotoSource(${i}, 'doc')"><i class="fas fa-camera"></i> CAPTURAR DOCUMENTO</button>
+</div>
+${esCasa ? `
+<div class="section-label">🏠 DETALLES DE LA CASA</div>
+<div class="box"><label>Sala</label><input type="text" value="${p.sala||''}" oninput="voxiData.props[${i}].sala=this.value;autoSave()"></div>
+<div class="box"><label>Cocina</label><input type="text" value="${p.cocina||''}" oninput="voxiData.props[${i}].cocina=this.value;autoSave()"></div>
+<div class="box"><label>¿Integral?</label><select onchange="voxiData.props[${i}].cocina_integral=this.value;autoSave()">
+<option value="No" ${p.cocina_integral==='No'?'selected':''}>No</option><option value="Sí" ${p.cocina_integral==='Sí'?'selected':''}>Sí</option>
+</select></div>
+<div class="box"><label>Recámaras</label><input type="text" value="${p.recamaras||''}" oninput="voxiData.props[${i}].recamaras=this.value;autoSave()"></div>
+<div class="box"><label>Baños</label><input type="text" value="${p.banos||''}" oninput="voxiData.props[${i}].banos=this.value;autoSave()"></div>
+<div class="box"><label>Patio</label><input type="text" value="${p.patio||''}" oninput="voxiData.props[${i}].patio=this.value;autoSave()"></div>
+<div class="box"><label>Cochera</label><input type="text" value="${p.estacionamiento||''}" oninput="voxiData.props[${i}].estacionamiento=this.value;autoSave()"></div>
+<div class="box"><label>Cisterna</label><input type="text" value="${p.cisterna||''}" oninput="voxiData.props[${i}].cisterna=this.value;autoSave()"></div>
+<div class="box"><label>Tinacos</label><select onchange="voxiData.props[${i}].tinacos=this.value;autoSave()">
+<option value="Ninguno" ${p.tinacos==='Ninguno'?'selected':''}>Ninguno</option>
+<option value="1" ${p.tinacos==='1'?'selected':''}>1</option>
+<option value="2" ${p.tinacos==='2'?'selected':''}>2</option>
+</select></div>
+<div class="box"><label>Calentador</label><select onchange="voxiData.props[${i}].calentador=this.value;autoSave()">
+<option value="Ninguno" ${p.calentador==='Ninguno'?'selected':''}>No</option>
+<option value="Solar" ${p.calentador==='Solar'?'selected':''}>Solar</option>
+<option value="Boiler" ${p.calentador==='Boiler'?'selected':''}>Boiler</option>
+</select></div>
+<div class="box"><label>Zaguán</label><select onchange="voxiData.props[${i}].zaguan=this.value;autoSave()">
+<option value="No" ${p.zaguan==='No'?'selected':''}>No</option><option value="Sí" ${p.zaguan==='Sí'?'selected':''}>Sí</option>
+</select></div>
+` : ''}
+<div class="section-label">📸 GALERÍA DE FOTOS</div>
+<div class="gallery" style="grid-column:span 2;">${galH}
+<div class="gallery-item" onclick="selectPhotoSource(${i}, 'gallery')">
+<i class="fas fa-plus" style="color:#aaa;"></i>
+</div>
+</div>
+<div class="box full-box" style="margin-top:14px; border:2px solid #e0e0e0;">
+<label>Descripción / Notas Extras</label>
+<textarea rows="3" oninput="voxiData.props[${i}].desc=this.value;autoSave()" style="font-weight:500;">${p.desc}</textarea>
+</div>
+</div>
+<div style="margin-top:18px; border:2px solid #c8e6c9; padding:12px; border-radius:15px; background:#f9fffe;">
+<button class="btn" style="background:var(--wa-green); color:white;" onclick="openFlyerOptions(${i})">
+<i class="fab fa-whatsapp" style="font-size:1.2em;"></i> 🧠 ENVIAR MENSAJE INTELIGENTE
+</button>
+</div>
+<div class="btn-print-options">
+<button class="btn" style="background:var(--success); color:white; font-size:0.78em;" onclick="exportFullJPG(${i})"><i class="fas fa-image"></i> GUARDAR JPG</button>
+<button class="btn" style="background:#333; color:white; font-size:0.78em;" onclick="printListingV32(${i})"><i class="fas fa-print"></i> IMPRIMIR</button>
+`;
+div.appendChild(card);
 }
 function renderProspects() {
-    const div = document.getElementById('prospectList'); 
-    const select = document.getElementById('prospectSelect');
-    div.innerHTML = '';
-    
-    const allProspects = [
-        ...voxiData.milis.map((m, i) => ({ ...m, type: 'milis', originalIndex: i })),
-        ...voxiData.grals.map((g, i) => ({ ...g, type: 'grals', originalIndex: i }))
-    ].sort((a, b) => b.id - a.id);
-
-    // Poblar select (se mantiene por compatibilidad)
-    select.innerHTML = '<option value="">-- BUSCAR / SELECCIONAR --</option>';
-    allProspects.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = (p.nombre || 'Sin nombre') + (p.type === 'milis' ? ' (Militar)' : ' (Efectivo)');
-        select.appendChild(opt);
-    });
-
-    if (allProspects.length === 0) {
-        div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-users" style="font-size:3em; margin-bottom:10px; display:block;"></i> No tienes prospectos. Añade uno arriba.</div>';
-        return;
+const div = document.getElementById('prospectList'); 
+const select = document.getElementById('prospectSelect');
+div.innerHTML = '';
+const allProspects = [
+...voxiData.milis.map((m, i) => ({ ...m, type: 'milis', originalIndex: i })),
+...voxiData.grals.map((g, i) => ({ ...g, type: 'grals', originalIndex: i }))
+].sort((a, b) => b.id - a.id);
+select.innerHTML = '<option value="">-- ELIGE UN CLIENTE --</option>';
+allProspects.forEach(p => {
+const opt = document.createElement('option');
+opt.value = p.id;
+opt.textContent = (p.nombre || 'Sin nombre') + (p.type === 'milis' ? ' (Militar)' : ' (Efectivo)');
+if(activeProspectId == p.id) opt.selected = true;
+select.appendChild(opt);
+});
+if(!activeProspectId && allProspects.length > 0) activeProspectId = allProspects[0].id;
+const p = allProspects.find(x => x.id == activeProspectId);
+if(!p) {
+div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-users" style="font-size:3em; margin-bottom:10px; display:block;"></i> Selecciona un cliente arriba o añade uno nuevo.</div>';
+return;
+}
+const isMili = p.type === 'milis'; if(isMili && !p.estado) p.estado = 'Disponible';
+const accentColor = isMili ? '#2e7d32' : '#757575';
+const currentReqs = isMili ? REQS_M : REQS_E;
+if(!p.m) p.m = [];
+p.m = p.m.filter(doc => currentReqs.includes(doc.n));
+currentReqs.forEach(reqName => {
+if(!p.m.find(doc => doc.n === reqName)) p.m.push({ n: reqName, s: 'f' });
+});
+const card = document.createElement('div'); 
+card.className = 'card ' + (isMili ? 'card-mili' : 'card-gral');
+card.style.borderTop = `6px solid ${accentColor}`;
+const stColors = { 'Nuevo Cliente':'#eeeeee', 'Pláticas avanzadas':'#fff9c4', 'El cliente ya no quiso':'#ffebee', 'Dio apartado':'#e3f2fd', 'Cerrado':'#e8f5e9' };
+const txtColors = { 'Nuevo Cliente':'#757575', 'Pláticas avanzadas':'#fbc02d', 'El cliente ya no quiso':'#d32f2f', 'Dio apartado':'#1976d2', 'Cerrado':'#2e7d32' };
+const sc = stColors[p.status] || '#f5f5f5';
+const tc = txtColors[p.status] || '#333';
+if(p.status === 'Dio apartado' && !p.fechaApartado) {
+    p.fechaApartado = new Date().toISOString();
+    p.fechaLimite = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    if(!voxiData.manualAlerts) voxiData.manualAlerts = [];
+    for(let i=1; i<=10; i++) {
+        const alertDate = new Date(new Date().getTime() + (i * 3) * 24 * 60 * 60 * 1000);
+        if(alertDate > new Date(p.fechaLimite)) break;
+        voxiData.manualAlerts.push({
+            id: Date.now() + Math.random(),
+            prospectId: p.id,
+            text: `Recordatorio seguimiento apartado: ${p.nombre}`,
+            date: alertDate.toISOString(),
+            priority: i > 8 ? 'ALTA' : 'MEDIA'
+        });
     }
-
-    allProspects.forEach(p => {
-        const isMili = p.type === 'milis';
-        const accentColor = isMili ? '#2e7d32' : '#757575';
-        const stColors = { 'Nuevo Cliente':'#eeeeee', 'Pláticas avanzadas':'#fff9c4', 'El cliente ya no quiso':'#ffebee', 'Dio apartado':'#e3f2fd', 'Cerrado':'#e8f5e9' };
-        const txtColors = { 'Nuevo Cliente':'#757575', 'Pláticas avanzadas':'#fbc02d', 'El cliente ya no quiso':'#d32f2f', 'Dio apartado':'#1976d2', 'Cerrado':'#2e7d32' };
-        const sc = stColors[p.status] || '#f5f5f5';
-        const tc = txtColors[p.status] || '#333';
-
-        const item = document.createElement('div');
-        item.className = 'item-registro';
-        item.innerHTML = `
-            <div class="header-registro" id="header-p-${p.id}">
-                <div class="info-principal">
-                    <span class="titulo-p">${p.nombre || 'Sin nombre'} <span class="cat-badge ${isMili?'badge-mili':'badge-gral'}">${isMili?'MILITAR':'EFECTIVO'}</span></span>
-                    <span class="subtitulo-p">${p.status || 'Nuevo Cliente'} | 📱 ${p.tel || 'Sin tel'}</span>
-                </div>
-                <i class="fas fa-chevron-down" style="color:#ccc;"></i>
-            </div>
-            <div class="detalle-desplegable" id="det-p-${p.id}">
-                <div class="card ${isMili ? 'card-mili' : 'card-gral'}" style="border:none; box-shadow:none; padding:0; margin:0; background:transparent;">
-                    <button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1); renderProspects(); autoSave();}"><i class="fas fa-trash"></i></button>
-                    <div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
-                    <div class="box-container">
-                        <div class="box full-box">
-                            <label style="color:${accentColor};">Tipo de Cliente</label>
-                            <select onchange="moveProspect('${p.type}', ${p.originalIndex}, this.value)" style="font-weight:900; color:${accentColor};">
-                                <option value="milis" ${isMili?'selected':''}>🪖 CRÉDITO MILITAR</option>
-                                <option value="grals" ${!isMili?'selected':''}>💵 PAGO EN EFECTIVO</option>
-                            </select>
-                        </div>
-                        <div class="box full-box">
-                            <label style="color:${accentColor};">Nombre del Cliente</label>
-                            <input type="text" value="${p.nombre || ''}" placeholder="Ej. Juan Pérez" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
-                        </div>
-                        <div class="box"><label style="color:${accentColor};">📱 WhatsApp</label><input type="text" value="${p.tel||''}" placeholder="10 dígitos" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
-                        <div class="box"><label style="color:${accentColor};">Etapa de Venta</label>
-                        <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()" style="color:${tc}; font-weight:700;">
-                        <option value="Nuevo Cliente" ${p.status==='Nuevo Cliente'?'selected':''}>Nuevo Cliente</option>
-                        <option value="Pláticas avanzadas" ${p.status==='Pláticas avanzadas'?'selected':''}>Pláticas avanzadas</option>
-                        <option value="El cliente ya no quiso" ${p.status==='El cliente ya no quiso'?'selected':''}>El cliente ya no quiso</option>
-                        <option value="Dio apartado" ${p.status==='Dio apartado'?'selected':''}>Dio apartado</option>
-                        <option value="Cerrado" ${p.status==='Cerrado'?'selected':''}>Cerrado</option>
-                        </select>
-                        </div>
-                        <div class="box full-box"><label style="color:${accentColor};">📅 Fecha de Seguimiento</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
-                        
-                        <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📸 MULTIMEDIA Y UBICACIÓN</div>
-                        <div class="box full-box"><label>Imágenes del Cliente</label><div style="display:flex; gap:10px; overflow-x:auto; padding:10px 0;">${(p.gallery || []).map((img, imgIdx) => `<div style="position:relative; flex:0 0 80px;"><img src="${img}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><button onclick="removeProspectImage('${p.type}', ${p.originalIndex}, ${imgIdx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px;">×</button></div>`).join('')}<button onclick="addProspectImage('${p.type}', ${p.originalIndex})" style="flex:0 0 80px; height:80px; border:2px dashed #ccc; border-radius:8px; background:none; color:#999;"><i class="fas fa-plus"></i></button></div></div>
-                        <div class="box"><label>📍 Ubicación (GPS)</label><div style="display:flex; gap:5px;"><input type="text" placeholder="Lat, Lng" value="${p.lat && p.lng ? p.lat+','+p.lng : ''}" readonly style="font-size:0.8em; border-bottom:1px solid #ddd;"><button class="btn" onclick="getProspectLocation('${p.type}', ${p.originalIndex})" style="padding:5px; height:auto; background:${accentColor}; color:white;"><i class="fas fa-map-marker-alt"></i></button></div></div>
-                        <div class="box"><label>🗺️ Link Maps</label><div style="display:flex; gap:5px;"><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd; flex:1;"><button class="btn" onclick="if(voxiData.${p.type}[${p.originalIndex}].mapsLink) window.open(voxiData.${p.type}[${p.originalIndex}].mapsLink, '_blank')" style="padding:5px; height:auto; background:#4285F4; color:white;"><i class="fas fa-external-link-alt"></i></button></div></div>
-                        
-                        <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
-                        <div class="box"><label>SOLICITADO</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-                        <div class="box"><label>RECIBIDO</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
-                        
-                        <div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div style="font-size:1.1em; font-weight:900; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
-                    </div>
-                    <button class="btn" style="background:${accentColor}; color:white; margin-top:14px; font-size:0.85em; border-radius:12px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
-                        <i class="fab fa-whatsapp"></i> CONTACTAR POR WHATSAPP
-                    </button>
-                    <button class="btn" style="background:#444; color:white; margin-top:10px; font-size:0.85em; border-radius:12px;" onclick="voxiRedactar('${p.nombre||''}','prospecto')">
-                        <i class="fas fa-magic"></i> REDACTAR MENSAJE EXPERTO
-                    </button>
-                </div>
-            </div>
-        `;
-        div.appendChild(item);
-    });
+    autoSave();
+}
+card.innerHTML = `
+<button class="btn-delete" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1); activeProspectId=null; renderProspects(); autoSave();}"><i class="fas fa-trash"></i></button>
+<div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'} ${isMili && p.estado === 'Apartado' && p.numApartado ? ' | APARTADO ' + p.numApartado : (isMili ? ' | ' + (p.estado || 'DISPONIBLE') : '')}</div>
+<div class="box-container">
+<div class="box full-box">
+<label style="color:${accentColor};">Tipo de Cliente (Militar / Efectivo)</label>
+<select onchange="moveProspect('${p.type}', ${p.originalIndex}, this.value)" style="font-weight:900; color:${accentColor};">
+<option value="milis" ${isMili?'selected':''}>🪖 CRÉDITO MILITAR</option>
+<option value="grals" ${!isMili?'selected':''}>💵 PAGO EN EFECTIVO</option>
+</select>
+</div>
+<div class="box full-box">
+<label style="color:${accentColor};">Nombre del Cliente</label>
+<input type="text" value="${p.nombre}" placeholder="Ej. Juan Pérez" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
+</div>
+<div class="box"><label style="color:${accentColor};">📱 WhatsApp</label><input type="text" value="${p.tel||''}" placeholder="10 dígitos" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
+<div class="box"><label style="color:${accentColor};">Etapa de Venta</label>
+<select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()" style="color:${tc}; font-weight:700;">
+<option value="Nuevo Cliente" ${p.status==='Nuevo Cliente'?'selected':''}>Nuevo Cliente</option>
+<option value="Pláticas avanzadas" ${p.status==='Pláticas avanzadas'?'selected':''}>Pláticas avanzadas</option>
+<option value="El cliente ya no quiso" ${p.status==='El cliente ya no quiso'?'selected':''}>El cliente ya no quiso</option>
+<option value="Dio apartado" ${p.status==='Dio apartado'?'selected':''}>Dio apartado</option>
+<option value="Cerrado" ${p.status==='Cerrado'?'selected':''}>Cerrado</option>
+</select>
+</div>
+<div class="box full-box"><label style="color:${accentColor};">📅 Fecha de Seguimiento</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📸 MULTIMEDIA Y UBICACIÓN</div>
+<div class="box full-box"><label>Imágenes del Cliente</label><div style="display:flex; gap:10px; overflow-x:auto; padding:10px 0;">${(p.gallery || []).map((img, imgIdx) => `<div style="position:relative; flex:0 0 80px;"><img src="${img}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><button onclick="removeProspectImage('${p.type}', ${p.originalIndex}, ${imgIdx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px;">×</button></div>`).join('')}<button onclick="addProspectImage('${p.type}', ${p.originalIndex})" style="flex:0 0 80px; height:80px; border:2px dashed #ccc; border-radius:8px; background:none; color:#999;"><i class="fas fa-plus"></i></button></div></div>
+<div class="box"><label>📍 Ubicación (GPS)</label><div style="display:flex; gap:5px;"><input type="text" placeholder="Lat, Lng" value="${p.lat && p.lng ? p.lat+','+p.lng : ''}" readonly style="font-size:0.8em; border-bottom:1px solid #ddd;"><button class="btn" onclick="getProspectLocation('${p.type}', ${p.originalIndex})" style="padding:5px; height:auto; background:${accentColor}; color:white;"><i class="fas fa-map-marker-alt"></i></button></div></div>
+<div class="box"><label>🗺️ Link Maps</label><div style="display:flex; gap:5px;"><input type="text" value="${p.mapsLink || ''}" placeholder="Link de Google Maps" oninput="voxiData.${p.type}[${p.originalIndex}].mapsLink=this.value;autoSave()" style="border-bottom:1px solid #ddd; flex:1;"><button class="btn" onclick="if(voxiData.${p.type}[${p.originalIndex}].mapsLink) window.open(voxiData.${p.type}[${p.originalIndex}].mapsLink, '_blank')" style="padding:5px; height:auto; background:#4285F4; color:white;"><i class="fas fa-external-link-alt"></i></button></div></div>
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💰 MÓDULO FINANCIERO</div>
+<div class="box"><label>CANTIDAD SOLICITADA</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>MONTO RECIBIDO (APARTADO)</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box"><label>ENGANCHE TOTAL</label><input type="text" value="${formatVoxiNumber(p.engancheTotal) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.${p.type}[${p.originalIndex}].engancheTotal=raw; this.value=formatVoxiNumber(raw); updateFinancials(\'${p.type}\', ${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div class="box" style="background:#f0f7ff; border-radius:8px; padding:5px;"><label style="color:#0d47a1; font-weight:900; font-size:0.6em;">SALDO PENDIENTE</label><div id="saldo_${p.id}" style="font-size:1.1em; font-weight:900; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente ? p.saldoPendiente.toFixed(0) : 0)}</div></div>
+${isMili ? `
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">🪖 PERFIL MILITAR</div>
+<div class="box"><label>RANGO MILITAR</label><select onchange="voxiData.milis[${p.originalIndex}].rangoMilitar=this.value; autoSave()" style="border-bottom:1px solid #ddd;"><option value="">-- SELECCIONAR --</option>${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${p.rangoMilitar===r?'selected':''}>${r}</option>`).join('')}</select></div>
+<div class="box"><label>PRESUPUESTO TOTAL</label><input type="text" value="${formatVoxiNumber(p.presupuestoTotal) || \'\'}" oninput="let raw=this.value.replace(/[^0-9.]/g,\'\'); voxiData.milis[${p.originalIndex}].presupuestoTotal=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="border-bottom:1px solid #ddd;"></div>
+<div id="coMilis_${p.id}" style="grid-column:span 2; padding:5px 0;">
+${(p.coMilis || []).map((co, coIdx) => `
+<div style="display:flex; gap:5px; margin-top:5px; align-items:center; background:#f9f9f9; padding:5px; border-radius:8px;">
+<select style="flex:1; font-size:0.8em; padding:4px;" onchange="voxiData.milis[${p.originalIndex}].coMilis[${coIdx}].rango=this.value;autoSave()">
+${['Soldado','Cabo','Sargento Segundo','Sargento Primero','Subteniente','Teniente','Capitán Segundo','Capitán Primero','Mayor','Teniente Coronel'].map(r => `<option value="${r}" ${co.rango===r?'selected':''}>${r}</option>`).join('')}
+</select>
+<input type="text" placeholder="Monto" value="${formatVoxiNumber(co.amount) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.milis[${p.originalIndex}].coMilis[${coIdx}].amount=raw; this.value=formatVoxiNumber(raw); updateMilitaryBudget(${p.originalIndex}); autoSave()" style="width:100px; font-size:0.8em; border-bottom:1px solid #ccc;">
+<button onclick="voxiData.milis[${p.originalIndex}].coMilis.splice(${coIdx},1); renderProspects(); autoSave()" style="background:none; border:none; color:red; font-weight:900;">✕</button>
+</div>
+`).join('')}
+<button class="btn" style="background:#eee; color:#333; font-size:0.7em; margin-top:8px; width:100%; border:1px dashed #ccc;" onclick="if(!voxiData.milis[${p.originalIndex}].coMilis) voxiData.milis[${p.originalIndex}].coMilis=[]; voxiData.milis[${p.originalIndex}].coMilis.push({rango:'Cabo', amount:''}); renderProspects(); autoSave()">+ AÑADIR OTRO MILITAR (CRÉDITO MANCOMUNADO)</button>
+</div>
+<div class="box full-box" style="background:#e8f5e9; border:1px solid #c8e6c9; border-radius:8px; padding:8px; margin-top:5px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><div style="font-size:0.6em; color:#2e7d32;">🔻 DESCUENTO 7%</div><div id="descM_${p.id}" style="font-weight:900; color:#d32f2f; font-size:0.9em;">-${formatVoxiNumber((p.montoDescuento || 0).toFixed(0))}</div></div><div style="text-align:right;"><div style="font-size:0.6em; color:#2e7d32;">💰 MONTO LIBRE VIVIENDA</div><div id="libreM_${p.id}" style="font-size:1.1em; font-weight:900; color:#1b5e20;">${formatVoxiNumber((p.montoLibre || 0).toFixed(0))}</div></div></div></div>
+` : ''}
+${isMili ? `
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS CRÉDITO MILITAR</div>
+${p.m.map((r, ri) => `<div class="check-item" style="grid-column:span 2;"><span>${ri + 1}. ${r.n}</span><select onchange="voxiData.milis[${p.originalIndex}].m[${ri}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`).join('')}
+` : `
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📋 REQUISITOS EFECTIVO</div>
+${p.m.filter(doc => doc.n === "INE (ambos lados)").map((r, ri) => {
+const realIdx = p.m.findIndex(d => d.n === r.n);
+return `<div class="check-item" style="grid-column:span 2;"><span>${ri + 1}. ${r.n}</span><select onchange="voxiData.grals[${p.originalIndex}].m[${realIdx}].s=this.value;autoSave()"><option value="f" ${r.s==='f'?'selected':''}>Falta</option><option value="o" ${r.s==='o'?'selected':''}>✅ OK</option></select></div>`;
+}).join('')}
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">💵 NOTAS DEL TRATO</div>
+<div class="box full-box" style="background:#fff;"><label style="color:${accentColor};">Detalles o Acuerdos</label><textarea rows="2" style="font-weight:700;" oninput="voxiData.grals[${p.originalIndex}].interes=this.value;autoSave()">${p.interes||''}</textarea></div>
+`}
+<div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📁 ARCHIVOS VINCULADOS</div>
+<div style="grid-column:span 2; display:flex; flex-direction:column; gap:5px; margin-top:5px;">
+${voxiData.files.filter(f => f.prospectId == p.id).length > 0 
+? voxiData.files.filter(f => f.prospectId == p.id).map(f => `
+<div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:8px; border-radius:8px; border:1px solid #eee;">
+<span style="font-size:0.75em; font-weight:700;">${f.name}</span>
+<button style="border:none; background:none; color:${accentColor}; cursor:pointer;" onclick="downloadStoredFile(${voxiData.files.indexOf(f)})"><i class="fas fa-download"></i></button>
+</div>
+`).join('')
+: `<p style="font-size:0.7em; color:#999; text-align:center;">Sin archivos aún</p>`
+}
+</div>
+</div>
+<button class="btn" style="background:${accentColor}; color:white; margin-top:14px; font-size:0.85em; border-radius:12px;" onclick="openWADirect('${p.tel||''}','${(p.nombre||'').replace(/'/g,"\'")}','${p.status||''}','${isMili?'mili':'gral'}')">
+<i class="fab fa-whatsapp"></i> CONTACTAR POR WHATSAPP
+</button>
+`;
+div.appendChild(card);
 }
 function renderFiles() {
 const div = document.getElementById('fileList'); 
@@ -1186,17 +1226,6 @@ let a = document.createElement("a");
 a.href = URL.createObjectURL(blob);
 a.download = f.name;
 a.click();
-}
-
-function voxiRedactar(nombre, tipo) {
-    let msg = "";
-    if (tipo === 'prospecto') {
-        msg = `Hola ${nombre}, espero que estés teniendo un excelente día. Te escribo de parte de Voxi Propiedades para dar seguimiento a lo que platicamos. ¿Cómo vas con tu decisión? Sigo a tus órdenes para lo que necesites.`;
-    } else {
-        msg = `¡Hola! Soy Zapia. Estoy analizando tu propiedad "${nombre}" para optimizar su venta.`;
-    }
-    navigator.clipboard.writeText(msg);
-    showVoxiToast("🚀 Mensaje experto copiado");
 }
 function openFlyerOptions(i) {
 currentPropIndex = i;
@@ -1646,23 +1675,23 @@ function renderAssistant() {
     const now = new Date();
     const db = voxiData || {};
     
-    // 0. MOTIVACIÓN Y ESTRATEGIA (MODO EXPERTO)
+    // 0. MOTIVACIÓN Y ESTRATEGIA (MODO SOCIO)
     const hours = now.getHours();
-    let greeting = hours < 12 ? "¡Buenos días! ☕" : hours < 18 ? "¡Buenas tardes! 💪" : "¡Buenas noches! 🌙";
-    const motivQuotes = [
+    let greeting = hours < 12 ? "¡Buenos días, Socio! ☕" : hours < 18 ? "¡Buenas tardes, Socio! 💪" : "¡Buenas noches, Socio! 🌙";
+    const quotes = [
         "El éxito inmobiliario no es cuestión de suerte, es cuestión de seguimiento.",
         "Cada 'no' te acerca más al próximo cierre en efectivo. ¡Dale con todo!",
         "Tus clientes militares confían en tu criterio. Asegura su patrimonio.",
         "La disciplina de hoy es la comisión de mañana. Revisa tus prospectos calientes.",
         "No vendes casas, vendes hogares y seguridad. Haz que valga la pena."
     ];
-    const quote = motivQuotes[Math.floor(Math.random() * motivQuotes.length)];
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
     const strategy = "Estrategia: Hoy enfócate en los prospectos que 'Dieron apartado'. Son los cierres más próximos.";
     
     const motivDiv = document.getElementById('assistant-motivation');
     if(motivDiv) {
         motivDiv.innerHTML = `
-            <div style="background: linear-gradient(135deg, var(--primary), #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div style="background: linear-gradient(135deg, ${accentColor}, #222); color:white; padding:15px; border-radius:15px; margin-bottom:15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="font-weight:900; font-size:1.1em;">${greeting}</div>
                 <div style="font-size:0.85em; font-style:italic; margin-top:5px; opacity:0.9;">"${quote}"</div>
                 <div style="font-size:0.8em; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.2); font-weight:700;">🎯 ${strategy}</div>
@@ -1687,8 +1716,8 @@ function renderAssistant() {
     if(document.getElementById('stat-props')) document.getElementById('stat-props').innerText = totalProps;
     if(document.getElementById('stat-payments')) document.getElementById('stat-payments').innerText = inTalks;
 
-    // Frase del Experto
-    const expertQuotes = [
+    // Frase del Socio
+    const quotes = [
         "ESTRATEGIA: Un cliente que pregunta por el precio dos veces está listo para una oferta de cierre.",
         "TIP EXPERTO: No vendas metros cuadrados, vende el patrimonio de su familia. Eso no tiene precio.",
         "CIERRE: Si el cliente duda, ofrécele una visita hoy mismo. La emoción se enfría en 24 horas.",
@@ -1697,7 +1726,7 @@ function renderAssistant() {
         "INTELIGENCIA: Revisa tus preventas. Si la obra avanza, el precio DEBE subir para proteger tu ganancia."
     ];
     const qElem = document.getElementById('assistant-quote');
-    if(qElem) qElem.innerText = `"${expertQuotes[now.getDay() % expertQuotes.length]}"`;
+    if(qElem) qElem.innerText = `"${quotes[now.getDay() % quotes.length]}"`;
 
     // AGENDA INTELIGENTE
     const agendaDiv = document.getElementById('assistant-agenda');
@@ -1881,7 +1910,7 @@ function renderAssistant() {
         `;
         alertsHtml += noteArea;
 
-        alertDiv.innerHTML = alertsHtml || '<div style="text-align:center; color:#888; font-size:0.85em; padding:20px;"><i class="fas fa-check-circle" style="color:var(--success); font-size:1.5em; display:block; margin-bottom:5px;"></i> Todo bajo control.</div>';
+        alertDiv.innerHTML = alertsHtml || '<div style="text-align:center; color:#888; font-size:0.85em; padding:20px;"><i class="fas fa-check-circle" style="color:var(--success); font-size:1.5em; display:block; margin-bottom:5px;"></i> Todo bajo control, socio.</div>';
     }
 }
 function saveManualAlert() {
@@ -1936,12 +1965,65 @@ setTimeout(() => el.style.boxShadow = '', 3000);
 }
 }, 300);
 }
+let saveTimeout;
+function autoSave() {
+    const status = document.getElementById('auto-save-status');
+    if(status) status.style.display = 'block';
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveMaster(false);
+        setTimeout(() => { if(status) status.style.display = 'none'; }, 800);
+    }, 2000);
+}
 function showVoxiToast(msg) {
     const t = document.getElementById('voxi-toast');
     if(!t) return;
     t.innerText = msg;
     t.style.display = 'block';
     setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+function saveMaster(showMsg) {
+    const startTime = Date.now();
+    voxiData.props.forEach(p => {
+        const text = (p.desc || "").toUpperCase();
+        const keywordsMilitar = ["MILITAR", "SARGENTO", "CAPITÁN", "CAPITAN", "TENIENTE", "ISSFAM"];
+        const keywordsEfectivo = ["EFECTIVO", "CONTADO", "TRANSFERENCIA"];
+        if (keywordsMilitar.some(k => text.includes(k))) {
+            p.estatus = "CRÉDITO MILITAR";
+        } else if (keywordsEfectivo.some(k => text.includes(k))) {
+            p.estatus = "CLIENTE EFECTIVO";
+        }
+    });
+    localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
+    if(showMsg) showVoxiToast('💾 Guardando en nube...');
+    const cStatus = document.getElementById('cloud-status');
+    if(cStatus) {
+        cStatus.style.display = 'block';
+        cStatus.innerHTML = '⌛ Sincronizando...';
+    }
+
+    const dataToSync = JSON.parse(JSON.stringify(voxiData));
+    if (dataToSync.pendingUploads) {
+        dataToSync.pendingUploads = dataToSync.pendingUploads.map(item => ({ tempId: item.tempId, timestamp: item.timestamp }));
+    }
+
+    firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
+    .then(() => { 
+        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        if(cStatus) {
+            cStatus.innerHTML = `☁️ Nube OK (${duration}s)`;
+            setTimeout(() => { cStatus.style.display = 'none'; }, 2000);
+        }
+        if(showMsg) showVoxiToast(`✅ Guardado correctamente (${duration}s)`);
+    })
+    .catch(err => {
+        console.error("Cloud Save Error", err);
+        if(showMsg) showVoxiToast('❌ Error al guardar en nube');
+        if(cStatus) {
+            cStatus.innerHTML = '❌ Error de red';
+            cStatus.style.color = 'red';
+        }
+    });
 }
 function renderFolderGallery() {
     const div = document.getElementById('folderGallery'); if(!div) return;
@@ -2007,6 +2089,18 @@ function shareFolderImage(img) {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
 }
 
+async function loadMaster() {
+const s = localStorage.getItem('hr_v38_db') || localStorage.getItem('hr_v37_db') || localStorage.getItem('hr_v36_db') || localStorage.getItem('hr_v35_db') || localStorage.getItem('hr_v34_db') || localStorage.getItem('hr_v33_db') || localStorage.getItem('hr_v32_db');
+if(s) { 
+voxiData = JSON.parse(s); 
+if(!voxiData.galleries) voxiData.galleries = {};
+if(!voxiData.pendingUploads) voxiData.pendingUploads = [];
+renderProps(); renderProspects(); renderFiles(); renderAssistant(); 
+setTimeout(processSyncQueue, 3000);
+}
+console.log("Sync removed");
+});
+}
 function exportData() {
 const blob = new Blob([JSON.stringify(voxiData, null, 2)], { type: 'application/json' });
 const a = document.createElement('a');
@@ -2144,39 +2238,26 @@ function updateMilitaryBudget(idx) {
     if(dM) dM.innerText = "-" + formatVoxiNumber(p.montoDescuento.toFixed(0));
     if(lM) lM.innerText = formatVoxiNumber(p.montoLibre.toFixed(0));
 }
-function finalInit() {
-    console.log("Iniciando Voxi PRO...");
-    const loader = document.getElementById('voxiLoader');
-    
-    // Si el loader sigue ahí después de 5 segundos, lo quitamos a la fuerza
-    setTimeout(() => {
-        if(loader) loader.style.display = 'none';
-    }, 5000);
-
-    try {
-        const pending = localStorage.getItem('voxi_pending_save');
-        if (pending && navigator.onLine) {
-            console.log("Detectado guardado pendiente offline, sincronizando...");
-            voxiData = JSON.parse(pending);
-            saveMaster(true).then(() => localStorage.removeItem('voxi_pending_save'));
-        }
-
-        if(typeof loadMaster === 'function') {
-            loadMaster().then(() => {
-                if(loader) loader.style.display = 'none';
-                console.log("Master Loaded");
-            }).catch(e => {
-                console.error("LoadMaster fail", e);
-                if(loader) loader.style.display = 'none';
-            });
-        } else {
-            if(loader) loader.style.display = 'none';
-        }
-    } catch(e) {
-        if(loader) loader.style.display = 'none';
+window.onload = () => {
+    loadMaster();
+    window.addEventListener('online', () => {
+        processSyncQueue();
+        console.log("Socio, estamos online. Sincronizando alertas y datos...");
+    });
+    if (navigator.onLine) {
+        setTimeout(processSyncQueue, 5000);
+        setTimeout(initNotifications, 2000); 
     }
-}
+    startAlertMonitor(); // Iniciar monitoreo de alertas reales
+};
+
 </script>
+<div id="voxiLoader"><div class="spinner"></div><span id="voxiLoaderText">Subiendo...</span></div>
 <div id="voxi-toast"></div>
 </body>
 </html>
+
+
+
+
+
