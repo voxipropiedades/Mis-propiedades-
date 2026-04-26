@@ -308,7 +308,8 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 </div>
 <div class="fixed-footer">
 <button class="btn" style="background:#444; color:white; width:auto; padding:0 15px; margin-right:10px;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+ NUEVO</button>
-<button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-save"></i> GUARDAR TODO</button>
+<button class="btn btn-save" onclick="saveMaster(true)"><i class="fas fa-cloud-upload-alt"></i> SUBIR A NUBE</button>
+<button class="btn btn-save" style="background:#1565c0" onclick="forcePull()"><i class="fas fa-cloud-download-alt"></i> BAJAR DE NUBE</button>
 </div>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -534,6 +535,29 @@ async function saveMaster(showMsg = false) {
         if(showMsg) showVoxiToast('❌ Error al guardar');
     } finally { 
         if(status) setTimeout(() => status.style.display = 'none', 800); 
+    }
+}
+
+async function forcePull() {
+    if(!confirm("¿Deseas sobreescribir tus datos locales con los de la Nube?")) return;
+    showVoxiToast("⌛ Bajando datos...");
+    try {
+        const doc = await firebase.firestore().collection("data").doc(SYNC_ID).get();
+        if(doc.exists) {
+            const cloudData = doc.data();
+            if(cloudData && cloudData.props) {
+                voxiData = cloudData;
+                await localDB.save(SYNC_ID, voxiData);
+                renderAll();
+                showVoxiToast("✅ Sincronización Exitosa");
+            } else {
+                showVoxiToast("⚠️ La Nube parece estar vacía");
+            }
+        } else {
+            showVoxiToast("❌ No se encontraron datos en la Nube");
+        }
+    } catch(e) {
+        showVoxiToast("❌ Error: " + e.message);
     }
 }
 
