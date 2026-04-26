@@ -1,19 +1,27 @@
 {
-  "short_name": "HR Gestion",
-  "name": "HR Gestion Inmobiliaria",
-  "description": "App de gestión para Constructor HR",
+  "name": "Voxi 2026 PRO",
+  "short_name": "Voxi2026",
+  "start_url": "index.html?v=FINAL",
+  "scope": "/Mis-propiedades-/",
+  "display": "standalone",
+  "background_color": "#b71c1c",
+  "theme_color": "#b71c1c",
   "icons": [
     {
-      "src": "icon-192.png",
-      "type": "image/png",
+      "src": "https://voxipropiedades.github.io/Mis-propiedades-/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "https://voxipropiedades.github.io/Mis-propiedades-/favicon.ico",
       "sizes": "192x192",
-      "purpose": "any"
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://voxipropiedades.github.io/Mis-propiedades-/favicon.ico",
+      "sizes": "512x512",
+      "type": "image/x-icon"
     }
-  ],
-  "start_url": "./index.html",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#b71c1c",
-  "scope": "./"
+  ]
 }
