@@ -1,9 +1,9 @@
-<!-- Voxi Version 53.0 [NUCLEAR CACHE BUST] -->
+<!-- Voxi Version 54.0 [NUCLEAR CACHE BUST] -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <script>
-    const CURRENT_V = '53.0';
+    const CURRENT_V = '54.0';
     const savedV = localStorage.getItem('VOXI_V');
     if (savedV !== CURRENT_V) {
         localStorage.setItem('VOXI_V', CURRENT_V);
@@ -67,13 +67,13 @@
             overflow-x: auto; scrollbar-width: none;
         }
         .tab-btn {
-            flex: 1; border: none; padding: 11px 6px; border-radius: 10px;
-            background: #f0f2f5; color: #606770; font-weight: 800; cursor: pointer;
+            flex: 1; border: none; padding: 10px 5px; border-radius: 12px;
+            background: #f8f9fa; color: #555; font-weight: 800; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; gap: 4px;
-            min-width: 80px; transition: 0.25s; font-size: 0.65em;
+            min-width: 80px; transition: 0.3s; font-size: 0.65em;
         }
-        .tab-btn i { font-size: 1.2em; }
-        .tab-btn.active { background: var(--primary); color: white; transform: scale(1.05); }
+        .tab-btn i { font-size: 1.4em; }
+        .tab-btn.active { background: #b71c1c; color: white; }
         .card {
             background: var(--white); border-radius: 18px; padding: 20px;
             margin-bottom: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.09);
@@ -148,28 +148,46 @@
     
     <div id="voxiEmergencyBar"></div>
 
-    <header style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="icon.png" class="header-logo" alt="HR" onerror="logoError(this)">
-                <div>
-                    <span style="font-weight:950; font-size:1.1em; display: block;">Constructor Independiente HR</span>
-                    <span class="header-sub">Venta Inmobiliaria Hidalgo</span>
-                </div>
-                <button onclick="loadMaster()" style="margin-left:10px; background:#4CAF50; color:white; border:none; padding:5px 10px; border-radius:5px; font-size:10px; font-weight:bold; cursor:pointer;">🔄 SINCRONIZAR</button>
+    <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; position: sticky; top: 0; z-index: 1000; background: linear-gradient(180deg, #b71c1c 0%, #7f0000 100%); color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="background: white; border-radius: 50%; padding: 2px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                <img src="icon.png" style="width: 45px; height: 45px; border-radius: 50%;" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/602/602175.png'">
             </div>
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-weight: 950; font-size: 1.2em; line-height: 1;">Constructor Independiente HR</span>
+                <span style="font-size: 0.7em; opacity: 0.9; margin-top: 2px; font-weight: 600;">Venta Inmobiliaria Hidalgo</span>
+            </div>
+        </div>
+        <button onclick="loadMaster(true)" style="background:#4caf50; color:white; border:none; padding:8px 15px; border-radius:10px; font-size:0.7em; font-weight:900; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2); display:flex; align-items:center; gap:5px;">
+            <i class="fas fa-sync-alt"></i> SINCRONIZAR
+        </button>
     </header>
 
     <div class="container">
         <div id="auto-save-status" style="display:none;">💾 Guardando...</div>
         <div id="online-status" style="font-size: 0.72em; color: #2e7d32; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e8f5e9; border-radius:8px; width:fit-content;">💾 <span id="voxi-net-text">Sistema Online</span></div>
 <div id="cloud-status" style="font-size: 0.72em; color: #1565c0; font-weight: 900; margin-bottom: 8px; padding: 4px 10px; background:#e3f2fd; border-radius:8px; display:none; width:fit-content;">☁️ Sincronizando Nube...</div>
-<div class="nav-tabs" style="overflow-x: auto; white-space: nowrap; padding-bottom: 5px;">
-<button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')" style="min-width: 100px;"><i class="fas fa-chart-line"></i> TABLERO</button>
-<button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')" style="min-width: 100px;"><i class="fas fa-home"></i> INV</button>
-<button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')" style="min-width: 100px;"><i class="fas fa-users"></i> PROS</button>
-<button class="tab-btn" id="btn-galeria" onclick="openTab('galeria')" style="min-width: 100px;"><i class="fas fa-images"></i> GAL</button>
-<button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')" style="min-width: 100px;"><i class="fas fa-file-contract"></i> DOCS</button>
-<button class="tab-btn" id="btn-archivos" onclick="openTab('archivos')" style="min-width: 100px;"><i class="fas fa-folder-open"></i> FILES</button>
+<div class="nav-tabs" style="background: white; padding: 10px; border-radius: 15px; margin: 10px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; gap: 8px; overflow-x: auto;">
+        <button class="tab-btn active" id="btn-asistente" onclick="openTab('asistente')" style="flex: 1; min-width: 80px; height: 60px; border-radius: 12px; border: none; font-weight: 900; font-size: 0.65em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;">
+            <i class="fas fa-chart-line" style="font-size: 1.5em;"></i>
+            <span>TABLERO</span>
+        </button>
+        <button class="tab-btn" id="btn-inventario" onclick="openTab('inventario')" style="flex: 1; min-width: 80px; height: 60px; border-radius: 12px; border: none; font-weight: 900; font-size: 0.65em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;">
+            <i class="fas fa-home" style="font-size: 1.5em;"></i>
+            <span>INV</span>
+        </button>
+        <button class="tab-btn" id="btn-prospectos" onclick="openTab('prospectos')" style="flex: 1; min-width: 80px; height: 60px; border-radius: 12px; border: none; font-weight: 900; font-size: 0.65em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;">
+            <i class="fas fa-users" style="font-size: 1.5em;"></i>
+            <span>PROS</span>
+        </button>
+        <button class="tab-btn" id="btn-galeria" onclick="openTab('galeria')" style="flex: 1; min-width: 80px; height: 60px; border-radius: 12px; border: none; font-weight: 900; font-size: 0.65em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;">
+            <i class="fas fa-images" style="font-size: 1.5em;"></i>
+            <span>GAL</span>
+        </button>
+        <button class="tab-btn" id="btn-papeleo" onclick="openTab('papeleo')" style="flex: 1; min-width: 80px; height: 60px; border-radius: 12px; border: none; font-weight: 900; font-size: 0.65em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;">
+            <i class="fas fa-file-contract" style="font-size: 1.5em;"></i>
+            <span>DOCS</span>
+        </button>
 </div>
 <!-- ============ TAB: TABLERO ============ -->
 <div id="asistente" class="tab-content active-tab">
@@ -246,20 +264,20 @@ oninput="voxiSearch(this.value)">
 </div>
 <!-- ============ TAB: PROSPECTOS ============ -->
 <div id="prospectos" class="tab-content">
-<div class="card" style="margin-bottom:18px; background: #fdfdfd; border-top:4px solid var(--info); padding: 15px;">
-<div style="display:flex; gap:10px; margin-bottom:15px;">
-<button class="btn" style="background:var(--success); color:white; font-weight:900; flex:1;" onclick="addItem('milis')">
-<i class="fas fa-user-plus"></i> + MILITAR
-</button>
-<button class="btn" style="background:var(--info); color:white; font-weight:900; flex:1;" onclick="addItem('grals')">
-<i class="fas fa-user-plus"></i> + EFECTIVO
-</button>
-</div>
-<label style="font-size:0.75em; font-weight:900; color:#555; text-transform:uppercase;">Seleccionar Cliente para ver Formulario:</label>
-<select id="prospectSelect" style="width:100%; padding:12px; border-radius:10px; border:2px solid #ddd; font-weight:700; margin-top:5px;" onchange="activeProspectId=this.value; renderProspects()">
-<option value="">-- ELIGE UN CLIENTE --</option>
-</select>
-</div>
+    <div class="card" style="margin-bottom:18px; background: #fdfdfd; border: 2px solid #0056b3; border-radius: 15px; padding: 15px;">
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button class="btn" style="background:var(--success); color:white; font-weight:900; flex:1; border-radius: 10px;" onclick="addItem('milis')">
+                <i class="fas fa-user-plus"></i> + MILITAR
+            </button>
+            <button class="btn" style="background:var(--info); color:white; font-weight:900; flex:1; border-radius: 10px;" onclick="addItem('grals')">
+                <i class="fas fa-user-plus"></i> + EFECTIVO
+            </button>
+        </div>
+        <label style="font-size:0.75em; font-weight:900; color:#444; text-transform:uppercase;">SELECCIONAR CLIENTE PARA VER FORMULARIO:</label>
+        <select id="prospectSelect" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ccc; font-weight:700; margin-top:5px; background: #f0f0f0;" onchange="activeProspectId=this.value; renderProspects()">
+            <option value="">-- BUSCAR / SELECCIONAR --</option>
+        </select>
+    </div>
 <div id="prospectList"></div>
 </div>
 <!-- ============ TAB: CONTRATOS ============ -->
@@ -419,11 +437,23 @@ Las fotos y documentos se comprimen y guardan en la <b>Base de Datos de Google (
 <button class="btn" style="background:#eee; color:#333; margin-top:10px;" onclick="closePhotoMenu()">CANCELAR</button>
 </div>
 </div>
-<div class="fixed-footer" style="padding: 10px; height: 65px; display: grid; grid-template-columns: 1fr 2fr 2fr; gap: 8px;">
-<button class="btn" style="background:#444; color:white; font-size: 0.7em; padding: 0;" onclick="if(confirm('¿Generar nuevo registro? Se limpiará la pantalla.')){voxiData.props=[];renderProps();autoSave();}">+NUEVO</button>
-<button class="btn btn-save" style="font-size: 0.7em;" onclick="saveMaster(true)"><i class="fas fa-cloud-upload-alt"></i> SUBIR</button>
-<button class="btn btn-save" style="background:#1565c0; font-size: 0.7em;" onclick="forcePull()"><i class="fas fa-cloud-download-alt"></i> BAJAR</button>
-</div>
+    <div class="fixed-footer" style="padding: 10px; height: 75px; display: grid; grid-template-columns: 1fr 2fr 2fr; gap: 10px; background: white; border-top: 1px solid #ddd; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);">
+        <button class="btn" style="background:#333; color:white; font-size: 0.75em; font-weight: 950; border-radius: 12px; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="handleNewButton()">+ NUEVO</button>
+        <button class="btn" style="background:#2e7d32; color:white; font-size: 0.75em; font-weight: 950; border-radius: 12px; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="saveMaster(true)"><i class="fas fa-cloud-upload-alt"></i> SUBIR</button>
+        <button class="btn" style="background:#0d47a1; color:white; font-size: 0.75em; font-weight: 950; border-radius: 12px; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="forcePull()"><i class="fas fa-cloud-download-alt"></i> BAJAR</button>
+    </div>
+<script>
+function handleNewButton() {
+    const activeTab = document.querySelector('.tab-content.active-tab').id;
+    if (activeTab === 'inventario') addItem('props');
+    else if (activeTab === 'prospectos') {
+        const choice = confirm("¿Es prospecto MILITAR? (Aceptar = MILITAR, Cancelar = EFECTIVO)");
+        addItem(choice ? 'milis' : 'grals');
+    } else {
+        showVoxiToast("⚠️ Cambia a la pestaña de INV o PROS para agregar.");
+    }
+}
+</script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
@@ -547,14 +577,8 @@ const localDB = {
 };
 
 // --- CORE: CARGA Y GUARDADO ---
-async function loadMaster() {
-    var loader = document.getElementById('voxiLoader');
-    if(loader) {
-        loader.style.display = 'flex';
-        var lText = document.getElementById('voxiLoaderText');
-        if(lText) lText.innerText = "🔍 Buscando tus datos...";
-    }
-
+async function loadMaster(manual = false) {
+    if(manual) showVoxiToast("🔄 Sincronizando...");
     try {
         // 1. Local
         var saved = await localDB.load(SYNC_ID);
@@ -577,30 +601,32 @@ async function loadMaster() {
         if(saved && saved.props) {
             voxiData = saved;
             renderAll();
-            showVoxiToast("⚡ Sistema Offline Activo");
         }
 
-        // 2. Nube (Intento silencioso)
-        try {
-            var doc = await firebase.firestore().collection("data").doc(SYNC_ID).get({source: 'server'});
-            if(doc.exists) {
-                var cloudData = doc.data();
-                if(cloudData && cloudData.props && cloudData.props.length > 0) {
-                    if(!voxiData.props || cloudData.props.length >= voxiData.props.length) {
-                        voxiData = cloudData;
-                        await localDB.save(SYNC_ID, voxiData);
+        // 2. Nube
+        firebase.firestore().collection("data").doc(SYNC_ID).get({source: 'server'})
+            .then(doc => {
+                if(doc.exists) {
+                    var cloudData = doc.data();
+                    if(cloudData && cloudData.props && cloudData.props.length > 0) {
+                        if(!voxiData.props || cloudData.props.length >= voxiData.props.length) {
+                            voxiData = cloudData;
+                            localDB.save(SYNC_ID, voxiData);
+                            renderAll();
+                            if(manual) showVoxiToast("✅ Datos actualizados");
+                        } else {
+                            if(manual) showVoxiToast("✅ Ya estás al día");
+                        }
                     }
+                } else {
+                    if(manual) showVoxiToast("❌ No se encontró respaldo en la nube");
                 }
-            }
-        } catch(cloudErr) {
-            console.log("Nube no alcanzable: Usando datos locales.");
-            // No mostramos toast de error aquí para no molestar al usuario si está offline
-        }
+            }).catch(e => {
+                if(manual) showVoxiToast("❌ Error de conexión con la nube");
+            });
     } catch(e) { 
         console.error("Error loadMaster:", e);
-    } finally {
-        if(loader) loader.style.display = 'none';
-        renderAll();
+        if(manual) showVoxiToast("❌ Error al cargar datos locales");
     }
 }
 
@@ -621,10 +647,6 @@ function renderAll() {
 }
 
 async function saveMaster(showMsg = false) {
-    var startTime = Date.now();
-    var status = document.getElementById('auto-save-status');
-    if(status) status.style.display = 'block';
-
     if(!voxiData.props) voxiData.props = [];
     voxiData.props.forEach(function(p) {
         var d = (p.desc || "").toUpperCase();
@@ -635,12 +657,6 @@ async function saveMaster(showMsg = false) {
     try {
         await localDB.save(SYNC_ID, voxiData);
         localStorage.setItem('hr_v38_db', JSON.stringify(voxiData));
-        
-        var cStatus = document.getElementById('cloud-status');
-        if(cStatus) {
-            cStatus.style.display = 'block';
-            cStatus.innerHTML = '⌛ Sincronizando...';
-        }
 
         var dataToSync = JSON.parse(JSON.stringify(voxiData));
         if (dataToSync.pendingUploads) {
@@ -649,19 +665,12 @@ async function saveMaster(showMsg = false) {
             });
         }
 
-        await firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync);
-        
-        var duration = ((Date.now() - startTime) / 1000).toFixed(1);
-        if(cStatus) {
-            cStatus.innerHTML = "☁️ Nube OK (" + duration + "s)";
-            setTimeout(function() { cStatus.style.display = 'none'; }, 2000);
-        }
-        if(showMsg) showVoxiToast("✅ Guardado (" + duration + "s)");
+        // Sincronización silenciosa en segundo plano
+        firebase.firestore().collection("data").doc(SYNC_ID).set(dataToSync)
+            .catch(e => console.error("Error sync:", e));
+            
     } catch(e) { 
-        console.error("Error guardado:", e); 
-        if(showMsg) showVoxiToast('❌ Error al guardar');
-    } finally { 
-        if(status) setTimeout(function() { status.style.display = 'none'; }, 800); 
+        console.error("Error guardado local:", e); 
     }
 }
 
@@ -723,11 +732,29 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { openTab('asistente'); }, 100);
 });
 
+
 function openTab(name) {
     document.querySelectorAll('.tab-content').forEach(t => {
         t.style.display = 'none';
         t.classList.remove('active-tab');
     });
+
+    const target = document.getElementById(name);
+    if(target) {
+        target.style.display = 'block';
+        target.classList.add('active-tab');
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('btn-' + name);
+    if(btn) btn.classList.add('active');
+
+    if(name === 'asistente') renderAssistant();
+    if(name === 'inventario') renderProps();
+    if(name === 'prospectos') renderProspects();
+    window.scrollTo(0,0);
+}
+);
 
     const target = document.getElementById(name);
     if(target) {
@@ -932,91 +959,169 @@ renderProspects();
 }
 autoSave();
 }
+
 function renderProps() {
     const div = document.getElementById('propList');
     const select = document.getElementById('propSelect');
     div.innerHTML = '';
     
-    // Poblar select (se mantiene por compatibilidad)
     select.innerHTML = '<option value="">-- BUSCAR / SELECCIONAR PROPIEDAD --</option>';
     voxiData.props.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id;
-        opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${p.precio || '0'}`;
+        opt.textContent = (p.titulo || p.tipo || 'Sin título') + ` - $${formatVoxiNumber(p.precio) || '0'}`;
+        if(p.id == activePropId) opt.selected = true;
         select.appendChild(opt);
     });
 
     if (voxiData.props.length === 0) {
-        div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-home" style="font-size:3em; margin-bottom:10px; display:block;"></i> No tienes propiedades. Añade una arriba.</div>';
+        div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-home" style="font-size:3em; margin-bottom:10px; display:block;"></i> No tienes propiedades. Añade una nueva con el botón + NUEVO abajo.</div>';
         return;
     }
 
-    voxiData.props.forEach((p, i) => {
-        const esCasa = (p.tipo || '').includes('Casa');
-        let galH = '';
-        (p.gallery || []).forEach((img, gi) => {
-            galH += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="if(confirm('¿Quitar foto?')){voxiData.props[${i}].gallery.splice(${gi},1);renderProps();autoSave();}">✕</button></div>`;
-        });
+    if (!activePropId) activePropId = voxiData.props[0].id;
+    const p = voxiData.props.find(x => x.id == activePropId);
+    if (!p) return;
+    const i = voxiData.props.indexOf(p);
 
-        const item = document.createElement('div');
-        item.className = 'item-registro';
-        item.innerHTML = `
-            <div class="header-registro" id="header-prop-${p.id}">
-                <div class="info-principal">
-                    <span class="titulo-p">${p.titulo || p.tipo || 'Propiedad sin título'} <span class="cat-badge badge-prop">${formatVoxiNumber(p.precio) || '$0'}</span></span>
-                    <span class="subtitulo-p">${p.tipo} | ${p.estatus} | 📍 ${p.ubicacion || 'Sin ubicación'}</span>
-                </div>
-                <i class="fas fa-chevron-down" style="color:#ccc;"></i>
-            </div>
-            <div class="detalle-desplegable" id="det-prop-${p.id}">
-                <div class="card" style="border:none; box-shadow:none; padding:0; margin:0; background:transparent;">
-                    <button class="btn-delete" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1); renderProps(); autoSave();}"><i class="fas fa-trash"></i></button>
-                    <div class="main-photo" onclick="selectPhotoSource(${i}, 'main')">
-                        ${p.mainImg ? `<img src="${p.mainImg}">` : '<i class="fas fa-camera fa-2x" style="color:#aaa;"></i><div style="font-size:0.7em; color:#888; margin-top:5px;">CAPTURAR FOTO</div>'}
-                    </div>
-                    <div class="box-container">
-                        <div class="box full-box"><label>Dueño / Vendedor</label><input type="text" value="${p.dueño||''}" oninput="voxiData.props[${i}].dueño=this.value;autoSave()"></div>
-                        <div class="box"><label>Tipo</label><select onchange="voxiData.props[${i}].tipo=this.value;renderProps();autoSave()">
-                            <option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏠 Casa</option>
-                            <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🏞️ Terreno</option>
-                            <option value="Parcela" ${p.tipo==='Parcela'?'selected':''}>🌄 Parcela</option>
-                        </select></div>
-                        <div class="box"><label>Estatus</label><select onchange="voxiData.props[${i}].estatus=this.value;autoSave()">
-                            <option value="Preventa" ${p.estatus==='Preventa'?'selected':''}>🏗️ Preventa</option>
-                            <option value="Construida" ${p.estatus==='Construida'?'selected':''}>🏠 Construida</option>
-                            <option value="Vendido" ${p.estatus==='Vendido'?'selected':''}>✅ Vendido</option>
-                        </select></div>
-                        <div class="box full-box"><label>Título</label><input type="text" value="${p.titulo||''}" oninput="voxiData.props[${i}].titulo=this.value;autoSave()"></div>
-                        <div class="box"><label>Precio ($)</label><input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:700;"></div>
-                        <div class="box"><label>Ganancia ($)</label><input type="text" value="${formatVoxiNumber(p.ganancia) || ''}" oninput="let raw=this.value.replace(/[^0-9.]/g,''); voxiData.props[${i}].ganancia=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--primary); font-weight:700;"></div>
-                        
-                        <div class="section-label">📍 UBICACIÓN</div>
-                        <div class="box full-box"><label>Dirección</label><input type="text" value="${p.ubicacion||''}" oninput="voxiData.props[${i}].ubicacion=this.value;autoSave()"></div>
-                        <div class="box full-box"><label>Maps / GPS</label><textarea oninput="voxiData.props[${i}].maps=this.value;autoSave()" style="height:60px; font-size:0.75em;">${p.maps||''}</textarea></div>
-                        
-                        <div class="section-label">🗺️ MEDIDAS</div>
-                        <div class="box"><label>Norte</label><input type="text" value="${p.norte||''}" oninput="voxiData.props[${i}].norte=this.value;calcArea(${i});autoSave()"></div>
-                        <div class="box"><label>Sur</label><input type="text" value="${p.sur||''}" oninput="voxiData.props[${i}].sur=this.value;calcArea(${i});autoSave()"></div>
-                        <div class="box"><label>Este</label><input type="text" value="${p.este||''}" oninput="voxiData.props[${i}].este=this.value;calcArea(${i});autoSave()"></div>
-                        <div class="box"><label>Oeste</label><input type="text" value="${p.oeste||''}" oninput="voxiData.props[${i}].oeste=this.value;calcArea(${i});autoSave()"></div>
-                        <div class="box full-box"><label>ÁREA TOTAL</label><input type="text" value="${p.area||''}" oninput="voxiData.props[${i}].area=this.value;autoSave()" style="font-weight:900; color:var(--primary);"></div>
-                        
-                        <div class="section-label">📸 GALERÍA</div>
-                        <div class="gallery" style="grid-column:span 2;">
-                            ${galH}
-                            <div class="gallery-item" onclick="selectPhotoSource(${i}, 'gallery')"><i class="fas fa-plus"></i></div>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:10px; margin-top:15px;">
-                        <button class="btn" style="background:var(--wa-green); color:white; font-size:0.8em;" onclick="openFlyerOptions(${i})"><i class="fab fa-whatsapp"></i> ENVIAR FLYER</button>
-                        <button class="btn" style="background:#333; color:white; font-size:0.8em;" onclick="printListingV32(${i})"><i class="fas fa-print"></i> IMPRIMIR</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        div.appendChild(item);
+    let galH = '';
+    (p.gallery || []).forEach((img, gi) => {
+        galH += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="if(confirm('¿Quitar foto?')){voxiData.props[${i}].gallery.splice(${gi},1);renderProps();autoSave();}">✕</button></div>`;
     });
+
+    div.innerHTML = `
+        <div class="card" style="border-top: 6px solid var(--primary); position: relative; margin-top: 10px; padding: 20px;">
+            <button class="btn-delete" style="position:absolute; top:15px; right:15px; background:white; color:#999; border:1px solid #ddd; width:35px; height:35px; border-radius:50%; z-index:10; cursor:pointer;" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1); activePropId=''; renderProps(); autoSave();}"><i class="fas fa-trash"></i></button>
+            
+            <div class="section-label" style="color:var(--primary); font-weight:950; border-bottom:2px solid var(--primary); margin-bottom:15px; font-size: 0.85em;">📍 DATOS DE LA PROPIEDAD</div>
+            
+            <div class="main-photo" onclick="selectPhotoSource(${i}, 'main')" style="margin-bottom:20px; height:200px; background:#f0f0f0; border-radius:15px; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px dashed #ccc;">
+                ${p.mainImg ? `<img src="${p.mainImg}" style="width:100%; height:100%; object-fit:cover;">` : '<div style="text-align:center;"><i class="fas fa-camera fa-3x" style="color:#aaa;"></i><div style="font-weight:900; color:#888; margin-top:10px;">AÑADIR FOTO PRINCIPAL</div></div>'}
+            </div>
+
+            <div class="box-container">
+                <div class="box full-box">
+                    <label style="font-weight:900; color:var(--primary);">TÍTULO DEL ANUNCIO</label>
+                    <input type="text" value="${p.titulo||''}" placeholder="Ej. Casa en Acayuca" oninput="voxiData.props[${i}].titulo=this.value; autoSave();" style="font-size:1.1em; font-weight:900;">
+                </div>
+                <div class="box">
+                    <label style="font-weight:900; color:var(--primary);">PRECIO ($)</label>
+                    <input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:950; font-size:1.1em;">
+                </div>
+                <div class="box">
+                    <label style="font-weight:900; color:var(--primary);">TIPO DE INMUEBLE</label>
+                    <select onchange="voxiData.props[${i}].tipo=this.value; autoSave();" style="font-weight:900;">
+                        <option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏠 Casa</option>
+                        <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🏞️ Terreno</option>
+                        <option value="Local" ${p.tipo==='Local'?'selected':''}>🏪 Local</option>
+                    </select>
+                </div>
+                <div class="box full-box">
+                    <label style="font-weight:900; color:var(--primary);">DIRECCIÓN / UBICACIÓN</label>
+                    <input type="text" value="${p.ubicacion||''}" placeholder="Municipio, Colonia..." oninput="voxiData.props[${i}].ubicacion=this.value; autoSave();">
+                </div>
+            </div>
+
+            <div class="section-label" style="color:var(--primary); font-weight:950; border-bottom:2px solid var(--primary); margin:20px 0 15px 0; font-size: 0.85em;">🏗️ CARACTERÍSTICAS Y MEDIDAS</div>
+            <div class="box-container">
+                <div class="box"><label>M2 TERRENO</label><input type="text" value="${p.area||''}" oninput="voxiData.props[${i}].area=this.value; autoSave();"></div>
+                <div class="box"><label>RECÁMARAS</label><input type="number" value="${p.recamaras||''}" oninput="voxiData.props[${i}].recamaras=this.value; autoSave();"></div>
+                <div class="box"><label>BAÑOS</label><input type="number" value="${p.banos||''}" oninput="voxiData.props[${i}].banos=this.value; autoSave();"></div>
+                <div class="box"><label>ESTACIONAMIENTO</label><input type="text" value="${p.estacionamiento||''}" oninput="voxiData.props[${i}].estacionamiento=this.value; autoSave();"></div>
+            </div>
+
+            <div class="section-label" style="color:var(--primary); font-weight:950; border-bottom:2px solid var(--primary); margin:20px 0 15px 0; font-size: 0.85em;">📸 GALERÍA DE FOTOS</div>
+            <div class="gallery" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap:10px; margin-bottom:15px;">
+                ${galH}
+                <div class="gallery-item" onclick="selectPhotoSource(${i}, 'gallery')" style="height:80px; border:2px dashed #ccc; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#999;">
+                    <i class="fas fa-plus fa-lg"></i>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+                <button class="btn" style="background:var(--wa-green); color:white; font-weight:900;" onclick="openFlyerOptions(${i})"><i class="fab fa-whatsapp"></i> ENVIAR FLYER</button>
+                <button class="btn" style="background:#333; color:white; font-weight:900;" onclick="printListingV32(${i})"><i class="fas fa-print"></i> IMPRIMIR FICHA</button>
+            </div>
+        </div>
+    `;
 }
+`;
+        if(p.id == activePropId) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    if (voxiData.props.length === 0) {
+        div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-home" style="font-size:3em; margin-bottom:10px; display:block;"></i> No tienes propiedades. Añade una nueva con el botón + NUEVO abajo.</div>';
+        return;
+    }
+
+    if (!activePropId) activePropId = voxiData.props[0].id;
+    const p = voxiData.props.find(x => x.id == activePropId);
+    if (!p) return;
+    const i = voxiData.props.indexOf(p);
+
+    let galH = '';
+    (p.gallery || []).forEach((img, gi) => {
+        galH += `<div class="gallery-item"><img src="${img}"><button class="del" onclick="if(confirm('¿Quitar foto?')){voxiData.props[${i}].gallery.splice(${gi},1);renderProps();autoSave();}">✕</button></div>`;
+    });
+
+    div.innerHTML = `
+        <div class="card" style="border-top: 6px solid var(--primary); position: relative; margin-top: 10px;">
+            <button class="btn-delete" style="position:absolute; top:15px; right:15px; background:white; color:#999; border:1px solid #ddd; width:35px; height:35px; border-radius:50%; z-index:10; cursor:pointer;" onclick="if(confirm('¿Borrar propiedad?')){voxiData.props.splice(${i},1); activePropId=''; renderProps(); autoSave();}"><i class="fas fa-trash"></i></button>
+            
+            <div class="section-label" style="color:var(--primary); font-weight:950; border-bottom:2px solid var(--primary); margin-bottom:15px;">📍 DATOS DE LA PROPIEDAD</div>
+            
+            <div class="main-photo" onclick="selectPhotoSource(${i}, 'main')" style="margin-bottom:20px; height:200px; background:#f0f0f0; border-radius:15px; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px dashed #ccc;">
+                ${p.mainImg ? `<img src="${p.mainImg}" style="width:100%; height:100%; object-fit:cover;">` : '<div style="text-align:center;"><i class="fas fa-camera fa-3x" style="color:#aaa;"></i><div style="font-weight:900; color:#888; margin-top:10px;">AÑADIR FOTO PRINCIPAL</div></div>'}
+            </div>
+
+            <div class="box-container">
+                <div class="box full-box">
+                    <label style="font-weight:900; color:var(--primary);">TÍTULO DEL ANUNCIO</label>
+                    <input type="text" value="${p.titulo||''}" placeholder="Ej. Casa en Acayuca" oninput="voxiData.props[${i}].titulo=this.value; autoSave();" style="font-size:1.1em; font-weight:900;">
+                </div>
+                <div class="box">
+                    <label style="font-weight:900; color:var(--primary);">PRECIO ($)</label>
+                    <input type="text" value="${formatVoxiNumber(p.precio) || ''}" oninput="let raw=this.value.replace(/[^0-9]/g,''); voxiData.props[${i}].precio=raw; this.value=formatVoxiNumber(raw); autoSave()" style="color:var(--success); font-weight:950; font-size:1.1em;">
+                </div>
+                <div class="box">
+                    <label style="font-weight:900; color:var(--primary);">TIPO DE INMUEBLE</label>
+                    <select onchange="voxiData.props[${i}].tipo=this.value; autoSave();" style="font-weight:900;">
+                        <option value="Casa" ${p.tipo==='Casa'?'selected':''}>🏠 Casa</option>
+                        <option value="Terreno" ${p.tipo==='Terreno'?'selected':''}>🏞️ Terreno</option>
+                        <option value="Local" ${p.tipo==='Local'?'selected':''}>🏪 Local</option>
+                    </select>
+                </div>
+                <div class="box full-box">
+                    <label style="font-weight:900; color:var(--primary);">DIRECCIÓN / UBICACIÓN</label>
+                    <input type="text" value="${p.ubicacion||''}" placeholder="Municipio, Colonia..." oninput="voxiData.props[${i}].ubicacion=this.value; autoSave();">
+                </div>
+            </div>
+
+            <div class="section-label" style="color:var(--primary); font-weight:950; border-bottom:2px solid var(--primary); margin:20px 0 15px 0;">🏗️ CARACTERÍSTICAS Y MEDIDAS</div>
+            <div class="box-container">
+                <div class="box"><label>M2 TERRENO</label><input type="text" value="${p.area||''}" oninput="voxiData.props[${i}].area=this.value; autoSave();"></div>
+                <div class="box"><label>RECÁMARAS</label><input type="number" value="${p.recamaras||''}" oninput="voxiData.props[${i}].recamaras=this.value; autoSave();"></div>
+                <div class="box"><label>BAÑOS</label><input type="number" value="${p.banos||''}" oninput="voxiData.props[${i}].banos=this.value; autoSave();"></div>
+                <div class="box"><label>ESTACIONAMIENTO</label><input type="text" value="${p.estacionamiento||''}" oninput="voxiData.props[${i}].estacionamiento=this.value; autoSave();"></div>
+            </div>
+
+            <div class="section-label" style="color:var(--primary); font-weight:950; border-bottom:2px solid var(--primary); margin:20px 0 15px 0;">📸 GALERÍA DE FOTOS</div>
+            <div class="gallery" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap:10px; margin-bottom:15px;">
+                ${galH}
+                <div class="gallery-item" onclick="selectPhotoSource(${i}, 'gallery')" style="height:80px; border:2px dashed #ccc; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#999;">
+                    <i class="fas fa-plus fa-lg"></i>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+                <button class="btn" style="background:var(--wa-green); color:white; font-weight:900;" onclick="openFlyerOptions(${i})"><i class="fab fa-whatsapp"></i> ENVIAR FLYER</button>
+                <button class="btn" style="background:#333; color:white; font-weight:900;" onclick="printListingV32(${i})"><i class="fas fa-print"></i> IMPRIMIR FICHA</button>
+            </div>
+        </div>
+    `;
+}
+
 function renderProspects() {
     const div = document.getElementById('prospectList'); 
     const select = document.getElementById('prospectSelect');
@@ -1027,12 +1132,12 @@ function renderProspects() {
         ...voxiData.grals.map((g, i) => ({ ...g, type: 'grals', originalIndex: i }))
     ].sort((a, b) => b.id - a.id);
 
-    // Poblar select (se mantiene por compatibilidad)
-    select.innerHTML = '<option value="">-- BUSCAR / SELECCIONAR --</option>';
+    select.innerHTML = '<option value="">-- BUSCAR / SELECCIONAR PROSPECTO --</option>';
     allProspects.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id;
-        opt.textContent = (p.nombre || 'Sin nombre') + (p.type === 'milis' ? ' (Militar)' : ' (Efectivo)');
+        opt.textContent = (p.nombre || 'Sin nombre') + (p.type === 'milis' ? ' (MILITAR)' : ' (EFECTIVO)');
+        if(p.id == activeProspectId) opt.selected = true;
         select.appendChild(opt);
     });
 
@@ -1040,22 +1145,129 @@ function renderProspects() {
         div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-users" style="font-size:3em; margin-bottom:10px; display:block;"></i> No tienes prospectos. Añade uno arriba.</div>';
         return;
     }
+    if (!activeProspectId && allProspects.length > 0) activeProspectId = allProspects[0].id;
 
+    const p = allProspects.find(x => x.id == activeProspectId);
+    if (!p) return;
+
+    const isMili = p.type === 'milis';
+    const accentColor = isMili ? '#2e7d32' : '#757575';
+    const stColors = { 'Nuevo Cliente':'#eeeeee', 'Pláticas avanzadas':'#fff9c4', 'El cliente ya no quiso':'#ffebee', 'Dio apartado':'#e3f2fd', 'Cerrado':'#e8f5e9' };
+    const txtColors = { 'Nuevo Cliente':'#757575', 'Pláticas avanzadas':'#fbc02d', 'El cliente ya no quiso':'#d32f2f', 'Dio apartado':'#1976d2', 'Cerrado':'#2e7d32' };
+    const sc = stColors[p.status] || '#f5f5f5';
+    const tc = txtColors[p.status] || '#333';
+    const currentReqs = isMili ? REQS_M : REQS_E;
+    
+    if(!p.m) p.m = [];
+    currentReqs.forEach(reqName => {
+        if(!p.m.find(doc => doc.n === reqName)) p.m.push({ n: reqName, s: 'f' });
+    });
+
+    div.innerHTML = `
+        <div class="card ${isMili ? 'card-mili' : 'card-gral'}" style="border-top: 6px solid ${accentColor}; position: relative; margin-top: 10px; padding: 20px;">
+            <button class="btn-delete" style="position:absolute; top:15px; right:15px; background:white; color:#999; border:1px solid #ddd; width:35px; height:35px; border-radius:50%; z-index:10; cursor:pointer;" onclick="if(confirm('¿Borrar prospecto?')){voxiData.${p.type}.splice(${p.originalIndex},1); activeProspectId=''; renderProspects(); autoSave();}"><i class="fas fa-trash"></i></button>
+            
+            <div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 15px; font-size:0.75em; font-weight:950; width:fit-content; margin-bottom:15px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
+            
+            <div class="box-container">
+                <div class="box full-box">
+                    <label style="color:${accentColor}; font-weight:900;">NOMBRE COMPLETO DEL CLIENTE</label>
+                    <input type="text" value="${p.nombre||''}" placeholder="Ej. Juan Pérez" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value; autoSave();" style="font-size:1.1em; font-weight:900;">
+                </div>
+                <div class="box">
+                    <label style="color:${accentColor}; font-weight:900;">WHATSAPP / TELÉFONO</label>
+                    <input type="tel" value="${p.tel||''}" placeholder="10 dígitos" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value; autoSave();">
+                </div>
+                <div class="box">
+                    <label style="color:${accentColor}; font-weight:900;">ETAPA DE VENTA</label>
+                    <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects(); autoSave();" style="font-weight:900;">
+                        <option value="Nuevo Cliente" ${p.status==='Nuevo Cliente'?'selected':''}>Nuevo Cliente</option>
+                        <option value="Pláticas avanzadas" ${p.status==='Pláticas avanzadas'?'selected':''}>Pláticas avanzadas</option>
+                        <option value="Dio apartado" ${p.status==='Dio apartado'?'selected':''}>Dio apartado</option>
+                        <option value="Cerrado" ${p.status==='Cerrado'?'selected':''}>Cerrado</option>
+                        <option value="El cliente ya no quiso" ${p.status==='El cliente ya no quiso'?'selected':''}>El cliente ya no quiso</option>
+                    </select>
+                </div>
+                <div class="box full-box">
+                    <label style="color:${accentColor}; font-weight:900;">📅 FECHA DE ÚLTIMO CONTACTO</label>
+                    <input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value; autoSave();">
+                </div>
+            </div>
+
+            <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor}; margin:20px 0 15px 0; font-weight:950; font-size: 0.85em;">📋 EXPEDIENTE (TABLERO)</div>
+            <div style="background:#f9f9f9; border-radius:15px; padding:15px; border:1px solid #eee;">
+                ${p.m.map((doc, docIdx) => `
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #eee;">
+                        <div style="display:flex; align-items:center; gap:12px; flex:1;" onclick="voxiData.${p.type}[${p.originalIndex}].m[docIdx].s = (voxiData.${p.type}[${p.originalIndex}].m[docIdx].s === 'c' ? 'f' : 'c'); renderProspects(); autoSave();">
+                            <div style="width:26px; height:26px; border-radius:8px; border:2px solid ${doc.s==='c' ? accentColor : '#ccc'}; background:${doc.s==='c' ? accentColor : 'white'}; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                                ${doc.s==='c' ? '<i class="fas fa-check" style="color:white; font-size:12px;"></i>' : ''}
+                            </div>
+                            <span style="font-weight:800; font-size:0.9em; color:${doc.s==='c' ? '#333' : '#777'};">${doc.n}</span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor}; margin:20px 0 15px 0; font-weight:950; font-size: 0.85em;">💰 CONTROL FINANCIERO</div>
+            <div class="box-container">
+                <div class="box"><label>MONTO SOLICITADO</label><input type="text" value="${formatVoxiNumber(p.montoSolicitado) || ''}" oninput="let raw=this.value.replace(/[^0-9]/g,''); voxiData.${p.type}[${p.originalIndex}].montoSolicitado=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()"></div>
+                <div class="box"><label>MONTO RECIBIDO</label><input type="text" value="${formatVoxiNumber(p.montoRecibido) || ''}" oninput="let raw=this.value.replace(/[^0-9]/g,''); voxiData.${p.type}[${p.originalIndex}].montoRecibido=raw; this.value=formatVoxiNumber(raw); updateFinancials('${p.type}', ${p.originalIndex}); autoSave()"></div>
+                <div class="box full-box" style="background:#e3f2fd; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <label style="color:#0d47a1; font-weight:950; font-size:0.75em; margin:0;">SALDO PENDIENTE</label>
+                    <div style="font-size:1.5em; font-weight:950; color:#d32f2f;">${formatVoxiNumber(p.saldoPendiente || 0)}</div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+                <button class="btn" style="background:${accentColor}; color:white; font-weight:900;" onclick="openWADirect('${p.tel||''}','${p.nombre||''}','${p.status||''}','${p.type}')"><i class="fab fa-whatsapp"></i> CONTACTAR</button>
+                <button class="btn" style="background:#444; color:white; font-weight:900;" onclick="voxiRedactar('${p.nombre||''}','prospecto')"><i class="fas fa-magic"></i> REDACTAR</button>
+            </div>
+        </div>
+    `;
+}
+)),
+        ...voxiData.grals.map((g, i) => ({ ...g, type: 'grals', originalIndex: i }))
+    ].sort((a, b) => b.id - a.id);
+
+    // Poblar select
+    select.innerHTML = '<option value="">-- BUSCAR / SELECCIONAR PROSPECTO --</option>';
     allProspects.forEach(p => {
-        const isMili = p.type === 'milis';
-        const accentColor = isMili ? '#2e7d32' : '#757575';
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = (p.nombre || 'Sin nombre') + (p.type === 'milis' ? ' (MILITAR)' : ' (EFECTIVO)');
+        if(p.id == activeProspectId) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    if (allProspects.length === 0) {
+        div.innerHTML = '<div style="text-align:center; padding:40px; color:#888;"><i class="fas fa-users" style="font-size:3em; margin-bottom:10px; display:block;"></i> No tienes prospectos. Añade uno arriba.</div>';
+        return;
+    }
+    if (!activeProspectId && allProspects.length > 0) activeProspectId = allProspects[0].id;
+
+    const p = allProspects.find(x => x.id == activeProspectId);
+    if (!p) return;
+    const isMili = p.type === 'milis';
+    const accentColor = isMili ? '#2e7d32' : '#757575';
         const stColors = { 'Nuevo Cliente':'#eeeeee', 'Pláticas avanzadas':'#fff9c4', 'El cliente ya no quiso':'#ffebee', 'Dio apartado':'#e3f2fd', 'Cerrado':'#e8f5e9' };
         const txtColors = { 'Nuevo Cliente':'#757575', 'Pláticas avanzadas':'#fbc02d', 'El cliente ya no quiso':'#d32f2f', 'Dio apartado':'#1976d2', 'Cerrado':'#2e7d32' };
         const sc = stColors[p.status] || '#f5f5f5';
         const tc = txtColors[p.status] || '#333';
+        const currentReqs = isMili ? REQS_M : REQS_E;
+        if(!p.m) p.m = [];
+        p.m = p.m.filter(doc => currentReqs.includes(doc.n));
+        currentReqs.forEach(reqName => {
+            if(!p.m.find(doc => doc.n === reqName)) p.m.push({ n: reqName, s: 'f' });
+        });
 
         const item = document.createElement('div');
         item.className = 'item-registro';
         item.innerHTML = `
             <div class="header-registro" id="header-p-${p.id}">
-                <div class="info-principal">
-                    <span class="titulo-p">${p.nombre || 'Sin nombre'} <span class="cat-badge ${isMili?'badge-mili':'badge-gral'}">${isMili?'MILITAR':'EFECTIVO'}</span></span>
-                    <span class="subtitulo-p">${p.status || 'Nuevo Cliente'} | 📱 ${p.tel || 'Sin tel'}</span>
+                <div class="info-principal" style="flex:1;">
+                    <div style="font-weight: 700; font-size: 0.9em; color: #333; margin-bottom: 2px;">
+                        ${p.nombre || 'Sin nombre'} ${isMili ? 'MILITAR' : 'EFECTIVO'} ${p.status || 'Nuevo Cliente'} | 📱 ${p.tel || 'Sin tel'}
+                    </div>
                 </div>
                 <i class="fas fa-chevron-down" style="color:#ccc;"></i>
             </div>
@@ -1065,18 +1277,22 @@ function renderProspects() {
                     <div style="background:${sc}; color:${tc}; border-radius:10px; padding:6px 12px; font-size:0.72em; font-weight:900; width:fit-content; margin-bottom:10px; border:1px solid rgba(0,0,0,0.1); text-transform:uppercase;">${p.status||'NUEVO CLIENTE'}</div>
                     <div class="box-container">
                         <div class="box full-box">
-                            <label style="color:${accentColor};">Tipo de Cliente</label>
+                            <label style="color:${accentColor}; font-weight: 900; font-size: 0.7em;">TIPO DE CLIENTE</label>
                             <select onchange="moveProspect('${p.type}', ${p.originalIndex}, this.value)" style="font-weight:900; color:${accentColor};">
                                 <option value="milis" ${isMili?'selected':''}>🪖 CRÉDITO MILITAR</option>
                                 <option value="grals" ${!isMili?'selected':''}>💵 PAGO EN EFECTIVO</option>
                             </select>
                         </div>
                         <div class="box full-box">
-                            <label style="color:${accentColor};">Nombre del Cliente</label>
+                            <label style="color:${accentColor}; font-weight: 900; font-size: 0.7em;">NOMBRE DEL CLIENTE</label>
                             <input type="text" value="${p.nombre || ''}" placeholder="Ej. Juan Pérez" oninput="voxiData.${p.type}[${p.originalIndex}].nombre=this.value;autoSave()">
                         </div>
-                        <div class="box"><label style="color:${accentColor};">📱 WhatsApp</label><input type="text" value="${p.tel||''}" placeholder="10 dígitos" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()"></div>
-                        <div class="box"><label style="color:${accentColor};">Etapa de Venta</label>
+                        <div class="box">
+                            <label style="color:${accentColor}; font-weight: 900; font-size: 0.7em;">WHATSAPP</label>
+                            <input type="text" value="${p.tel||''}" placeholder="10 dígitos" oninput="voxiData.${p.type}[${p.originalIndex}].tel=this.value;autoSave()">
+                        </div>
+                        <div class="box">
+                            <label style="color:${accentColor}; font-weight: 900; font-size: 0.7em;">ETAPA DE VENTA</label>
                         <select onchange="voxiData.${p.type}[${p.originalIndex}].status=this.value; renderProspects();autoSave()" style="color:${tc}; font-weight:700;">
                         <option value="Nuevo Cliente" ${p.status==='Nuevo Cliente'?'selected':''}>Nuevo Cliente</option>
                         <option value="Pláticas avanzadas" ${p.status==='Pláticas avanzadas'?'selected':''}>Pláticas avanzadas</option>
@@ -1086,7 +1302,19 @@ function renderProspects() {
                         </select>
                         </div>
                         <div class="box full-box"><label style="color:${accentColor};">📅 Fecha de Seguimiento</label><input type="date" value="${p.lastContact||''}" oninput="voxiData.${p.type}[${p.originalIndex}].lastContact=this.value;autoSave()"></div>
-                        
+                        <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor}; font-weight:950;">📋 EXPEDIENTE (TABLERO)</div>
+                        <div style="background:white; border-radius:12px; border:1px solid #eee; padding:10px; margin-bottom:15px; width:100%;">
+                            ${p.m.map((doc, docIdx) => `
+                                <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f5f5f5;">
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <div onclick="voxiData.${p.type}[${p.originalIndex}].m[${docIdx}].s = (voxiData.${p.type}[${p.originalIndex}].m[${docIdx}].s === 'c' ? 'f' : 'c'); renderProspects(); autoSave();" style="width:22px; height:22px; border-radius:6px; border:2px solid ${doc.s==='c' ? accentColor : '#ccc'}; background:${doc.s==='c' ? accentColor : 'white'}; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                                            ${doc.s==='c' ? '<i class="fas fa-check" style="color:white; font-size:10px;"></i>' : ''}
+                                        </div>
+                                        <span style="font-weight:700; font-size:0.8em; color:${doc.s==='c' ? '#333' : '#999'};">${doc.n}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
                         <div class="section-label" style="color:${accentColor}; border-bottom: 2px solid ${accentColor};">📸 MULTIMEDIA Y UBICACIÓN</div>
                         <div class="box full-box"><label>Imágenes del Cliente</label><div style="display:flex; gap:10px; overflow-x:auto; padding:10px 0;">${(p.gallery || []).map((img, imgIdx) => `<div style="position:relative; flex:0 0 80px;"><img src="${img}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><button onclick="removeProspectImage('${p.type}', ${p.originalIndex}, ${imgIdx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px;">×</button></div>`).join('')}<button onclick="addProspectImage('${p.type}', ${p.originalIndex})" style="flex:0 0 80px; height:80px; border:2px dashed #ccc; border-radius:8px; background:none; color:#999;"><i class="fas fa-plus"></i></button></div></div>
                         <div class="box"><label>📍 Ubicación (GPS)</label><div style="display:flex; gap:5px;"><input type="text" placeholder="Lat, Lng" value="${p.lat && p.lng ? p.lat+','+p.lng : ''}" readonly style="font-size:0.8em; border-bottom:1px solid #ddd;"><button class="btn" onclick="getProspectLocation('${p.type}', ${p.originalIndex})" style="padding:5px; height:auto; background:${accentColor}; color:white;"><i class="fas fa-map-marker-alt"></i></button></div></div>
@@ -1161,10 +1389,23 @@ a.download = f.name;
 a.click();
 }
 
+
 function voxiRedactar(nombre, tipo) {
     let msg = "";
     if (tipo === 'prospecto') {
-        msg = `Hola ${nombre}, espero que estés teniendo un excelente día. Te escribo de parte de Voxi Propiedades para dar seguimiento a lo que platicamos. ¿Cómo vas con tu decisión? Sigo a tus órdenes para lo que necesites.`;
+        msg = `Hola ${nombre}, un gusto saludarte. Te escribo para dar seguimiento a tu interés en las propiedades en Hidalgo. Soy experto en el área y me gustaría saber si tienes alguna duda con el expediente o si prefieres agendar una visita esta semana. Quedo atento a tus comentarios.`;
+    } else {
+        msg = `¡Gran oportunidad! Tenemos disponible esta propiedad con excelente ubicación y precio competitivo. Ideal para inversión o para tu nuevo hogar. Si te interesa conocer el expediente completo o agendar una visita, contáctame ahora.`;
+    }
+    
+    const editor = document.getElementById('editor');
+    if(editor) {
+        editor.innerHTML = msg;
+        openTab('papeleo', document.getElementById('btn-papeleo'));
+        showVoxiToast("✨ Mensaje redactado con criterio profesional");
+    }
+}
+, espero que estés teniendo un excelente día. Te escribo de parte de Voxi Propiedades para dar seguimiento a lo que platicamos. ¿Cómo vas con tu decisión? Sigo a tus órdenes para lo que necesites.`;
     } else {
         msg = `¡Hola! Soy Zapia. Estoy analizando tu propiedad "${nombre}" para optimizar su venta.`;
     }
