@@ -1,5 +1,5 @@
-// sw.js V50 - FORCED NETWORK ONLY
-const CACHE_NAME = 'voxi-v50';
+// sw.js V54 - NUCLEAR CACHE BUST
+const CACHE_NAME = 'voxi-v54';
 self.addEventListener('install', (e) => {
     self.skipWaiting();
 });
@@ -11,12 +11,8 @@ self.addEventListener('activate', (e) => {
     );
 });
 self.addEventListener('fetch', (e) => {
-    // Si la URL tiene el parámetro v=, forzamos red
-    if (e.request.url.includes('?v=')) {
-        e.respondWith(fetch(e.request));
-    } else {
-        e.respondWith(
-            fetch(e.request).catch(() => caches.match(e.request))
-        );
-    }
+    // Forzar red para todo, solo usar caché si falla la red
+    e.respondWith(
+        fetch(e.request).catch(() => caches.match(e.request))
+    );
 });
