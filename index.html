@@ -16,7 +16,7 @@
         }
 
         body {
-            background-color: #d32f2f; /* Rojo elegante/brillante */
+            background-color: #d32f2f; /* Rojo elegante */
             color: #ffffff;
             display: flex;
             min-height: 100vh;
@@ -25,8 +25,8 @@
 
         /* Sidebar Fija */
         .sidebar {
-            width: 250px;
-            background-color: rgba(0, 0, 0, 0.2);
+            width: 260px;
+            background-color: rgba(0, 0, 0, 0.3);
             height: 100vh;
             position: fixed;
             left: 0;
@@ -35,114 +35,130 @@
             flex-direction: column;
             padding: 20px 0;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
         }
 
         .sidebar-header {
             padding: 0 20px 20px 20px;
-            font-size: 1.2em;
-            font-weight: bold;
+            font-size: 1.3em;
+            font-weight: 800;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 10px;
             color: #87CEEB; /* Azul cielo brillante */
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .nav-item {
-            padding: 15px 20px;
+            padding: 14px 20px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             color: #ffffff;
-            text-decoration: none;
+            font-weight: 500;
+            border-left: 4px solid transparent;
         }
 
         .nav-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
+            color: #87CEEB;
         }
 
         .nav-item.active {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.15);
             border-left: 4px solid #87CEEB;
             color: #87CEEB;
         }
 
         .nav-item i {
-            width: 20px;
+            width: 24px;
             text-align: center;
+            font-size: 1.1em;
         }
 
         /* Contenido Principal */
-        .main-content {
-            margin-left: 250px;
+        .main-container {
+            margin-left: 260px;
             flex-grow: 1;
-            padding: 20px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
+            background-color: #d32f2f;
         }
 
-        /* Header Superior */
-        .header {
+        /* Header con Acciones */
+        .top-header {
             display: flex;
             justify-content: flex-end;
-            padding-bottom: 20px;
+            padding: 15px 25px;
             position: sticky;
             top: 0;
-            z-index: 100;
+            background-color: #d32f2f;
+            z-index: 900;
         }
 
-        .actions-dropdown {
+        .dropdown {
             position: relative;
             display: inline-block;
         }
 
-        .btn-actions {
+        .dropbtn {
             background-color: #87CEEB;
-            color: #000;
+            color: #1a1a1a;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 700;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .dropdown-content {
             display: none;
             position: absolute;
             right: 0;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-            border-radius: 5px;
+            background-color: #ffffff;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1100;
+            border-radius: 6px;
+            margin-top: 5px;
             overflow: hidden;
         }
 
         .dropdown-content a {
-            color: black;
+            color: #333;
             padding: 12px 16px;
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: background 0.2s;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         .dropdown-content a:hover {
-            background-color: #ddd;
+            background-color: #f1f1f1;
         }
 
-        .actions-dropdown:hover .dropdown-content {
+        .dropdown:hover .dropdown-content {
             display: block;
         }
 
-        /* Pantallas */
+        /* Screens */
+        .content-area {
+            padding: 0 30px 40px 30px;
+        }
+
         .screen {
             display: none;
-            animation: fadeIn 0.3s;
+            animation: fadeIn 0.4s ease-in-out;
         }
 
         .screen.active {
@@ -150,176 +166,173 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
             color: #87CEEB;
-            margin-bottom: 20px;
         }
 
-        .card {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .placeholder-card {
+            background-color: rgba(255, 255, 255, 0.08);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        /* Ajustes para impresión */
+        @media print {
+            .sidebar, .top-header { display: none !important; }
+            .main-container { margin-left: 0 !important; }
+            body { background-color: white !important; color: black !important; }
+            .placeholder-card { border: 1px solid #ccc !important; color: black !important; background: none !important; }
+            h1 { color: black !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Fija -->
+    <!-- Sidebar Fija SIEMPRE Visible -->
     <div class="sidebar">
-        <div class="sidebar-header">
-            Inventario HR
+        <div class="sidebar-header">Inventario HR</div>
+        <div class="nav-item active" onclick="navigate('tablero', this)">
+            <i class="fas fa-house"></i> Tablero
         </div>
-        <div class="nav-item active" onclick="showScreen('tablero', this)">
-            <i class="fas fa-house"></i> 🏠 Tablero
+        <div class="nav-item" onclick="navigate('inventario', this)">
+            <i class="fas fa-box"></i> Inventario
         </div>
-        <div class="nav-item" onclick="showScreen('inventario', this)">
-            <i class="fas fa-box"></i> 📦 Inventario
+        <div class="nav-item" onclick="navigate('prospectos', this)">
+            <i class="fas fa-crosshairs"></i> Prospectos
         </div>
-        <div class="nav-item" onclick="showScreen('prospectos', this)">
-            <i class="fas fa-crosshairs"></i> 🎯 Prospectos
+        <div class="nav-item" onclick="navigate('contratos', this)">
+            <i class="fas fa-file-invoice"></i> Contratos
         </div>
-        <div class="nav-item" onclick="showScreen('contratos', this)">
-            <i class="fas fa-file-invoice"></i> 📄 Contratos
+        <div class="nav-item" onclick="navigate('archivos', this)">
+            <i class="fas fa-folder-open"></i> Archivos guardados
         </div>
-        <div class="nav-item" onclick="showScreen('archivos', this)">
-            <i class="fas fa-folder-open"></i> 📁 Archivos guardados
+        <div class="nav-item" onclick="navigate('galeria', this)">
+            <i class="fas fa-images"></i> Galería de fotos
         </div>
-        <div class="nav-item" onclick="showScreen('galeria', this)">
-            <i class="fas fa-images"></i> 🖼️ Galería de fotos
+        <div class="nav-item" onclick="navigate('pensamientos', this)">
+            <i class="fas fa-brain"></i> Pensamientos
         </div>
-        <div class="nav-item" onclick="showScreen('pensamientos', this)">
-            <i class="fas fa-brain"></i> 🧠 Pensamientos
+        <div class="nav-item" onclick="navigate('citas', this)">
+            <i class="fas fa-calendar-days"></i> Citas
         </div>
-        <div class="nav-item" onclick="showScreen('citas', this)">
-            <i class="fas fa-calendar-days"></i> 📅 Citas
+        <div class="nav-item" onclick="navigate('negocios', this)">
+            <i class="fas fa-briefcase"></i> Negocios
         </div>
-        <div class="nav-item" onclick="showScreen('negocios', this)">
-            <i class="fas fa-briefcase"></i> 💼 Negocios
-        </div>
-        <div class="nav-item" onclick="showScreen('motivacion', this)">
-            <i class="fas fa-comment-dots"></i> 💬 Mensajes motivacionales
+        <div class="nav-item" onclick="navigate('motivacion', this)">
+            <i class="fas fa-comment-dots"></i> Mensajes motivacionales
         </div>
     </div>
 
-    <!-- Contenido Principal -->
-    <div class="main-content" id="capture-area">
-        <div class="header">
-            <div class="actions-dropdown">
-                <button class="btn-actions">
-                    <i class="fas fa-ellipsis-vertical"></i> Acciones
-                </button>
+    <!-- Contenedor Principal -->
+    <div class="main-container" id="main-app">
+        <!-- Botón de Acciones Superior Derecha -->
+        <div class="top-header">
+            <div class="dropdown">
+                <button class="dropbtn"><i class="fas fa-wand-magic-sparkles"></i> Acciones</button>
                 <div class="dropdown-content">
-                    <a href="#" onclick="window.print()">
-                        <i class="fas fa-print"></i> 🖨️ Imprimir
-                    </a>
-                    <a href="#" onclick="exportAsImage()">
-                        <i class="fas fa-camera"></i> 📸 Capturar / Exportar
-                    </a>
+                    <a href="javascript:void(0)" onclick="window.print()"><i class="fas fa-print"></i> 🖨️ Imprimir</a>
+                    <a href="javascript:void(0)" onclick="exportFull()"><i class="fas fa-camera"></i> 📸 Capturar / Exportar</a>
                 </div>
             </div>
         </div>
 
-        <!-- Pantallas -->
-        <div id="tablero" class="screen active">
-            <h1>🏠 Tablero</h1>
-            <div class="card">Bienvenido al Tablero Principal.</div>
-        </div>
-
-        <div id="inventario" class="screen">
-            <h1>📦 Inventario</h1>
-            <div class="card">Gestión de Inventario.</div>
-        </div>
-
-        <div id="prospectos" class="screen">
-            <h1>🎯 Prospectos</h1>
-            <div class="card">Control de Prospectos.</div>
-        </div>
-
-        <div id="contratos" class="screen">
-            <h1>📄 Contratos</h1>
-            <div class="card">Listado de Contratos.</div>
-        </div>
-
-        <div id="archivos" class="screen">
-            <h1>📁 Archivos guardados</h1>
-            <div class="card">Repositorio de Archivos.</div>
-        </div>
-
-        <div id="galeria" class="screen">
-            <h1>🖼️ Galería de fotos</h1>
-            <div class="card">Visualizador de Imágenes.</div>
-        </div>
-
-        <div id="pensamientos" class="screen">
-            <h1>🧠 Pensamientos</h1>
-            <div class="card">Bitácora de Pensamientos.</div>
-        </div>
-
-        <div id="citas" class="screen">
-            <h1>📅 Citas</h1>
-            <div class="card">Agenda de Citas.</div>
-        </div>
-
-        <div id="negocios" class="screen">
-            <h1>💼 Negocios</h1>
-            <div class="card">Gestión de Negocios.</div>
-        </div>
-
-        <div id="motivacion" class="screen">
-            <h1>💬 Mensajes motivacionales</h1>
-            <div class="card">Frases de Motivación Diaria.</div>
+        <!-- Pantallas de Contenido -->
+        <div class="content-area">
+            <div id="tablero" class="screen active">
+                <h1>🏠 Tablero</h1>
+                <div class="placeholder-card">Bienvenido al Tablero de Control de Inventario Personal HR.</div>
+            </div>
+            <div id="inventario" class="screen">
+                <h1>📦 Inventario</h1>
+                <div class="placeholder-card">Gestión detallada de bienes y existencias.</div>
+            </div>
+            <div id="prospectos" class="screen">
+                <h1>🎯 Prospectos</h1>
+                <div class="placeholder-card">Seguimiento de clientes potenciales y leads.</div>
+            </div>
+            <div id="contratos" class="screen">
+                <h1>📄 Contratos</h1>
+                <div class="placeholder-card">Documentación legal y contratos vigentes.</div>
+            </div>
+            <div id="archivos" class="screen">
+                <h1>📁 Archivos guardados</h1>
+                <div class="placeholder-card">Repositorio de documentos y archivos importantes.</div>
+            </div>
+            <div id="galeria" class="screen">
+                <h1>🖼️ Galería de fotos</h1>
+                <div class="placeholder-card">Registro visual de inventario y propiedades.</div>
+            </div>
+            <div id="pensamientos" class="screen">
+                <h1>🧠 Pensamientos</h1>
+                <div class="placeholder-card">Bitácora personal y notas estratégicas.</div>
+            </div>
+            <div id="citas" class="screen">
+                <h1>📅 Citas</h1>
+                <div class="placeholder-card">Agenda de reuniones y compromisos.</div>
+            </div>
+            <div id="negocios" class="screen">
+                <h1>💼 Negocios</h1>
+                <div class="placeholder-card">Estructura y seguimiento de operaciones comerciales.</div>
+            </div>
+            <div id="motivacion" class="screen">
+                <h1>💬 Mensajes motivacionales</h1>
+                <div class="placeholder-card">Reflexiones diarias para el impulso profesional.</div>
+            </div>
         </div>
     </div>
 
     <script>
-        function showScreen(screenId, element) {
-            // Ocultar todas las pantallas
-            const screens = document.querySelectorAll('.screen');
-            screens.forEach(s => s.classList.remove('active'));
-
-            // Quitar clase active de los items de navegación
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => item.classList.remove('active'));
-
-            // Mostrar pantalla seleccionada
-            document.getElementById(screenId).classList.add('active');
+        // Navegación entre pantallas
+        function navigate(id, element) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             element.classList.add('active');
         }
 
-        async function exportAsImage() {
-            const element = document.body; // Capturamos todo el body para incluir sidebar y contenido
+        // Función de Exportación Completa (Imagen y PDF)
+        async function exportFull() {
+            const area = document.body;
             
-            // Usamos html2canvas para capturar toda la página incluso con scroll
-            html2canvas(element, {
+            // Forzar renderizado de toda la página para captura sin recortes
+            const canvas = await html2canvas(area, {
+                backgroundColor: '#d32f2f',
+                logging: false,
                 useCORS: true,
                 allowTaint: true,
-                scrollX: 0,
+                scale: 2, // Mayor calidad
                 scrollY: -window.scrollY,
-                windowWidth: document.documentElement.scrollWidth,
                 windowHeight: document.documentElement.scrollHeight
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                
-                // Opción para descargar la imagen
-                const link = document.createElement('a');
-                link.download = 'Inventario-Personal-HR.png';
-                link.href = imgData;
-                link.click();
-
-                // También generar PDF (opcional según instrucción "imagen o PDF")
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgProps = pdf.getImageProperties(imgData);
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save('Inventario-Personal-HR.pdf');
             });
+
+            const imgData = canvas.toDataURL('image/png');
+
+            // 1. Descargar Imagen PNG
+            const link = document.createElement('a');
+            link.download = 'Inventario_HR_Captura.png';
+            link.href = imgData;
+            link.click();
+
+            // 2. Descargar PDF (A4 Adaptable)
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const imgProps = pdf.getImageProperties(imgData);
+            const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+            // Si el contenido es más largo que una página, el PDF lo escala o se puede implementar multi-página
+            pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, imgHeight);
+            pdf.save('Inventario_HR_Documento.pdf');
         }
     </script>
 </body>
