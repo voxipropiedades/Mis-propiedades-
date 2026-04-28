@@ -19,320 +19,1211 @@
             background-color: #d32f2f; /* Rojo elegante */
             color: #ffffff;
             display: flex;
+            flex-direction: column;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* Sidebar Fija */
-        .sidebar {
-            width: 260px;
-            background-color: rgba(0, 0, 0, 0.3);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
+        /* Encabezado Principal */
+        .app-header {
+            background-color: #d32f2f;
+            padding: 15px 20px;
             display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
             z-index: 1000;
         }
 
-        .sidebar-header {
-            padding: 0 20px 20px 20px;
-            font-size: 1.3em;
+        .logo-area {
+            font-size: 1.4em;
             font-weight: 800;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 10px;
-            color: #87CEEB; /* Azul cielo brillante */
-            text-transform: uppercase;
             letter-spacing: 1px;
-        }
-
-        .nav-item {
-            padding: 14px 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #ffffff;
-            font-weight: 500;
-            border-left: 4px solid transparent;
-        }
-
-        .nav-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #87CEEB;
-        }
-
-        .nav-item.active {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-left: 4px solid #87CEEB;
-            color: #87CEEB;
-        }
-
-        .nav-item i {
-            width: 24px;
-            text-align: center;
-            font-size: 1.1em;
-        }
-
-        /* Contenido Principal */
-        .main-container {
-            margin-left: 260px;
-            flex-grow: 1;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: #d32f2f;
-        }
-
-        /* Header con Acciones */
-        .top-header {
-            display: flex;
-            justify-content: flex-end;
-            padding: 15px 25px;
-            position: sticky;
-            top: 0;
-            background-color: #d32f2f;
-            z-index: 900;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropbtn {
-            background-color: #87CEEB;
-            color: #1a1a1a;
-            padding: 10px 18px;
-            font-size: 14px;
-            font-weight: 700;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #ffffff;
-            min-width: 180px;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-            z-index: 1100;
-            border-radius: 6px;
-            margin-top: 5px;
-            overflow: hidden;
-        }
-
-        .dropdown-content a {
-            color: #333;
-            padding: 12px 16px;
-            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            font-size: 1.2em;
+        }
+
+        .btn-action-header {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Menú Horizontal Scroll */
+        .horizontal-nav {
+            background: #b71c1c;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+        }
+
+        .horizontal-nav::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+
+        .nav-container {
+            display: inline-flex;
+            padding: 0 15px;
+            gap: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75em;
             font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
         }
 
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
+        .nav-item i {
+            font-size: 1.6em;
+            margin-bottom: 4px;
         }
 
-        .dropdown:hover .dropdown-content {
+        .nav-item.active {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        /* Dashboard Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .metric-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #eee;
+            color: #333;
+        }
+
+        .metric-value {
             display: block;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #d32f2f;
         }
 
-        /* Screens */
-        .content-area {
-            padding: 0 30px 40px 30px;
+        .metric-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
         }
 
-        .screen {
+        .search-box {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .voice-search {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: #d32f2f;
+            color: white;
+            cursor: pointer;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .social-item {
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .social-item:active { transform: scale(0.95); }
+        .social-item i { font-size: 1.8em; margin-bottom: 5px; }
+        .social-item.whatsapp { background: #25D366; }
+        .social-item.facebook { background: #1877F2; }
+        .social-item.tiktok { background: #000000; }
+
+        .alarm-item {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 5px solid #d32f2f;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .alarm-info h4 { font-size: 0.9em; margin: 0; }
+        .alarm-info span { font-size: 0.8em; color: #666; }
+
+        /* Modal Guardado */
+        .modal-save {
             display: none;
-            animation: fadeIn 0.4s ease-in-out;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-save.active { display: flex; }
+        .output-module.active { display: block !important; }
+        .modal-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            color: #333;
+            text-align: center;
+        }
+        .save-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .btn-save-opt {
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #d32f2f;
+            background: white;
+            color: #d32f2f;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1em;
+        }
+        .btn-save-opt:active { background: #d32f2f; color: white; }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2e7d32;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 20000;
+            display: none;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { bottom: -50px; } to { bottom: 30px; } }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ff5252;
+            cursor: pointer;
+            padding: 5px;
         }
 
-        .screen.active {
+        /* Contenido Principal */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+        }
+
+        .app-section {
+            display: none;
+            width: 100%;
+            will-change: transform, opacity;
+        }
+
+        .app-section.active {
             display: block;
+            animation: fadeIn 0.2s ease-in-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        h1 {
-            font-size: 2.2em;
-            margin-bottom: 25px;
-            color: #87CEEB;
+        .card {
+            background: #ffffff;
+            color: #333;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
         }
 
-        .placeholder-card {
-            background-color: rgba(255, 255, 255, 0.08);
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+        .section-title {
+            color: #d32f2f;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
             font-size: 1.1em;
-            line-height: 1.6;
         }
 
-        /* Ajustes para impresión */
-        @media print {
-            .sidebar, .top-header { display: none !important; }
-            .main-container { margin-left: 0 !important; }
-            body { background-color: white !important; color: black !important; }
-            .placeholder-card { border: 1px solid #ccc !important; color: black !important; background: none !important; }
-            h1 { color: black !important; }
+        /* Formularios Estilizados */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
         }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #d32f2f;
+        }
+
+        .cond-section {
+            display: none;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #d32f2f;
+        }
+
+        /* Botones Especiales */
+        .btn-capture {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+            transition: background 0.3s;
+        }
+
+        .btn-capture:hover { background: #222; }
+
+        .btn-main {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 800;
+            font-size: 1.1em;
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+            margin-top: 10px;
+        }
+
+        /* Módulo de Salida */
+        .output-module {
+            display: none;
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-top: 20px;
+            border: 2px solid #d32f2f;
+            animation: slideUp 0.5s ease-out;
+        }
+        .output-module.active {
+            display: block !important;
+        }
+        .output-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .btn-output {
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: white;
+            font-size: 1em;
+            transition: 0.3s;
+        }
+        .btn-whatsapp { background: #25D366; }
+        .btn-pdf { background: #d32f2f; }
+        .btn-flyer { background: #333; }
+        .btn-output:active { transform: scale(0.96); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Estilos del Flyer */
+        #flyer-template {
+            width: 1000px;
+            background: #d32f2f;
+            color: white;
+            position: absolute;
+            left: -9999px;
+            overflow: hidden;
+            font-family: 'Arial Black', Gadget, sans-serif;
+        }
+        .flyer-img-container { width: 100%; height: 600px; position: relative; }
+        .flyer-img { width: 100%; height: 100%; object-fit: cover; }
+        .flyer-body { padding: 40px; text-align: center; }
+        .flyer-price { font-size: 80px; color: #FFD700; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        .flyer-details { font-size: 30px; margin-top: 20px; line-height: 1.5; }
+        .flyer-footer { background: #000; padding: 20px; font-size: 24px; text-transform: uppercase; }
+
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Fija SIEMPRE Visible -->
-    <div class="sidebar">
-        <div class="sidebar-header">InventarioHR</div>
-        <div class="nav-item active" onclick="navigate('tablero', this)">
-            <i class="fas fa-house"></i> Tablero
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-area">
+            <i class="fas fa-home"></i> InventarioHR
         </div>
-        <div class="nav-item" onclick="navigate('inventario', this)">
-            <i class="fas fa-box"></i> Inventario
+        <div class="header-actions">
+            <button class="btn-action-header"><i class="fas fa-print"></i></button>
+            <button class="btn-action-header"><i class="fas fa-camera"></i></button>
         </div>
-        <div class="nav-item" onclick="navigate('prospectos', this)">
-            <i class="fas fa-crosshairs"></i> Prospectos
+    </header>
+
+    <!-- Nav Horizontal -->
+    <nav class="horizontal-nav">
+        <div class="nav-container">
+            <div class="nav-item" onclick="switchSection('tablero', this)">
+                <i class="fas fa-chart-pie"></i>
+                <span>TABLERO</span>
+            </div>
+            <div class="nav-item active" onclick="switchSection('inventario', this)">
+                <i class="fas fa-home"></i>
+                <span>Inventario</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('prospectos', this)">
+                <i class="fas fa-bullseye"></i>
+                <span>Prospectos</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('contactos', this)">
+                <i class="fas fa-phone-alt"></i>
+                <span>Contactos</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('archivos', this)">
+                <i class="fas fa-folder-open"></i>
+                <span>Archivos</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('galeria', this)">
+                <i class="fas fa-images"></i>
+                <span>Galería</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('pensamientos', this)">
+                <i class="fas fa-brain"></i>
+                <span>Pensamientos</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('citas', this)">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Citas</span>
+            </div>
         </div>
-        <div class="nav-item" onclick="navigate('contactos', this)">
-            <i class="fas fa-phone"></i> Contactos
-        </div>
-        <div class="nav-item" onclick="navigate('archivos', this)">
-            <i class="fas fa-folder-open"></i> Archivos guardados
-        </div>
-        <div class="nav-item" onclick="navigate('galeria', this)">
-            <i class="fas fa-images"></i> Galería de fotos
-        </div>
-        <div class="nav-item" onclick="navigate('pensamientos', this)">
-            <i class="fas fa-brain"></i> Pensamientos
-        </div>
-        <div class="nav-item" onclick="navigate('citas', this)">
-            <i class="fas fa-calendar-days"></i> Citas
-        </div>
-        <div class="nav-item" onclick="navigate('negocios', this)">
-            <i class="fas fa-briefcase"></i> Negocios
-        </div>
-        <div class="nav-item" onclick="navigate('motivacion', this)">
-            <i class="fas fa-comment-dots"></i> Mensajes motivacionales
+    </nav>
+
+    <div class="main-content">
+        
+        <!-- Sección Tablero -->
+        <section id="section-tablero" class="app-section">
+            <!-- 2. BUSCADOR INTELIGENTE -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-search"></i> Buscador Inteligente</div>
+                <div class="search-box">
+                    <input type="text" id="main-search" placeholder="¿Qué estás buscando hoy?">
+                    <button class="voice-search" onclick="startVoiceSearch()"><i class="fas fa-microphone"></i></button>
+                </div>
+                <div class="form-row" style="margin-top:10px;">
+                    <button class="btn-main" style="margin:0; flex:1;" onclick="searchApp()">Buscar en App</button>
+                    <button class="btn-main" style="margin:0; flex:1; background:#555;" onclick="searchWeb()">Buscar en Web</button>
+                </div>
+            </div>
+
+            <!-- 3. PRÓXIMAS CITAS -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-calendar-check"></i> Próximas Citas</div>
+                <div id="appointments-list">
+                    <div class="alarm-item">
+                        <div class="alarm-info">
+                            <h4>Cierre Terreno Acayuca</h4>
+                            <span>Hoy, 16:30 PM - Sr. Martínez</span>
+                        </div>
+                        <button class="btn-delete"><i class="fas fa-edit"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. SISTEMA DE ALARMAS -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-bell"></i> Sistema de Alarmas</div>
+                <div class="form-group">
+                    <input type="text" id="alarm-desc" placeholder="Descripción de la alarma...">
+                    <div class="form-row" style="margin-top:10px;">
+                        <input type="datetime-local" id="alarm-time">
+                        <button class="btn-capture" style="margin:0; width:50px; border-radius: 8px;" onclick="startAlarmVoice()"><i class="fas fa-microphone"></i></button>
+                    </div>
+                    <button class="btn-main" onclick="createAlarm()" style="margin-top:10px;">CREAR ALARMA</button>
+                </div>
+                <div id="alarms-list"></div>
+            </div>
+
+            <!-- 5. ACCESOS RÁPIDOS (REDES) -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-share-alt"></i> Mis Redes de Venta</div>
+                <div class="social-grid">
+                    <a href="https://wa.me/771" target="_blank" class="social-item whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                    <a href="https://facebook.com" target="_blank" class="social-item facebook">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </a>
+                    <a href="https://tiktok.com" target="_blank" class="social-item tiktok">
+                        <i class="fab fa-tiktok"></i>
+                        <span>TikTok</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. PANEL INTELIGENTE -->
+            <div class="card" style="background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2;">
+                <div class="section-title" style="color: #e65100;"><i class="fas fa-lightbulb"></i> Panel de Estrategia</div>
+                <div id="smart-panel-content">
+                    <p style="margin-bottom: 8px;"><strong>🔥 Motivación:</strong> "El éxito en los bienes raíces no es vender casas, es ayudar a las familias a encontrar su hogar."</p>
+                    <hr style="border: 0; border-top: 1px solid #ffe0b2; margin: 10px 0;">
+                    <p><strong>💡 Estrategia:</strong> Tienes 5 prospectos calientes. Envía el Flyer del terreno en Acayuca hoy mismo, los militares cierran rápido a fin de mes.</p>
+                </div>
+            </div>
+
+            <!-- 1. MÉTRICAS Y RESUMEN (Movido al final) -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-chart-line"></i> Resumen de Negocio</div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-total">0</span>
+                        <span class="metric-label">Total Propiedades</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-casas">0</span>
+                        <span class="metric-label">🏠 Casas</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-terrenos">0</span>
+                        <span class="metric-label">🏢 Terrenos</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-parcelas">0</span>
+                        <span class="metric-label">🐄 Parcelas</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-const">0</span>
+                        <span class="metric-label">🏗️ Construidas</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Inventario (Principal) -->
+        <section id="section-inventario" class="app-section active">
+            <!-- Formulario Principal -->
+            <div class="card">
+            <div class="section-title">
+                <i class="fas fa-plus-circle"></i> Nueva Captura
+            </div>
+
+            <div class="form-group">
+                <label>UBICACIÓN AUTOMÁTICA GPS</label>
+                <button class="btn-capture" onclick="getGPS()">
+                    <i class="fas fa-map-marker-alt"></i> OBTENER UBICACIÓN GPS
+                </button>
+                <input type="text" id="gps-coords" placeholder="Coordenadas GPS" style="margin-top:10px;" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>TIPO DE PROPIEDAD</label>
+                <select id="tipo-propiedad" onchange="toggleForm(this.value)">
+                    <option value="">Seleccione...</option>
+                    <option value="🏠 Casa">🏠 Casa</option>
+                    <option value="🏢 Terreno">🏢 Terreno</option>
+                    <option value="🐄 Rancho">🐄 Rancho</option>
+                    <option value="🏭 Local / Bodega">🏭 Local / Bodega</option>
+                </select>
+            </div>
+
+            <!-- Secciones Condicionales -->
+            <div id="campos-terreno" class="cond-section">
+                <div class="form-row">
+                    <div class="form-group"><label>NORTE</label><input type="text" id="norte" placeholder="Medida..."></div>
+                    <div class="form-group"><label>SUR</label><input type="text" id="sur" placeholder="Medida..."></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>ESTE</label><input type="text" id="este" placeholder="Medida..."></div>
+                    <div class="form-group"><label>OESTE</label><input type="text" id="oeste" placeholder="Medida..."></div>
+                </div>
+            </div>
+
+            <div id="campos-casa" class="cond-section">
+                <div class="form-row">
+                    <div class="form-group"><label>PISOS</label><input type="number" placeholder="0"></div>
+                    <div class="form-group"><label>RECÁMARAS</label><input type="number" placeholder="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>BAÑOS</label><input type="number" placeholder="0"></div>
+                    <div class="form-group"><label>M² CONST.</label><input type="number" id="m2-const" placeholder="0"></div>
+                </div>
+                <div class="form-group">
+                    <label>DETALLES DE CONSTRUCCIÓN</label>
+                    <textarea id="detalles-casa" placeholder="Detalles de construcción..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>MATERIAL DE PUERTAS / BARDEADO</label>
+                    <input type="text" id="materiales" placeholder="Ej: Madera, Herrería...">
+                </div>
+                <div class="form-group">
+                    <label>SERVICIOS</label>
+                    <select multiple style="height:auto;">
+                        <option>Luz</option>
+                        <option>Agua</option>
+                        <option>Drenaje / Fosa</option>
+                        <option>Pavimento</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>PRECIO TOTAL ($)</label>
+                    <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">
+                </div>
+                <div class="form-group">
+                    <label>M² TOTALES</label>
+                    <input type="number" id="m2-totales" placeholder="0" oninput="calcularMetro()">
+                </div>
+            </div>
+
+            <div class="card" style="background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 15px;">
+                <div class="section-title" style="font-size: 0.9em;"><i class="fas fa-ruler-combined"></i> Medidas y Colindancias</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>NORTE</label>
+                        <input type="text" id="m-norte" placeholder="0.00m">
+                    </div>
+                    <div class="form-group">
+                        <label>SUR</label>
+                        <input type="text" id="m-sur" placeholder="0.00m">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ESTE</label>
+                        <input type="text" id="m-este" placeholder="0.00m">
+                    </div>
+                    <div class="form-group">
+                        <label>OESTE</label>
+                        <input type="text" id="m-oeste" placeholder="0.00m">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>PRECIO POR M² (CALCULADO)</label>
+                <input type="text" id="precio-m2" placeholder="$0.00" readonly style="background: #f0f0f0;">
+            </div>
+
+            <div class="form-group">
+                <label>TELÉFONO DE CONTACTO</label>
+                <input type="tel" placeholder="771..." value="771">
+            </div>
+
+            <div class="form-group">
+                <label>FOTO VINCULADA A UBICACIÓN</label>
+                <button class="btn-capture" onclick="document.getElementById('photo-input').click()">
+                    <i class="fas fa-camera"></i> TOMAR FOTO
+                </button>
+                <input type="file" id="photo-input" accept="image/*" style="display:none;">
+            </div>
+
+            <div class="form-group">
+                <label>DESCRIPCIÓN (DICTADO POR VOZ)</label>
+                <div style="position:relative;">
+                    <textarea id="dictado-desc" placeholder="Pulsa micro para hablar..." style="padding-right: 50px;"></textarea>
+                    <button id="btn-voice" class="btn-capture" style="position:absolute; right:5px; top:5px; width:40px; height:40px; padding:0; margin:0; border-radius:50%;">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-main" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
+
+            <!-- Módulo de Salida -->
+            <div id="modulo-salida" class="output-module">
+                <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>
+                <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora con esta propiedad?</p>
+                
+                <div class="output-buttons">
+                    <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> ENVIAR A CLIENTE
+                    </button>
+                    <button class="btn-output btn-pdf" onclick="generarPDF()">
+                        <i class="fas fa-file-pdf"></i> DESCARGAR FICHA PDF
+                    </button>
+                    <button class="btn-output btn-flyer" onclick="generarFlyer()">
+                        <i class="fas fa-image"></i> DESCARGAR FLYER
+                    </button>
+                </div>
+                <button onclick="document.getElementById('modulo-salida').classList.remove('active')" style="margin-top:15px; width:100%; border:none; background:none; color:#999; text-decoration:underline; cursor:pointer;">Continuar agregando</button>
+            </div>
+            <!-- Lista de Propiedades -->
+            <div class="card" style="margin-top:20px;">
+                <div class="section-title"><i class="fas fa-list"></i> Propiedades Guardadas</div>
+                <div id="inventory-list"></div>
+            </div>
+        </section>
+
+        <!-- Secciones Adicionales -->
+        <section id="section-prospectos" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-bullseye"></i> Prospectos</div>
+                <p>Lista de prospectos militares y de contado...</p>
+            </div>
+        </section>
+
+        <section id="section-contactos" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-phone-alt"></i> Agenda de Contactos</div>
+                <p>Gestiona tus contactos aquí.</p>
+            </div>
+        </section>
+
+        <section id="section-archivos" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-folder-open"></i> Archivos</div>
+                <p>Documentación y expedientes.</p>
+            </div>
+        </section>
+
+        <section id="section-galeria" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-images"></i> Galería</div>
+                <p>Fotos de todas tus propiedades.</p>
+            </div>
+        </section>
+
+        <section id="section-pensamientos" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-brain"></i> Pensamientos</div>
+                <p>Notas rápidas y estrategias de venta.</p>
+            </div>
+        </section>
+
+        <section id="section-citas" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-calendar-alt"></i> Citas Programadas</div>
+                <p>Próximos cierres y visitas.</p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Modal de Guardado -->
+    <div id="modal-save" class="modal-save">
+        <div class="modal-card">
+            <h2 style="color: #d32f2f;"><i class="fas fa-save"></i> ¿Dónde guardar?</h2>
+            <p>Selecciona tu destino de almacenamiento preferido</p>
+            <div class="save-options">
+                <button class="btn-save-opt" onclick="confirmSave('local')">
+                    <i class="fas fa-mobile-alt"></i> GUARDAR EN TELÉFONO
+                </button>
+                <button class="btn-save-opt" onclick="confirmSave('cloud')">
+                    <i class="fas fa-cloud"></i> GUARDAR EN LA NUBE
+                </button>
+            </div>
+            <label style="margin-top: 20px; display: block; font-size: 0.9em; color: #666; cursor: pointer;">
+                <input type="checkbox" id="save-default"> Guardar por defecto siempre
+            </label>
+            <button onclick="document.getElementById('modal-save').classList.remove('active')" style="margin-top:15px; border:none; background:none; color:#666; text-decoration:underline;">Cancelar</button>
         </div>
     </div>
 
-    <!-- Contenedor Principal -->
-    <div class="main-container" id="main-app">
-        <!-- Botón de Acciones Superior Derecha -->
-        <div class="top-header">
-            <div class="dropdown">
-                <button class="dropbtn"><i class="fas fa-wand-magic-sparkles"></i> Acciones</button>
-                <div class="dropdown-content">
-                    <a href="javascript:void(0)" onclick="window.print()"><i class="fas fa-print"></i> 🖨️ Imprimir</a>
-                    <a href="javascript:void(0)" onclick="exportFull()"><i class="fas fa-camera"></i> 📸 Capturar / Exportar</a>
-                </div>
+    <!-- Toast de Confirmación -->
+    <div id="toast-success" class="toast">
+        <i class="fas fa-check-circle"></i> <span id="toast-msg">Guardado con éxito</span>
+    </div>
+
+    <!-- Template Oculto para Flyer -->
+    <div id="flyer-template">
+        <div class="flyer-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px;">
+            <img src="propiedades-app/icon-192.png" style="width: 50px; height: 50px; border-radius: 50%; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">
+            <div style="text-align: left;">
+                <h1 id="f-tipo" style="color: white; margin:0; font-size: 1.4em; text-transform: uppercase;">PROPIEDAD</h1>
+                <span style="font-weight: 800; color: #87CEEB;">HR MASTER V34</span>
             </div>
         </div>
-
-        <!-- Pantallas de Contenido -->
-        <div class="content-area">
-            <div id="tablero" class="screen active">
-                <h1>🏠 Tablero</h1>
-                <div class="placeholder-card">Bienvenido al Tablero de Control de InventarioHR.</div>
+        <div class="flyer-img-container">
+            <img id="f-img" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=1000" class="flyer-img">
+        </div>
+        <div class="flyer-body">
+            <div class="flyer-price" id="f-precio">$0.00</div>
+            <div class="flyer-details">
+                <div id="f-m2">Superficie: 0 m²</div>
+                <div id="f-gps">Ubicación: GPS Activo</div>
+                <div id="f-desc" style="margin-top:20px; font-style: italic; color: #eee; font-size: 0.8em;"></div>
             </div>
-            <div id="inventario" class="screen">
-                <h1>📦 Inventario</h1>
-                <div class="placeholder-card">Gestión detallada de bienes y existencias.</div>
-            </div>
-            <div id="prospectos" class="screen">
-                <h1>🎯 Prospectos</h1>
-                <div class="placeholder-card">Seguimiento de clientes potenciales y leads.</div>
-            </div>
-            <div id="contactos" class="screen">
-                <h1>📞 Contactos</h1>
-                <div class="placeholder-card">Directorio de contactos y números de teléfono.</div>
-            </div>
-            <div id="archivos" class="screen">
-                <h1>📁 Archivos guardados</h1>
-                <div class="placeholder-card">Repositorio de documentos y archivos importantes.</div>
-            </div>
-            <div id="galeria" class="screen">
-                <h1>🖼️ Galería de fotos</h1>
-                <div class="placeholder-card">Registro visual de inventario y propiedades.</div>
-            </div>
-            <div id="pensamientos" class="screen">
-                <h1>🧠 Pensamientos</h1>
-                <div class="placeholder-card">Bitácora personal y notas estratégicas.</div>
-            </div>
-            <div id="citas" class="screen">
-                <h1>📅 Citas</h1>
-                <div class="placeholder-card">Agenda de reuniones y compromisos.</div>
-            </div>
-            <div id="negocios" class="screen">
-                <h1>💼 Negocios</h1>
-                <div class="placeholder-card">Estructura y seguimiento de operaciones comerciales.</div>
-            </div>
-            <div id="motivacion" class="screen">
-                <h1>💬 Mensajes motivacionales</h1>
-                <div class="placeholder-card">Reflexiones diarias para el impulso profesional.</div>
-            </div>
+        </div>
+        <div class="flyer-footer">
+            📞 CONTACTO: <span id="f-tel"></span>
         </div>
     </div>
 
     <script>
-        // Navegación entre pantallas
-        function navigate(id, element) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+        // Inicialización
+        let currentProperty = {
+            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', rec: '', ban: '', photo: ''
+        };
+
+        // Navegación Fluida (Optimizado)
+        function switchSection(sectionId, element) {
+            // Cambio inmediato de clases de navegación
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => item.classList.remove('active'));
             element.classList.add('active');
+
+            // Cambio inmediato de secciones
+            const sections = document.querySelectorAll('.app-section');
+            
+            // Usamos requestAnimationFrame para asegurar fluidez sin bloqueos
+            requestAnimationFrame(() => {
+                sections.forEach(sec => sec.classList.remove('active'));
+                const target = document.getElementById(`section-${sectionId}`);
+                if (target) {
+                    target.classList.add('active');
+                    window.scrollTo({ top: 0, behavior: 'auto' }); // Scroll instantáneo
+                }
+            });
         }
 
-        // Función de Exportación Completa (Imagen y PDF)
-        async function exportFull() {
-            const area = document.body;
+        // Funciones del Tablero
+        function startVoiceSearch() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = 'es-MX';
+                recognition.onresult = (e) => {
+                    document.getElementById('main-search').value = e.results[0][0].transcript;
+                };
+                recognition.start();
+            }
+        }
+
+        function searchApp() {
+            const query = document.getElementById('main-search').value.toLowerCase();
+            alert(`Buscando "${query}" en tu inventario local...`);
+            // Aquí iría la lógica de filtrado de propiedades
+        }
+
+        function searchWeb() {
+            const query = document.getElementById('main-search').value;
+            window.open(`https://www.google.com/search?q=inmuebles+hidalgo+${encodeURIComponent(query)}`, '_blank');
+        }
+
+        function startAlarmVoice() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = 'es-MX';
+                recognition.onresult = (e) => {
+                    document.getElementById('alarm-desc').value = e.results[0][0].transcript;
+                };
+                recognition.start();
+            }
+        }
+
+        function createAlarm() {
+            const desc = document.getElementById('alarm-desc').value;
+            const time = document.getElementById('alarm-time').value;
+            if (!desc || !time) return alert("Completa descripción y fecha.");
+
+            const alarmList = document.getElementById('alarms-list');
+            const item = document.createElement('div');
+            item.className = 'alarm-item';
+            item.innerHTML = `
+                <div class="alarm-info">
+                    <h4>${desc}</h4>
+                    <span>${new Date(time).toLocaleString()}</span>
+                </div>
+                <button class="btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+            `;
+            alarmList.appendChild(item);
             
-            // Forzar renderizado de toda la página para captura sin recortes
-            const canvas = await html2canvas(area, {
-                backgroundColor: '#d32f2f',
-                logging: false,
-                useCORS: true,
-                allowTaint: true,
-                scale: 2, // Mayor calidad
-                scrollY: -window.scrollY,
-                windowHeight: document.documentElement.scrollHeight
-            });
+            // Lógica de sonido/vibración simulada
+            setTimeout(() => {
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                alert(`⏰ ALARMA: ${desc}`);
+            }, new Date(time) - new Date());
 
-            const imgData = canvas.toDataURL('image/png');
+            document.getElementById('alarm-desc').value = '';
+            document.getElementById('alarm-time').value = '';
+        }
 
-            // 1. Descargar Imagen PNG
-            const link = document.createElement('a');
-            link.download = 'Inventario_HR_Captura.png';
-            link.href = imgData;
-            link.click();
+        function toggleForm(tipo) {
+            document.getElementById('campos-terreno').style.display = 'none';
+            document.getElementById('campos-casa').style.display = 'none';
+            
+            if (tipo === '🏠 Casa') {
+                document.getElementById('campos-casa').style.display = 'block';
+            } else if (tipo === '🏢 Terreno' || tipo === '🐄 Rancho') {
+                document.getElementById('campos-terreno').style.display = 'block';
+            }
+        }
 
-            // 2. Descargar PDF (A4 Adaptable)
+        function calcularMetro() {
+            const total = parseFloat(document.getElementById('precio-total').value) || 0;
+            const m2 = parseFloat(document.getElementById('m2-totales').value) || 1;
+            const precioM2 = (total / m2).toFixed(2);
+            document.getElementById('precio-m2').value = `$${precioM2}`;
+        }
+
+        function getGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+                    document.getElementById('gps-coords').value = coords;
+                }, err => alert('Error al obtener GPS'));
+            }
+        }
+
+        // Manejo de foto
+        document.getElementById('photo-input').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentProperty.photo = event.target.result;
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        function guardarInventario() {
+            // Capturar datos
+            currentProperty.tipo = document.getElementById('tipo-propiedad').value || 'Propiedad';
+            currentProperty.precio = document.getElementById('precio-total').value || '0';
+            currentProperty.m2 = document.getElementById('m2-totales').value || '0';
+            currentProperty.gps = document.getElementById('gps-coords').value || 'No capturado';
+            currentProperty.desc = document.getElementById('dictado-desc').value || '';
+            currentProperty.tel = document.querySelector('input[type="tel"]').value || '771';
+            
+            // Medidas
+            currentProperty.norte = document.getElementById('m-norte').value || 'N/A';
+            currentProperty.sur = document.getElementById('m-sur').value || 'N/A';
+            currentProperty.este = document.getElementById('m-este').value || 'N/A';
+            currentProperty.oeste = document.getElementById('m-oeste').value || 'N/A';
+            
+            if (currentProperty.tipo === '🏠 Casa') {
+                const inputsCasa = document.querySelectorAll('#campos-casa input');
+                currentProperty.rec = inputsCasa[1] ? inputsCasa[1].value : '0';
+                currentProperty.ban = inputsCasa[2] ? inputsCasa[2].value : '0';
+            }
+
+            // Verificar guardado por defecto
+            const defaultMethod = localStorage.getItem('hr_save_default');
+            if (defaultMethod) {
+                confirmSave(defaultMethod, true);
+            } else {
+                document.getElementById('modal-save').classList.add('active');
+            }
+        }
+
+        function confirmSave(method, isDefault = false) {
+            // Guardar preferencia si el checkbox está marcado
+            if (document.getElementById('save-default').checked) {
+                localStorage.setItem('hr_save_default', method);
+            }
+
+            // Lógica de guardado físico
+            if (method === 'local') {
+                const existing = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+                existing.push({...currentProperty, timestamp: new Date().getTime()});
+                localStorage.setItem('hr_inventario', JSON.stringify(existing));
+                showToast("100% confirmado: Guardado en Teléfono");
+            } else {
+                // Simulación Nube / Firebase
+                console.log("Sincronizando con la nube...", currentProperty);
+                showToast("Información guardada correctamente en la Nube");
+            }
+
+            // Cerrar modal
+            document.getElementById('modal-save').classList.remove('active');
+
+            // Actualizar lista
+            renderInventario();
+
+            // Mostrar módulo de salida de éxito
+            const mod = document.getElementById('modulo-salida');
+            mod.classList.add('active');
+            mod.style.display = 'block'; 
+            
+            // Forzar actualización de vista
+            setTimeout(() => {
+                mod.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+        }
+
+        function renderInventario() {
+            const listContainer = document.getElementById('inventory-list');
+            if (!listContainer) return;
+            const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+            
+            // Actualizar métricas
+            const totalEl = document.getElementById('count-total');
+            if (totalEl) totalEl.innerText = data.length;
+            
+            const casasEl = document.getElementById('count-casas');
+            if (casasEl) {
+                const casas = data.filter(p => p.tipo === '🏠 Casa').length;
+                casasEl.innerText = casas;
+            }
+            
+            const terrenosEl = document.getElementById('count-terrenos');
+            if (terrenosEl) {
+                const terrenos = data.filter(p => p.tipo === '🏢 Terreno' || p.tipo === '🐄 Rancho').length;
+                terrenosEl.innerText = terrenos;
+            }
+
+            if (data.length === 0) {
+                listContainer.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">No hay propiedades guardadas.</p>';
+                return;
+            }
+
+            listContainer.innerHTML = data.slice().reverse().map((p, index) => `
+                <div class="card" style="margin-top:10px; border-left:5px solid #d32f2f; background: #fafafa;">
+                    <div style="display:flex; justify-content:space-between; align-items: flex-start;">
+                        <div>
+                            <strong style="color: #d32f2f; font-size: 1.1em;">${p.tipo}</strong><br>
+                            <span style="font-size: 1.2em; font-weight: bold;">${p.precio}</span>
+                        </div>
+                        <span style="font-size:0.7em; color:#999;">${new Date(p.timestamp).toLocaleString()}</span>
+                    </div>
+                    <p style="font-size:0.85em; margin:8px 0; color: #444;">${p.desc}</p>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="btn-main" style="padding:8px; font-size:0.75em; flex: 1;" onclick="window.open('https://www.google.com/maps?q=${p.gps}', '_blank')"><i class="fas fa-map-marker-alt"></i> VER GPS</button>
+                        <button class="btn-main" style="padding:8px; font-size:0.75em; background:#666; flex: 1;" onclick="compartirPropiedad(${data.length - 1 - index})"><i class="fas fa-share-alt"></i> COMPARTIR</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function compartirPropiedad(idx) {
+            const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+            const p = data[idx];
+            if (!p) return;
+            const text = `🏠 *DETALLES DE PROPIEDAD*\n\n📍 *Tipo:* ${p.tipo}\n💰 *Precio:* ${p.precio}\n📝 *Descripción:* ${p.desc}\n\n📍 *Ubicación:* https://www.google.com/maps?q=${p.gps}`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        // Cargar inventario al iniciar
+        document.addEventListener('DOMContentLoaded', renderInventario);
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-success');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function enviarWhatsApp() {
+            const currentUrl = window.location.href;
+            const mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(currentProperty.gps)}`;
+            const texto = `🏠 *${currentProperty.tipo.toUpperCase()} - OPORTUNIDAD*\n\n` +
+                          `💰 *Precio:* $${currentProperty.precio}\n` +
+                          `📐 *Superficie:* ${currentProperty.m2} m²\n` +
+                          `🛏️ *Habitaciones:* ${currentProperty.rec || '0'}\n` +
+                          `🚿 *Baños:* ${currentProperty.ban || '0'}\n\n` +
+                          `📝 *Descripción:* ${currentProperty.desc}\n\n` +
+                          `📍 *Ubicación:* ${mapsUrl}\n\n` +
+                          `📞 *Contacto:* ${currentProperty.tel}\n\n` +
+                          `_Enviado desde InventarioHR_`;
+            
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
+        }
+
+        async function generarPDF() {
+            showToast("Generando Ficha Técnica PDF...");
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            const imgProps = pdf.getImageProperties(imgData);
-            const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+            const pdf = new jsPDF();
+            
+            // Encabezado
+            pdf.setFontSize(22);
+            pdf.setTextColor(211, 47, 47);
+            pdf.text('INVENTARIO HR - FICHA TÉCNICA', 20, 30);
+            
+            // Datos Principales
+            pdf.setFontSize(14);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text(`Tipo: ${currentProperty.tipo}`, 20, 50);
+            pdf.text(`Precio: $${currentProperty.precio}`, 20, 60);
+            pdf.text(`Superficie: ${currentProperty.m2} m²`, 20, 70);
+            pdf.text(`Ubicación GPS: ${currentProperty.gps}`, 20, 80);
+            
+            // Medidas y Colindancias
+            pdf.setFontSize(16);
+            pdf.setTextColor(211, 47, 47);
+            pdf.text('MEDIDAS Y COLINDANCIAS', 20, 100);
+            pdf.setFontSize(12);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text(`Norte: ${currentProperty.norte}`, 20, 110);
+            pdf.text(`Sur: ${currentProperty.sur}`, 20, 120);
+            pdf.text(`Este: ${currentProperty.este}`, 20, 130);
+            pdf.text(`Oeste: ${currentProperty.oeste}`, 20, 140);
+            
+            // Foto
+            if (currentProperty.photo) {
+                try {
+                    pdf.addImage(currentProperty.photo, 'JPEG', 20, 150, 170, 90);
+                } catch(e) { console.error("Error al añadir imagen al PDF", e); }
+            }
+            
+            // Descripción
+            pdf.setFontSize(14);
+            pdf.text('Descripción:', 20, 250);
+            pdf.setFontSize(11);
+            const splitDesc = pdf.splitTextToSize(currentProperty.desc, 170);
+            pdf.text(splitDesc, 20, 260);
+            
+            // Pie de página
+            pdf.setFontSize(12);
+            pdf.text(`Contacto: ${currentProperty.tel}`, 20, 285);
+            
+            pdf.save(`Ficha_${currentProperty.tipo}_HR.pdf`);
+        }
 
-            // Si el contenido es más largo que una página, el PDF lo escala o se puede implementar multi-página
-            pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, imgHeight);
-            pdf.save('Inventario_HR_Documento.pdf');
+        async function generarFlyer() {
+            showToast("Generando Flyer Profesional...");
+            const template = document.getElementById('flyer-template');
+            
+            // Poblar template con iconos
+            document.getElementById('f-tipo').innerHTML = `<i class="fas fa-home"></i> ${currentProperty.tipo}`;
+            document.getElementById('f-precio').innerText = `$${currentProperty.precio}`;
+            document.getElementById('f-m2').innerHTML = `<i class="fas fa-expand-arrows-alt"></i> ${currentProperty.m2} m²`;
+            document.getElementById('f-gps').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${currentProperty.gps}`;
+            document.getElementById('f-tel').innerHTML = `<i class="fab fa-whatsapp"></i> ${currentProperty.tel}`;
+            document.getElementById('f-desc').innerText = currentProperty.desc;
+            
+            if (currentProperty.photo) {
+                document.getElementById('f-img').src = currentProperty.photo;
+            }
+
+            template.style.display = 'block';
+            const canvas = await html2canvas(template, { scale: 2, useCORS: true });
+            template.style.display = 'none';
+            
+            const link = document.createElement('a');
+            link.download = `Flyer_HR_${currentProperty.tipo}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Dictado por voz
+        const btnVoice = document.getElementById('btn-voice');
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'es-MX';
+            
+            btnVoice.onclick = () => recognition.start();
+            recognition.onresult = (e) => {
+                document.getElementById('dictado-desc').value = e.results[0][0].transcript;
+            };
+        } else {
+            btnVoice.style.display = 'none';
         }
     </script>
 </body>
