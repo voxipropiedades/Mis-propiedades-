@@ -397,28 +397,44 @@
             margin-top: 10px;
         }
 
-        /* Módulo de Salida */
-        .output-module {
+        /* Módulo de Salida (MODAL) */
+        .output-modal {
             display: none;
-            background: #fff;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 20000;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-top: 20px;
-            border: 2px solid #d32f2f;
-            animation: slideUp 0.5s ease-out;
         }
-        .output-module.active {
-            display: block !important;
+        .output-modal.active {
+            display: flex;
+        }
+        .output-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: #333;
+            border-top: 8px solid #d32f2f;
+            animation: bounceIn 0.5s;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
         }
         .output-buttons {
             display: grid;
             grid-template-columns: 1fr;
             gap: 12px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
         .btn-output {
-            padding: 14px;
+            padding: 15px;
             border: none;
             border-radius: 12px;
             font-weight: 700;
@@ -428,7 +444,7 @@
             justify-content: center;
             gap: 12px;
             color: white;
-            font-size: 1em;
+            font-size: 1.1em;
             transition: 0.3s;
         }
         .btn-whatsapp { background: #25D366; }
@@ -742,25 +758,6 @@
             </div>
 
             <button class="btn-main" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
-
-            <!-- Módulo de Salida -->
-            <div id="modulo-salida" class="output-module">
-                <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>
-                <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora con esta propiedad?</p>
-                
-                <div class="output-buttons">
-                    <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">
-                        <i class="fab fa-whatsapp"></i> ENVIAR A CLIENTE
-                    </button>
-                    <button class="btn-output btn-pdf" onclick="generarPDF()">
-                        <i class="fas fa-file-pdf"></i> DESCARGAR FICHA PDF
-                    </button>
-                    <button class="btn-output btn-flyer" onclick="generarFlyer()">
-                        <i class="fas fa-image"></i> DESCARGAR FLYER
-                    </button>
-                </div>
-                <button onclick="document.getElementById('modulo-salida').classList.remove('active')" style="margin-top:15px; width:100%; border:none; background:none; color:#999; text-decoration:underline; cursor:pointer;">Continuar agregando</button>
-            </div>
             <!-- Lista de Propiedades -->
             <div class="card" style="margin-top:20px;">
                 <div class="section-title"><i class="fas fa-list"></i> Propiedades Guardadas</div>
@@ -836,6 +833,28 @@
     <!-- Toast de Confirmación -->
     <div id="toast-success" class="toast">
         <i class="fas fa-check-circle"></i> <span id="toast-msg">Guardado con éxito</span>
+    </div>
+
+    <!-- Módulo de Salida (MODAL) -->
+    <div id="modulo-salida" class="output-modal">
+        <div class="output-card">
+            <div style="font-size: 3em; color: #2e7d32; margin-bottom: 10px;"><i class="fas fa-check-circle"></i></div>
+            <h2 style="color: #d32f2f; margin-bottom: 5px;">GUARDADO EXITOSO</h2>
+            <p style="font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora con esta propiedad?</p>
+            
+            <div class="output-buttons">
+                <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">
+                    <i class="fab fa-whatsapp"></i> ENVIAR A CLIENTE
+                </button>
+                <button class="btn-output btn-pdf" onclick="generarPDF()">
+                    <i class="fas fa-file-pdf"></i> DESCARGAR PDF
+                </button>
+                <button class="btn-output btn-flyer" onclick="generarFlyer()">
+                    <i class="fas fa-image"></i> DESCARGAR FLYER
+                </button>
+            </div>
+            <button onclick="document.getElementById('modulo-salida').classList.remove('active')" style="margin-top:20px; width:100%; padding: 12px; border:2px solid #eee; border-radius:10px; background:white; color:#666; font-weight:bold; cursor:pointer;">CERRAR Y CONTINUAR</button>
+        </div>
     </div>
 
     <!-- Template Oculto para Flyer -->
@@ -1046,12 +1065,6 @@
             // Mostrar módulo de salida de éxito
             const mod = document.getElementById('modulo-salida');
             mod.classList.add('active');
-            mod.style.display = 'block'; 
-            
-            // Forzar actualización de vista
-            setTimeout(() => {
-                mod.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
         }
 
         function renderInventario() {
@@ -1102,9 +1115,12 @@
             const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
             const p = data[idx];
             if (!p) return;
-            const text = `🏠 *DETALLES DE PROPIEDAD*\n\n📍 *Tipo:* ${p.tipo}\n💰 *Precio:* ${p.precio}\n📝 *Descripción:* ${p.desc}\n\n📍 *Ubicación:* https://www.google.com/maps?q=${p.gps}`;
-            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            window.open(url, '_blank');
+            
+            // Cargar en el contexto actual para que PDF/Flyer/WhatsApp usen estos datos
+            currentProperty = {...p};
+            
+            // Abrir el modal de compartir
+            document.getElementById('modulo-salida').classList.add('active');
         }
 
         // Cargar inventario al iniciar
